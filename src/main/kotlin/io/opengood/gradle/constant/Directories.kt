@@ -1,4 +1,4 @@
-package com.gaig.cnd.gradle.constant
+package io.opengood.gradle.constant
 
 class Directories {
 

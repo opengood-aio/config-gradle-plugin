@@ -1,4 +1,4 @@
-package helper
+package io.opengood.gradle.enumeration
 
 enum class LanguageType {
     GROOVY,

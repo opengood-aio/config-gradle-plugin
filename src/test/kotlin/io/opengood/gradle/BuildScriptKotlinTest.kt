@@ -1,9 +1,9 @@
-package com.gaig.cnd.gradle
+package io.opengood.gradle
 
-import helper.LanguageType
 import helper.createProjectDir
 import io.kotlintest.matchers.string.shouldContain
 import io.kotlintest.specs.WordSpec
+import io.opengood.gradle.enumeration.LanguageType
 import org.gradle.testkit.runner.GradleRunner
 
 class BuildScriptKotlinTest : WordSpec({
@@ -14,10 +14,10 @@ class BuildScriptKotlinTest : WordSpec({
             val buildScript = projectDir.resolve("build.gradle.kts").toFile()
             buildScript.writeText("""
                 plugins {
-                    id("com.gaig.cnd.gradle.config")
+                    id("io.opengood.gradle.config")
                 }
                 
-                cnd {
+                opengood {
                     testMaxParallelForks = 1
                 }
               """.trimIndent())

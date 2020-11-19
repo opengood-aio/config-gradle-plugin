@@ -7,14 +7,14 @@ import org.gradle.internal.logging.text.StyledTextOutputFactory
 import org.gradle.kotlin.dsl.support.serviceOf
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.io.FileInputStream
-import java.util.*
 
 plugins {
     kotlin("jvm") version "1.4.10"
     id("java-gradle-plugin")
+    id("maven")
     id("maven-publish")
-    id("com.github.ben-manes.versions") version "0.33.0"
+    id("com.github.ben-manes.versions") version "0.36.0"
+    id("com.gradle.plugin-publish") version "0.12.0"
 }
 
 group = "io.opengood.gradle"
@@ -35,16 +35,15 @@ val javaVersion = JavaVersion.VERSION_11
 val jvmTargetVersion = "11"
 
 object Versions {
-    const val SPRING_BOOT_PLUGIN = "2.3.4.RELEASE"
-    const val SPRING_DEPENDENCY_MANAGEMENT_PLUGIN = "1.0.10.RELEASE"
-    const val VERSIONS_PLUGIN = "0.33.0"
-
+    const val ASSERT_J = "3.18.1"
     const val J_COLOR = "5.0.1"
-
-    const val ASSERT_J = "3.18.0"
     const val JUNIT_JUPITER = "5.7.0"
     const val KOTLIN_TEST = "3.4.2"
+    const val LOMBOK_PLUGIN = "4.0.0"
     const val MOCK_K = "1.10.2"
+    const val SPRING_BOOT_PLUGIN = "2.4.0"
+    const val SPRING_DEPENDENCY_MANAGEMENT_PLUGIN = "1.0.10.RELEASE"
+    const val VERSIONS_PLUGIN = "0.36.0"
 }
 
 java.sourceCompatibility = javaVersion
@@ -67,6 +66,7 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-gradle-plugin:${Versions.SPRING_BOOT_PLUGIN}")
     implementation("io.spring.gradle:dependency-management-plugin:${Versions.SPRING_DEPENDENCY_MANAGEMENT_PLUGIN}")
+    implementation("io.franzbecker:gradle-lombok:${Versions.LOMBOK_PLUGIN}")
     implementation("com.github.ben-manes:gradle-versions-plugin:${Versions.VERSIONS_PLUGIN}")
 
     implementation("com.diogonunes:JColor:${Versions.J_COLOR}")
@@ -166,19 +166,21 @@ tasks.withType<Test> {
 publishing {
     repositories {
         maven {
-            name = "github"
-            url = uri("https://maven.pkg.github.com/opengoodio/config-gradle-plugin")
-            credentials {
-                val properties = Properties()
-                properties.load(FileInputStream("${System.getenv("HOME")}/.github.properties"))
-
-                username = properties["gh.api.user"] as String?
-                password = properties["gh.api.key"] as String?
-            }
-        }
-        maven {
             name = "local"
             url = uri(mavenLocal().url)
+        }
+    }
+}
+
+pluginBundle {
+    website = "https://opengood.io"
+    vcsUrl = "https://github.com/opengoodio/config-gradle-plugin"
+    description = "Gradle plugin providing centralized configuration of OpenGood Gradle projects"
+    tags = listOf("kotlin", "spring-boot", "opengood")
+
+    (plugins) {
+        "opengood-config" {
+            displayName = "OpenGood Config Gradle Plugin"
         }
     }
 }

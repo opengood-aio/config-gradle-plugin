@@ -1,16 +1,14 @@
-package com.gaig.cnd.gradle
+package io.opengood.gradle
 
-import com.gaig.cnd.gradle.constant.*
-import com.gaig.cnd.gradle.extension.cnd
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import helper.*
-import io.kotlintest.matchers.collections.shouldContain
 import io.kotlintest.matchers.types.shouldBeTypeOf
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.specs.WordSpec
-import net.researchgate.release.GitAdapter
-import net.researchgate.release.ReleaseExtension
+import io.opengood.gradle.constant.*
+import io.opengood.gradle.enumeration.LanguageType
+import io.opengood.gradle.extension.opengood
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.compile.JavaCompile
@@ -28,9 +26,9 @@ class ConfigPluginGroovyTest : WordSpec({
             getPlugin<ConfigPlugin>(project).shouldBeTypeOf<ConfigPlugin>()
         }
 
-        "Create CND Plugin Extension" {
-            project.cnd().gaigRepo() shouldNotBe null
-            project.cnd().testMaxParallelForks shouldBe Tests.MAX_PARALLEL_FORKS
+        "Create Plugin Extension" {
+            project.opengood().languageType shouldBe LanguageType.GROOVY
+            project.opengood().testMaxParallelForks shouldBe Tests.MAX_PARALLEL_FORKS
         }
 
         "Apply Shared Plugins" {
@@ -38,21 +36,25 @@ class ConfigPluginGroovyTest : WordSpec({
             getPlugin(project, Plugins.IDEA) shouldNotBe null
             getPlugin(project, Plugins.MAVEN) shouldNotBe null
             getPlugin(project, Plugins.MAVEN_PUBLISH) shouldNotBe null
-            getPlugin(project, Plugins.RELEASE) shouldNotBe null
             getPlugin(project, Plugins.SPRING_BOOT) shouldNotBe null
             getPlugin(project, Plugins.SPRING_DEPENDENCY_MANAGEMENT) shouldNotBe null
             getPlugin(project, Plugins.VERSIONS) shouldNotBe null
         }
 
         "Add Shared Repositories" {
-            getRepository(project, project.cnd().gaigRepo().name) shouldNotBe null
+            getRepository(project, project.repositories.mavenCentral().name) shouldNotBe null
+            getRepository(project, project.repositories.jcenter().name) shouldNotBe null
+            getRepository(project, project.repositories.mavenLocal().name) shouldNotBe null
         }
 
         "Add Shared Dependencies" {
             getDependency(project, "implementation", Dependencies.GROOVY) shouldNotBe null
             getDependency(project, "implementation", Dependencies.SPRING_BOOT_CONFIG_PROCESSOR) shouldNotBe null
             getDependency(project, "implementation", Dependencies.SPRING_BOOT_STARTER) shouldNotBe null
+            getDependency(project, "implementation", Dependencies.J_COLOR) shouldNotBe null
             getDependency(project, "testImplementation", Dependencies.SPRING_BOOT_STARTER_TEST) shouldNotBe null
+            getDependency(project, "testImplementation", Dependencies.JUNIT_JUPITER) shouldNotBe null
+            getDependency(project, "testImplementation", Dependencies.ASSERT_J) shouldNotBe null
         }
 
         "Configure Java Compile Task" {
@@ -85,19 +87,9 @@ class ConfigPluginGroovyTest : WordSpec({
         "Configure Publishing Extension" {
             val extension = getExtension<PublishingExtension>(project)
 
-            val gaigReleasesRepo = extension.repositories.getByName(Repositories.GAIG_RELEASES_REPO_NAME) as MavenArtifactRepository
-            gaigReleasesRepo.name shouldBe Repositories.GAIG_RELEASES_REPO_NAME
-            gaigReleasesRepo.url shouldBe URI(Repositories.GAIG_RELEASES_REPO_URI)
-
             val mavenLocalRepo = extension.repositories.getByName(Repositories.LOCAL_REPO_NAME) as MavenArtifactRepository
             mavenLocalRepo.name shouldBe Repositories.LOCAL_REPO_NAME
             mavenLocalRepo.url shouldBe project.repositories.mavenLocal().url
-        }
-
-        "Configure Release Extension" {
-            val extension = getExtension<ReleaseExtension>(project)
-
-            extension.scmAdapters shouldContain GitAdapter::class.java
         }
     }
 })

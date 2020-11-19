@@ -1,22 +1,15 @@
 package io.opengood.gradle.extension
 
-import io.opengood.gradle.constant.GitHub
+import io.opengood.gradle.constant.Tests
 import io.opengood.gradle.extension.OpenGoodExtension.Companion.EXTENSION_NAME
+import io.opengood.gradle.getLanguageType
 import io.opengood.gradle.property.GradleProperty
 import org.gradle.api.Project
-import org.gradle.api.artifacts.repositories.MavenArtifactRepository
-import java.net.URI
 
-open class OpenGoodExtension(private val project: Project) {
+open class OpenGoodExtension(project: Project) {
 
-    var repoName by GradleProperty(project, String::class.java, "")
-
-    fun repo(): MavenArtifactRepository {
-        return project.repositories.maven {
-            it.name = GitHub.ORG_NAME
-            it.url = URI.create(GitHub.ORG_URI)
-        }
-    }
+    val languageType = getLanguageType(project)
+    var testMaxParallelForks by GradleProperty(project, Int::class.java, Tests.MAX_PARALLEL_FORKS)
 
     companion object {
         const val EXTENSION_NAME = "opengood"

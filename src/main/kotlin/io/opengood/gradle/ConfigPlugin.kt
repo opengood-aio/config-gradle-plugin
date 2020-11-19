@@ -5,7 +5,6 @@ import com.diogonunes.jcolor.Attribute.*
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import io.opengood.gradle.constant.*
 import io.opengood.gradle.extension.OpenGoodExtension
-import io.opengood.gradle.extension.opengood
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
@@ -15,11 +14,6 @@ import org.gradle.api.tasks.testing.TestDescriptor
 import org.gradle.api.tasks.testing.TestListener
 import org.gradle.api.tasks.testing.TestResult
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileNotFoundException
-import java.net.URI
-import java.util.*
 import kotlin.reflect.KClass
 
 class ConfigPlugin : Plugin<Project> {
@@ -31,9 +25,9 @@ class ConfigPlugin : Plugin<Project> {
         configurePlugins(project)
         configureRepositories(project)
         configureDependencies(project)
-        configureTasks(project)
 
         project.afterEvaluate {
+            configureTasks(project)
             configureExtensions(project)
         }
     }
@@ -53,39 +47,79 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     private fun configurePlugins(project: Project) {
-        project.plugins.apply(Plugins.KOTLIN)
-        project.plugins.apply(Plugins.KOTLIN_SPRING)
+        when {
+            isGroovyProject(project) -> {
+                project.plugins.apply(Plugins.GROOVY)
+            }
+            isJavaProject(project) -> {
+                project.plugins.apply(Plugins.JAVA)
+                project.plugins.apply(Plugins.LOMBOK)
+            }
+            isKotlinProject(project) -> {
+                project.plugins.apply(Plugins.KOTLIN)
+                project.plugins.apply(Plugins.KOTLIN_SPRING)
+            }
+            else -> {
+                throw IllegalStateException("Unable to detect type of Gradle project when configuring plugins")
+            }
+        }
+
+        project.plugins.apply(Plugins.IDEA)
+        project.plugins.apply(Plugins.MAVEN)
+        project.plugins.apply(Plugins.MAVEN_PUBLISH)
         project.plugins.apply(Plugins.SPRING_BOOT)
         project.plugins.apply(Plugins.SPRING_DEPENDENCY_MANAGEMENT)
         project.plugins.apply(Plugins.VERSIONS)
-        project.plugins.apply(Plugins.PUBLISH)
     }
 
     private fun configureRepositories(project: Project) {
         project.repositories.add(project.repositories.mavenCentral())
         project.repositories.add(project.repositories.jcenter())
-        project.repositories.add(project.repositories.gradlePluginPortal())
-        project.repositories.add(project.opengood().repo())
+        project.repositories.add(project.repositories.mavenLocal())
     }
 
     private fun configureDependencies(project: Project) {
         val implementation = project.configurations.getByName("implementation")
-
-        implementation.dependencies.add(project.dependencies.create(Dependencies.KOTLIN_JDK_STD_LIB))
-        implementation.dependencies.add(project.dependencies.create(Dependencies.KOTLIN_REFLECT))
-
-        implementation.dependencies.add(project.dependencies.create(Dependencies.J_COLOR))
-
+        val annotationProcessor = project.configurations.getByName("annotationProcessor")
         val testImplementation = project.configurations.getByName("testImplementation")
+        val testAnnotationProcessor = project.configurations.getByName("testAnnotationProcessor")
 
-        testImplementation.dependencies.add(project.dependencies.create(Dependencies.KOTLIN_TEST))
+        when {
+            isGroovyProject(project) -> {
+                implementation.dependencies.add(project.dependencies.create(Dependencies.GROOVY))
+            }
+            isJavaProject(project) -> {
+                implementation.dependencies.add(project.dependencies.create(Dependencies.LOMBOK))
+                annotationProcessor.dependencies.add(project.dependencies.create(Dependencies.LOMBOK))
+                testImplementation.dependencies.add(project.dependencies.create(Dependencies.LOMBOK))
+                testAnnotationProcessor.dependencies.add(project.dependencies.create(Dependencies.LOMBOK))
+            }
+            isKotlinProject(project) -> {
+                implementation.dependencies.add(project.dependencies.create(Dependencies.KOTLIN_JDK_STD_LIB))
+                implementation.dependencies.add(project.dependencies.create(Dependencies.KOTLIN_REFLECT))
+                testImplementation.dependencies.add(project.dependencies.create(Dependencies.KOTLIN_TEST))
+                testImplementation.dependencies.add(project.dependencies.create(Dependencies.MOCK_K))
+            }
+            else -> {
+                throw IllegalStateException("Unable to detect type of Gradle project when configuring dependencies")
+            }
+        }
+
+        implementation.dependencies.add(project.dependencies.create(Dependencies.SPRING_BOOT_CONFIG_PROCESSOR))
+        implementation.dependencies.add(project.dependencies.create(Dependencies.SPRING_BOOT_STARTER))
+        implementation.dependencies.add(project.dependencies.create(Dependencies.J_COLOR))
+        testImplementation.dependencies.add(project.dependencies.create(Dependencies.SPRING_BOOT_STARTER_TEST))
         testImplementation.dependencies.add(project.dependencies.create(Dependencies.JUNIT_JUPITER))
         testImplementation.dependencies.add(project.dependencies.create(Dependencies.ASSERT_J))
-        testImplementation.dependencies.add(project.dependencies.create(Dependencies.MOCK_K))
     }
 
     private fun configureTasks(project: Project) {
-        configureKotlinCompileTask(project)
+        when {
+            isKotlinProject(project) -> {
+                configureKotlinCompileTask(project)
+            }
+        }
+
         configureJavaCompileTask(project)
         configureDependencyUpdatesTask(project)
         configureTestTask(project)
@@ -130,6 +164,8 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     private fun configureTestTask(project: Project) {
+        val extension = getExtension<OpenGoodExtension>()
+
         project.tasks.withType(Test::class.java) {
             it.useJUnitPlatform()
 
@@ -141,7 +177,7 @@ class ConfigPlugin : Plugin<Project> {
                 logging.showStackTraces = Tests.SHOW_STACK_TRACES
             }
 
-            it.maxParallelForks = Tests.MAX_PARALLEL_FORKS
+            it.maxParallelForks = extension.testMaxParallelForks
             it.systemProperty(Tests.INSTANCE_LIFECYCLE_SYS_PROP_NAME, Tests.INSTANCE_LIFECYCLE_SYS_PROP_VALUE)
 
             it.doFirst {
@@ -181,9 +217,9 @@ class ConfigPlugin : Plugin<Project> {
             })
 
             it.doLast {
-                 println(colorize("***************************************************", CYAN_TEXT()))
-                 println(colorize(" >> Tests FINISHED", CYAN_TEXT()))
-                 println(colorize("***************************************************", CYAN_TEXT()))
+                println(colorize("***************************************************", CYAN_TEXT()))
+                println(colorize(" >> Tests FINISHED", CYAN_TEXT()))
+                println(colorize("***************************************************", CYAN_TEXT()))
             }
         }
     }
@@ -193,32 +229,9 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     private fun configurePublishingExtension(project: Project) {
-        project.pluginManager.withPlugin(Plugins.PUBLISH) {
-            val repoPropertiesFile = File(System.getenv("HOME"), Repositories.REPO_PROPS_FILE)
-                .takeIf { it.exists() }
-                ?: throw FileNotFoundException("Unable to locate repo properties file: '${Repositories.REPO_PROPS_FILE}'")
-
-            val repoProperties = Properties()
-            repoProperties.load(FileInputStream(repoPropertiesFile))
-
-            val extension = getExtension<OpenGoodExtension>()
-
-            val repoName = extension.repoName
-                .takeIf { !it.isBlank() }
-                ?: throw IllegalStateException("Property 'repoName' is not configured on extension '${OpenGoodExtension.EXTENSION_NAME}'")
-
-            project.logger.info("Configured publishing for repo '$repoName'")
-
+        project.pluginManager.withPlugin(Plugins.MAVEN_PUBLISH) {
             project.extensions.configure(PublishingExtension::class.java) {
                 it.repositories { repos ->
-                    repos.maven { repo ->
-                        repo.name = Repositories.GITHUB_REPO_NAME
-                        repo.url = URI.create("${GitHub.ORG_URI}/$repoName")
-                        repo.credentials { cred ->
-                            cred.username = repoProperties[Repositories.REPO_PROPS_FILE_USER_KEY] as String
-                            cred.password = repoProperties[Repositories.REPO_PROPS_FILE_ACCESS_KEY] as String
-                        }
-                    }
                     repos.maven { repo ->
                         repo.name = Repositories.LOCAL_REPO_NAME
                         repo.url = project.repositories.mavenLocal().url
