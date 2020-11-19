@@ -52,8 +52,8 @@ class ConfigPluginKotlinTest : WordSpec({
         "Add Shared Dependencies" {
             getDependency(project, "implementation", Dependencies.KOTLIN_JDK_STD_LIB) shouldNotBe null
             getDependency(project, "implementation", Dependencies.KOTLIN_REFLECT) shouldNotBe null
-            getDependency(project, "implementation", Dependencies.SPRING_BOOT_CONFIG_PROCESSOR) shouldNotBe null
             getDependency(project, "implementation", Dependencies.SPRING_BOOT_STARTER) shouldNotBe null
+            getDependency(project, "annotationProcessor", Dependencies.SPRING_BOOT_CONFIG_PROCESSOR) shouldNotBe null
             getDependency(project, "testImplementation", Dependencies.SPRING_BOOT_STARTER_TEST) shouldNotBe null
             getDependency(project, "testImplementation", Dependencies.KOTLIN_TEST) shouldNotBe null
             getDependency(project, "testImplementation", Dependencies.MOCK_K) shouldNotBe null

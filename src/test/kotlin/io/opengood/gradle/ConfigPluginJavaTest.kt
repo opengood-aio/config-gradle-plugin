@@ -49,10 +49,10 @@ class ConfigPluginJavaTest : WordSpec({
         }
 
         "Add Shared Dependencies" {
-            getDependency(project, "implementation", Dependencies.LOMBOK) shouldNotBe null
-            getDependency(project, "implementation", Dependencies.SPRING_BOOT_CONFIG_PROCESSOR) shouldNotBe null
-            getDependency(project, "implementation", Dependencies.SPRING_BOOT_STARTER) shouldNotBe null
             getDependency(project, "implementation", Dependencies.J_COLOR) shouldNotBe null
+            getDependency(project, "implementation", Dependencies.LOMBOK) shouldNotBe null
+            getDependency(project, "implementation", Dependencies.SPRING_BOOT_STARTER) shouldNotBe null
+            getDependency(project, "annotationProcessor", Dependencies.SPRING_BOOT_CONFIG_PROCESSOR) shouldNotBe null
             getDependency(project, "annotationProcessor", Dependencies.LOMBOK) shouldNotBe null
             getDependency(project, "testImplementation", Dependencies.LOMBOK) shouldNotBe null
             getDependency(project, "testImplementation", Dependencies.SPRING_BOOT_STARTER_TEST) shouldNotBe null

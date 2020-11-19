@@ -49,9 +49,9 @@ class ConfigPluginGroovyTest : WordSpec({
 
         "Add Shared Dependencies" {
             getDependency(project, "implementation", Dependencies.GROOVY) shouldNotBe null
-            getDependency(project, "implementation", Dependencies.SPRING_BOOT_CONFIG_PROCESSOR) shouldNotBe null
-            getDependency(project, "implementation", Dependencies.SPRING_BOOT_STARTER) shouldNotBe null
             getDependency(project, "implementation", Dependencies.J_COLOR) shouldNotBe null
+            getDependency(project, "implementation", Dependencies.SPRING_BOOT_STARTER) shouldNotBe null
+            getDependency(project, "annotationProcessor", Dependencies.SPRING_BOOT_CONFIG_PROCESSOR) shouldNotBe null
             getDependency(project, "testImplementation", Dependencies.SPRING_BOOT_STARTER_TEST) shouldNotBe null
             getDependency(project, "testImplementation", Dependencies.JUNIT_JUPITER) shouldNotBe null
             getDependency(project, "testImplementation", Dependencies.ASSERT_J) shouldNotBe null

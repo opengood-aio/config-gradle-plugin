@@ -105,9 +105,9 @@ class ConfigPlugin : Plugin<Project> {
             }
         }
 
-        implementation.dependencies.add(project.dependencies.create(Dependencies.SPRING_BOOT_CONFIG_PROCESSOR))
-        implementation.dependencies.add(project.dependencies.create(Dependencies.SPRING_BOOT_STARTER))
         implementation.dependencies.add(project.dependencies.create(Dependencies.J_COLOR))
+        implementation.dependencies.add(project.dependencies.create(Dependencies.SPRING_BOOT_STARTER))
+        annotationProcessor.dependencies.add(project.dependencies.create(Dependencies.SPRING_BOOT_CONFIG_PROCESSOR))
         testImplementation.dependencies.add(project.dependencies.create(Dependencies.SPRING_BOOT_STARTER_TEST))
         testImplementation.dependencies.add(project.dependencies.create(Dependencies.JUNIT_JUPITER))
         testImplementation.dependencies.add(project.dependencies.create(Dependencies.ASSERT_J))
