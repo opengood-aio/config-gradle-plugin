@@ -12,6 +12,6 @@ class Versions {
         const val KOTLIN_TEST = "3.4.2"
         const val LOMBOK = "1.18.16"
         const val MOCK_K = "1.10.2"
-        const val SPRING_BOOT = "2.4.0"
+        const val SPRING_BOOT = "2.3.6.RELEASE"
     }
 }

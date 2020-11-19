@@ -41,7 +41,7 @@ object Versions {
     const val KOTLIN_TEST = "3.4.2"
     const val LOMBOK_PLUGIN = "4.0.0"
     const val MOCK_K = "1.10.2"
-    const val SPRING_BOOT_PLUGIN = "2.4.0"
+    const val SPRING_BOOT_PLUGIN = "2.3.6.RELEASE"
     const val SPRING_DEPENDENCY_MANAGEMENT_PLUGIN = "1.0.10.RELEASE"
     const val VERSIONS_PLUGIN = "0.36.0"
 }
