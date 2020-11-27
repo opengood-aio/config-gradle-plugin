@@ -1,6 +1,7 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent.*
+import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
 import org.gradle.internal.logging.text.StyledTextOutput
 import org.gradle.internal.logging.text.StyledTextOutput.Style
 import org.gradle.internal.logging.text.StyledTextOutputFactory
@@ -9,7 +10,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.4.20"
     id("java-gradle-plugin")
     id("maven")
     id("maven-publish")
@@ -80,6 +81,10 @@ dependencies {
 }
 
 val out: StyledTextOutput = project.serviceOf<StyledTextOutputFactory>().create("colored-output")
+
+tasks.withType<Wrapper> {
+    distributionType = DistributionType.ALL
+}
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {

@@ -1,15 +1,21 @@
 package io.opengood.gradle.extension
 
-import io.opengood.gradle.constant.Tests
+import io.opengood.gradle.config.ArtifactConfiguration
+import io.opengood.gradle.config.MainConfiguration
+import io.opengood.gradle.config.RepoConfiguration
+import io.opengood.gradle.config.TestConfiguration
+import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.extension.OpenGoodExtension.Companion.EXTENSION_NAME
-import io.opengood.gradle.getLanguageType
-import io.opengood.gradle.property.GradleProperty
 import org.gradle.api.Project
 
-open class OpenGoodExtension(project: Project) {
-
-    val languageType = getLanguageType(project)
-    var testMaxParallelForks by GradleProperty(project, Int::class.java, Tests.MAX_PARALLEL_FORKS)
+open class OpenGoodExtension(
+    project: Project,
+    languageType: LanguageType
+) {
+    val main = MainConfiguration(project, languageType)
+    val repo = RepoConfiguration(project)
+    val test = TestConfiguration(project)
+    val artifact = ArtifactConfiguration(project, RepoConfiguration(project))
 
     companion object {
         const val EXTENSION_NAME = "opengood"

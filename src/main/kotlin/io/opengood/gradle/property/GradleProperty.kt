@@ -12,9 +12,9 @@ class GradleProperty<T, V>(
         set(default)
     }
 
-    operator fun getValue(thisRef: T, property: KProperty<*>): V =
+    operator fun getValue(ref: T, property: KProperty<*>): V =
         this.property.get()
 
-    operator fun setValue(thisRef: T, property: KProperty<*>, value: V) =
+    operator fun setValue(ref: T, property: KProperty<*>, value: V) =
         this.property.set(value)
 }

@@ -3,126 +3,165 @@ package io.opengood.gradle
 import com.diogonunes.jcolor.Ansi.colorize
 import com.diogonunes.jcolor.Attribute.*
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import io.opengood.gradle.config.DeveloperConfiguration
+import io.opengood.gradle.config.LicenseConfiguration
 import io.opengood.gradle.constant.*
+import io.opengood.gradle.enumeration.LanguageType
+import io.opengood.gradle.enumeration.ProjectType
 import io.opengood.gradle.extension.OpenGoodExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.internal.plugins.DslObject
+import org.gradle.api.plugins.BasePluginConvention
+import org.gradle.api.plugins.MavenRepositoryHandlerConvention
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.tasks.Upload
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.TestDescriptor
 import org.gradle.api.tasks.testing.TestListener
 import org.gradle.api.tasks.testing.TestResult
+import org.gradle.internal.impldep.org.apache.maven.artifact.ant.Authentication
+import org.gradle.internal.impldep.org.apache.maven.artifact.ant.RemoteRepository
+import org.gradle.internal.impldep.org.apache.maven.model.Developer
+import org.gradle.internal.impldep.org.apache.maven.model.License
+import org.gradle.internal.impldep.org.apache.maven.model.Model
+import org.gradle.internal.impldep.org.apache.maven.model.Scm
+import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import kotlin.reflect.KClass
+import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 class ConfigPlugin : Plugin<Project> {
 
-    private val extensions = mutableMapOf<KClass<*>, Any>()
+    private lateinit var languageType: LanguageType
+    private lateinit var extension: OpenGoodExtension
 
     override fun apply(project: Project) {
+        languageType = getLanguageType(project)
+
         createExtensions(project)
         configurePlugins(project)
         configureRepositories(project)
         configureDependencies(project)
 
         project.afterEvaluate {
+            configurePlugins(project, afterEval = true)
             configureTasks(project)
+            configureArtifacts(project)
             configureExtensions(project)
         }
     }
 
-    private inline fun <reified T : Any> getExtension(): T {
-        return extensions[T::class]
-            .takeIf { extensions.containsKey(T::class) }
-            .let { extensions[T::class] as T }
-    }
-
     private fun createExtensions(project: Project) {
-        extensions[OpenGoodExtension::class] =
-            project.extensions.create(
-                OpenGoodExtension.EXTENSION_NAME,
-                OpenGoodExtension::class.java,
-                project)
+        extension = project.extensions.create(
+            OpenGoodExtension.EXTENSION_NAME,
+            OpenGoodExtension::class.java,
+            project,
+            languageType
+        )
     }
 
-    private fun configurePlugins(project: Project) {
-        when {
-            isGroovyProject(project) -> {
-                project.plugins.apply(Plugins.GROOVY)
-            }
-            isJavaProject(project) -> {
-                project.plugins.apply(Plugins.JAVA)
-                project.plugins.apply(Plugins.LOMBOK)
-            }
-            isKotlinProject(project) -> {
-                project.plugins.apply(Plugins.KOTLIN)
-                project.plugins.apply(Plugins.KOTLIN_SPRING)
-            }
-            else -> {
-                throw IllegalStateException("Unable to detect type of Gradle project when configuring plugins")
+    private fun configurePlugins(project: Project, afterEval: Boolean = false) {
+        with(project) {
+            with(plugins) {
+                if (afterEval) {
+                    with(extension) {
+                        val basePlugin = convention.getPlugin(BasePluginConvention::class.java)
+                        basePlugin.archivesBaseName = artifact.archiveBaseName
+
+                        if (main.projectType == ProjectType.LIB) {
+                            apply(Plugins.JAVA_LIBRARY)
+                        }
+                    }
+                } else {
+                    when (languageType) {
+                        LanguageType.GROOVY -> {
+                            apply(Plugins.GROOVY)
+                        }
+                        LanguageType.JAVA -> {
+                            apply(Plugins.JAVA)
+                            apply(Plugins.LOMBOK)
+                        }
+                        LanguageType.KOTLIN -> {
+                            apply(Plugins.KOTLIN)
+                            apply(Plugins.KOTLIN_SPRING)
+                        }
+                    }
+
+                    apply(Plugins.BASE)
+                    apply(Plugins.IDEA)
+                    apply(Plugins.MAVEN)
+                    apply(Plugins.MAVEN_PUBLISH)
+                    apply(Plugins.SIGNING)
+                    apply(Plugins.SPRING_BOOT)
+                    apply(Plugins.SPRING_DEPENDENCY_MANAGEMENT)
+                    apply(Plugins.VERSIONS)
+                }
             }
         }
-
-        project.plugins.apply(Plugins.IDEA)
-        project.plugins.apply(Plugins.MAVEN)
-        project.plugins.apply(Plugins.MAVEN_PUBLISH)
-        project.plugins.apply(Plugins.SPRING_BOOT)
-        project.plugins.apply(Plugins.SPRING_DEPENDENCY_MANAGEMENT)
-        project.plugins.apply(Plugins.VERSIONS)
     }
 
     private fun configureRepositories(project: Project) {
-        project.repositories.add(project.repositories.mavenCentral())
-        project.repositories.add(project.repositories.jcenter())
-        project.repositories.add(project.repositories.mavenLocal())
+        with(project.repositories) {
+            add(mavenCentral())
+            add(jcenter())
+            add(gradlePluginPortal())
+            add(mavenLocal())
+        }
     }
 
     private fun configureDependencies(project: Project) {
-        val implementation = project.configurations.getByName("implementation")
-        val annotationProcessor = project.configurations.getByName("annotationProcessor")
-        val testImplementation = project.configurations.getByName("testImplementation")
-        val testAnnotationProcessor = project.configurations.getByName("testAnnotationProcessor")
+        with(project) {
+            with(configurations) {
+                val implementation = getByName("implementation")
+                val annotationProcessor = getByName("annotationProcessor")
+                val testImplementation = getByName("testImplementation")
+                val testAnnotationProcessor = getByName("testAnnotationProcessor")
 
-        when {
-            isGroovyProject(project) -> {
-                implementation.dependencies.add(project.dependencies.create(Dependencies.GROOVY))
-            }
-            isJavaProject(project) -> {
-                implementation.dependencies.add(project.dependencies.create(Dependencies.LOMBOK))
-                annotationProcessor.dependencies.add(project.dependencies.create(Dependencies.LOMBOK))
-                testImplementation.dependencies.add(project.dependencies.create(Dependencies.LOMBOK))
-                testAnnotationProcessor.dependencies.add(project.dependencies.create(Dependencies.LOMBOK))
-            }
-            isKotlinProject(project) -> {
-                implementation.dependencies.add(project.dependencies.create(Dependencies.KOTLIN_JDK_STD_LIB))
-                implementation.dependencies.add(project.dependencies.create(Dependencies.KOTLIN_REFLECT))
-                testImplementation.dependencies.add(project.dependencies.create(Dependencies.KOTLIN_TEST))
-                testImplementation.dependencies.add(project.dependencies.create(Dependencies.MOCK_K))
-            }
-            else -> {
-                throw IllegalStateException("Unable to detect type of Gradle project when configuring dependencies")
+                with(dependencies) {
+                    when (languageType) {
+                        LanguageType.GROOVY -> {
+                            implementation.dependencies.add(create(Dependencies.GROOVY))
+                        }
+                        LanguageType.JAVA -> {
+                            implementation.dependencies.add(create(Dependencies.LOMBOK))
+                            annotationProcessor.dependencies.add(create(Dependencies.LOMBOK))
+                            testImplementation.dependencies.add(create(Dependencies.LOMBOK))
+                            testAnnotationProcessor.dependencies.add(create(Dependencies.LOMBOK))
+                        }
+                        LanguageType.KOTLIN -> {
+                            implementation.dependencies.add(create(Dependencies.KOTLIN_STD_LIB))
+                            implementation.dependencies.add(create(Dependencies.KOTLIN_REFLECT))
+                            testImplementation.dependencies.add(create(Dependencies.KOTLIN_TEST))
+                            testImplementation.dependencies.add(create(Dependencies.MOCK_K))
+                        }
+                    }
+
+                    implementation.dependencies.add(create(Dependencies.SPRING_BOOT_STARTER))
+                    annotationProcessor.dependencies.add(create(Dependencies.SPRING_BOOT_CONFIG_PROCESSOR))
+                    testImplementation.dependencies.add(create(Dependencies.SPRING_BOOT_STARTER_TEST))
+                    testImplementation.dependencies.add(create(Dependencies.JUNIT_JUPITER))
+                    testImplementation.dependencies.add(create(Dependencies.ASSERT_J))
+                }
             }
         }
-
-        implementation.dependencies.add(project.dependencies.create(Dependencies.J_COLOR))
-        implementation.dependencies.add(project.dependencies.create(Dependencies.SPRING_BOOT_STARTER))
-        annotationProcessor.dependencies.add(project.dependencies.create(Dependencies.SPRING_BOOT_CONFIG_PROCESSOR))
-        testImplementation.dependencies.add(project.dependencies.create(Dependencies.SPRING_BOOT_STARTER_TEST))
-        testImplementation.dependencies.add(project.dependencies.create(Dependencies.JUNIT_JUPITER))
-        testImplementation.dependencies.add(project.dependencies.create(Dependencies.ASSERT_J))
     }
 
     private fun configureTasks(project: Project) {
-        when {
-            isKotlinProject(project) -> {
-                configureKotlinCompileTask(project)
-            }
+        if (languageType == LanguageType.KOTLIN) {
+            configureKotlinCompileTask(project)
         }
 
         configureJavaCompileTask(project)
         configureDependencyUpdatesTask(project)
         configureTestTask(project)
+        configureJarTask(project)
+        configureBootJarTask(project)
+        configureUploadArchivesTask(project)
     }
 
     private fun configureKotlinCompileTask(project: Project) {
@@ -143,7 +182,7 @@ class ConfigPlugin : Plugin<Project> {
 
     private fun configureDependencyUpdatesTask(project: Project) {
         val isDependencyVersionNotStable = fun(version: String): Boolean {
-            val stableKeywords = listOf("RELEASE", "FINAL", "GA").any { version.toUpperCase().contains(it) }
+            val stableKeywords = listOf("RELEASE", "FINAL", "GA").any { version.toUpperCase() in it }
             val regex = "^[0-9,.v-]+(-r)?$".toRegex()
             val isStable = stableKeywords || regex.matches(version)
             return isStable.not()
@@ -164,20 +203,20 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     private fun configureTestTask(project: Project) {
-        val extension = getExtension<OpenGoodExtension>()
-
         project.tasks.withType(Test::class.java) {
             it.useJUnitPlatform()
 
             it.testLogging { logging ->
-                logging.events = Tests.LOGGING_EVENTS
-                logging.exceptionFormat = Tests.EXCEPTION_FORMAT
-                logging.showCauses = Tests.SHOW_CAUSES
-                logging.showExceptions = Tests.SHOW_EXCEPTIONS
-                logging.showStackTraces = Tests.SHOW_STACK_TRACES
+                logging.apply {
+                    events = Tests.LOGGING_EVENTS
+                    exceptionFormat = Tests.EXCEPTION_FORMAT
+                    showCauses = Tests.SHOW_CAUSES
+                    showExceptions = Tests.SHOW_EXCEPTIONS
+                    showStackTraces = Tests.SHOW_STACK_TRACES
+                }
             }
 
-            it.maxParallelForks = extension.testMaxParallelForks
+            it.maxParallelForks = extension.test.maxParallelForks
             it.systemProperty(Tests.INSTANCE_LIFECYCLE_SYS_PROP_NAME, Tests.INSTANCE_LIFECYCLE_SYS_PROP_VALUE)
 
             it.doFirst {
@@ -224,18 +263,147 @@ class ConfigPlugin : Plugin<Project> {
         }
     }
 
+    private fun configureJarTask(project: Project) {
+        if (extension.main.projectType == ProjectType.LIB) {
+            project.tasks.withType(Jar::class.java) {
+                it.enabled = true
+            }
+        }
+    }
+
+    private fun configureBootJarTask(project: Project) {
+        if (extension.main.projectType == ProjectType.LIB) {
+            project.tasks.withType(BootJar::class.java) {
+                it.enabled = false
+            }
+        }
+    }
+
+    private fun configureUploadArchivesTask(project: Project) {
+        project.tasks.withType(Upload::class.java) {
+            val ossUsername = getProperty(project, "ossUsername", "")
+            val ossPassword = getProperty(project, "ossPassword", "")
+
+            val mavenConvention = DslObject(it.repositories).convention.getPlugin(MavenRepositoryHandlerConvention::class.java)
+            mavenConvention.mavenDeployer { mavenDeployer ->
+                with(mavenDeployer) {
+                    beforeDeployment { deployment ->
+                        val signing = getExtensionByType<SigningExtension>(project)
+                        signing.signPom(deployment)
+                    }
+
+                    with(extension) {
+                        repository = RemoteRepository().apply {
+                            url = artifact.stagingUri
+                            addAuthentication(Authentication().apply {
+                                userName = ossUsername
+                                password = ossPassword
+                            })
+                        }
+                        snapshotRepository = RemoteRepository().apply {
+                            url = artifact.snapshotsUri
+                            addAuthentication(Authentication().apply {
+                                userName = ossUsername
+                                password = ossPassword
+                            })
+                        }
+                        pom { pom ->
+                            pom.apply {
+                                model = Model().apply {
+                                    groupId = project.group.toString()
+                                    artifactId = project.name
+                                    version = project.version.toString()
+                                    name = artifact.name
+                                    packaging = artifact.packaging.toString()
+                                    description = artifact.description
+                                    url = artifact.uri
+                                    scm = Scm().apply {
+                                        connection = artifact.scm.connection
+                                        developerConnection = artifact.scm.developerConnection
+                                        url = artifact.scm.uri
+                                    }
+                                    licenses = transform(artifact.licenses.toList(),
+                                        fun(license: LicenseConfiguration): License {
+                                            return License().apply {
+                                                name = license.name
+                                                url = license.uri
+                                            }
+                                        }
+                                    )
+                                    developers = transform(artifact.developers.toList(),
+                                        fun(developer: DeveloperConfiguration): Developer {
+                                            return Developer().apply {
+                                                id = developer.id
+                                                name = developer.name
+                                                email = developer.email
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun configureArtifacts(project: Project) {
+        with(project) {
+            if (extension.main.projectType == ProjectType.LIB) {
+                val sourcesJar = tasks.create("sourcesJar", Jar::class.java) {
+                    val sourceSets = getExtensionByName<SourceSetContainer>(project, "sourceSets")
+                    it.dependsOn("classes")
+                    it.from(sourceSets.getByName("main").allSource)
+                    it.archiveClassifier.set("sources")
+                }
+                artifacts.add("archives", sourcesJar)
+
+                val javadocJar = tasks.create("javadocJar", Jar::class.java) {
+                    val javadoc = tasks.getByName("javadoc") as Javadoc
+                    it.dependsOn.add(javadoc)
+                    it.from(javadoc)
+                    it.archiveClassifier.set("javadoc")
+                }
+                artifacts.add("archives", javadocJar)
+            }
+
+            val jar = tasks.getByName("jar") as Jar
+            artifacts.add("archives", jar)
+        }
+    }
+
     private fun configureExtensions(project: Project) {
         configurePublishingExtension(project)
+        configureSigningExtension(project)
     }
 
     private fun configurePublishingExtension(project: Project) {
-        project.pluginManager.withPlugin(Plugins.MAVEN_PUBLISH) {
-            project.extensions.configure(PublishingExtension::class.java) {
-                it.repositories { repos ->
-                    repos.maven { repo ->
-                        repo.name = Repositories.LOCAL_REPO_NAME
-                        repo.url = project.repositories.mavenLocal().url
+        with(project) {
+            pluginManager.withPlugin(Plugins.MAVEN_PUBLISH) {
+                extensions.configure(PublishingExtension::class.java) {
+                    it.publications { publications ->
+                        publications.register("mavenJava", MavenPublication::class.java) { publication ->
+                            publication.from(components.getByName("java"))
+                        }
                     }
+
+                    it.repositories { repos ->
+                        repos.maven { repo ->
+                            repo.name = Repositories.LOCAL_REPO_NAME
+                            repo.url = repositories.mavenLocal().url
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun configureSigningExtension(project: Project) {
+        with(project) {
+            pluginManager.withPlugin(Plugins.SIGNING) {
+                extensions.configure(SigningExtension::class.java) {
+                    it.sign(configurations.getByName("archives"))
                 }
             }
         }
