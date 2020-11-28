@@ -5,42 +5,48 @@ import io.opengood.gradle.enumeration.LanguageType
 import org.gradle.api.Project
 import java.nio.file.Path
 
-internal inline fun <reified T : Any> getExtensionByName(project: Project, name: String): T =
-    project.extensions.getByName(name) as T
-
-internal inline fun <reified T : Any> getExtensionByType(project: Project): T =
-    project.extensions.getByType(T::class.java)
-
-internal fun getLanguageType(project: Project): LanguageType =
-    when {
-        isGroovyProject(project) -> LanguageType.GROOVY
-        isJavaProject(project) -> LanguageType.JAVA
-        isKotlinProject(project) -> LanguageType.KOTLIN
-        else -> throw IllegalStateException("Unable to detect LanguageType from Gradle project")
-    }
-
-internal inline fun <reified V : Any> getProperty(project: Project, name: String, default: V): V =
+internal inline fun <reified V : Any> getEnvVar(name: String, default : V): V =
     try {
-        project.property(name) as V
+        System.getenv(name) as V
     } catch (ignored: Exception) {
         default
     }
 
-internal fun isGroovyProject(project: Project): Boolean =
-    Path.of(project.projectDir.absolutePath, Directories.GROOVY_SRC).toFile().exists()
+internal inline fun <reified T : Any> Project.getExtension(name: String): T =
+    extensions.getByName(name) as T
 
-internal fun isJavaProject(project: Project): Boolean =
-    Path.of(project.projectDir.absolutePath, Directories.JAVA_SRC).toFile().exists()
+internal inline fun <reified T : Any> Project.getExtension(): T =
+    extensions.getByType(T::class.java)
 
-internal fun isKotlinProject(project: Project): Boolean =
-    Path.of(project.projectDir.absolutePath, Directories.KOTLIN_SRC).toFile().exists()
+internal inline fun <reified V : Any> Project.getProperty(name: String, default: V): V =
+    try {
+        property(name) as V
+    } catch (ignored: Exception) {
+        default
+    }
 
-internal fun <TSource : Any, TConverted : Any> transform(
-    items: List<TSource>,
+internal val Project.isGroovy: Boolean get() =
+    Path.of(projectDir.absolutePath, Directories.GROOVY_SRC).toFile().exists()
+
+internal val Project.isJava: Boolean get() =
+    Path.of(projectDir.absolutePath, Directories.JAVA_SRC).toFile().exists()
+
+internal val Project.isKotlin: Boolean get() =
+    Path.of(projectDir.absolutePath, Directories.KOTLIN_SRC).toFile().exists()
+
+internal val Project.languageType: LanguageType get() =
+    when {
+        isGroovy -> LanguageType.GROOVY
+        isJava -> LanguageType.JAVA
+        isKotlin -> LanguageType.KOTLIN
+        else -> throw IllegalStateException("Unable to detect LanguageType from Gradle project")
+    }
+
+internal fun <TSource : Any, TConverted : Any> List<TSource>.transform(
     converter: (source: TSource) -> TConverted
 ): MutableList<TConverted> {
     val list = mutableListOf<TConverted>()
-    items.forEach { item ->
+    forEach { item ->
         list.add(converter(item))
     }
     return list

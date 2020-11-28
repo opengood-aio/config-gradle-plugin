@@ -1,123 +1,121 @@
 package io.opengood.gradle
 
 import helper.createProject
+import io.kotlintest.matchers.types.shouldBeSameInstanceAs
+import io.kotlintest.shouldBe
+import io.kotlintest.shouldNotBe
+import io.kotlintest.shouldThrow
+import io.kotlintest.specs.WordSpec
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.extension.OpenGoodExtension
-import org.assertj.core.api.Assertions.assertThat
+import io.opengood.gradle.extension.opengood
 import org.gradle.testfixtures.ProjectBuilder
-import org.junit.jupiter.api.Assertions.assertThrows
-import org.junit.jupiter.api.Test
 
-class FunctionsTest {
+class FunctionsTest : WordSpec({
 
-    @Test
-    fun `getExtensionByName function returns Gradle extension given name`() {
-        val project = createProject(languageType = LanguageType.KOTLIN)
+    "Plugin Functions and Properties" should {
+        "getEnvVar returns environment variable value when variable exists" {
+            getEnvVar("HOME", "none") shouldNotBe null
+        }
 
-        val extension = getExtensionByName<OpenGoodExtension>(project, OpenGoodExtension.EXTENSION_NAME)
+        "getEnvVar returns default value when variable does not exist" {
+            getEnvVar("NONE", "none") shouldBe "none"
+        }
 
-        assertThat(extension).isInstanceOf(OpenGoodExtension::class.java)
+        "getExtension returns Gradle extension given name" {
+            val project = createProject(languageType = LanguageType.KOTLIN)
+
+            val extension = project.getExtension<OpenGoodExtension>(OpenGoodExtension.EXTENSION_NAME)
+
+            extension shouldBeSameInstanceAs project.opengood()
+        }
+
+        "getExtension returns Gradle extension given type" {
+            val project = createProject(languageType = LanguageType.KOTLIN)
+
+            val extension = project.getExtension<OpenGoodExtension>()
+
+            extension shouldBeSameInstanceAs project.opengood()
+        }
+
+        "getProperty returns property value when property exists" {
+            val project = createProject(languageType = LanguageType.KOTLIN)
+
+            project.getProperty("name", "none") shouldBe "test"
+        }
+
+        "getProperty returns default value when property does not exist" {
+            val project = createProject(languageType = LanguageType.KOTLIN)
+
+            project.getProperty("none", "none") shouldBe "none"
+        }
+
+        "isGroovy returns true for Groovy Gradle project" {
+            val project = createProject(languageType = LanguageType.GROOVY)
+
+            project.isGroovy shouldBe true
+        }
+
+        "isGroovy returns false for non-Groovy Gradle project" {
+            val project = createProject(languageType = LanguageType.KOTLIN)
+
+            project.isGroovy shouldBe false
+        }
+
+        "isJava returns true for Java Gradle project" {
+            val project = createProject(languageType = LanguageType.JAVA)
+
+            project.isJava shouldBe true
+        }
+
+        "isJava returns false for non-Java Gradle project" {
+            val project = createProject(languageType = LanguageType.KOTLIN)
+
+            project.isJava shouldBe false
+        }
+
+        "isKotlin returns true for Kotlin Gradle project" {
+            val project = createProject(languageType = LanguageType.KOTLIN)
+
+            project.isKotlin shouldBe true
+        }
+
+        "isKotlin returns false for non-Kotlin Gradle project" {
+            val project = createProject(languageType = LanguageType.JAVA)
+
+            project.isKotlin shouldBe false
+        }
+
+        "languageType returns Groovy for Groovy Gradle project" {
+            val project = createProject(languageType = LanguageType.GROOVY)
+
+            project.languageType shouldBe LanguageType.GROOVY
+        }
+
+        "languageType returns Java for Java Gradle project" {
+            val project = createProject(languageType = LanguageType.JAVA)
+
+            project.languageType shouldBe LanguageType.JAVA
+        }
+
+        "languageType returns Kotlin for Kotlin Gradle project" {
+            val project = createProject(languageType = LanguageType.KOTLIN)
+
+            project.languageType shouldBe LanguageType.KOTLIN
+        }
+
+        "languageType throws exception when language cannot be detected for Gradle project" {
+            val project = ProjectBuilder.builder().build()
+
+            shouldThrow<IllegalStateException> { project.languageType }
+        }
+
+        "transform converts list of source items into mutable list of items" {
+            val source = listOf(1, 2, 3, 4, 5)
+
+            val converted = source.transform(fun(i: Int): String = i.toString())
+
+            converted shouldBe mutableListOf("1", "2", "3", "4", "5")
+        }
     }
-
-    @Test
-    fun `getExtensionByType function returns Gradle extension given type`() {
-        val project = createProject(languageType = LanguageType.KOTLIN)
-
-        val extension = getExtensionByType<OpenGoodExtension>(project)
-
-        assertThat(extension).isInstanceOf(OpenGoodExtension::class.java)
-    }
-
-    @Test
-    fun `getLanguageType function returns Groovy for Groovy Gradle project`() {
-        val project = createProject(languageType = LanguageType.GROOVY)
-
-        assertThat(getLanguageType(project)).isEqualTo(LanguageType.GROOVY)
-    }
-
-    @Test
-    fun `getLanguageType function returns Java for Java Gradle project`() {
-        val project = createProject(languageType = LanguageType.JAVA)
-
-        assertThat(getLanguageType(project)).isEqualTo(LanguageType.JAVA)
-    }
-
-    @Test
-    fun `getLanguageType function returns Kotlin for Kotlin Gradle project`() {
-        val project = createProject(languageType = LanguageType.KOTLIN)
-
-        assertThat(getLanguageType(project)).isEqualTo(LanguageType.KOTLIN)
-    }
-
-    @Test
-    fun `getLanguageType function throws exception when language cannot be detected for Gradle project`() {
-        val project = ProjectBuilder.builder().build()
-
-        assertThrows(IllegalStateException::class.java) { getLanguageType(project) }
-    }
-
-    @Test
-    fun `getProperty function returns property value when property exists`() {
-        val project = createProject(languageType = LanguageType.KOTLIN)
-
-        assertThat(getProperty(project, "name", "none")).isEqualTo("test")
-    }
-
-    @Test
-    fun `getProperty function returns default value when property does not exist`() {
-        val project = createProject(languageType = LanguageType.KOTLIN)
-
-        assertThat(getProperty(project, "none", "none")).isEqualTo("none")
-    }
-
-    @Test
-    fun `isGroovyProject function returns true for Groovy Gradle project`() {
-        val project = createProject(languageType = LanguageType.GROOVY)
-
-        assertThat(isGroovyProject(project)).isTrue
-    }
-
-    @Test
-    fun `isGroovyProject function returns false for non-Groovy Gradle project`() {
-        val project = createProject(languageType = LanguageType.KOTLIN)
-
-        assertThat(isGroovyProject(project)).isFalse
-    }
-
-    @Test
-    fun `isJavaProject function returns true for Java Gradle project`() {
-        val project = createProject(languageType = LanguageType.JAVA)
-
-        assertThat(isJavaProject(project)).isTrue
-    }
-
-    @Test
-    fun `isJavaProject function returns false for non-Java Gradle project`() {
-        val project = createProject(languageType = LanguageType.KOTLIN)
-
-        assertThat(isJavaProject(project)).isFalse
-    }
-
-    @Test
-    fun `isKotlinProject function returns true for Kotlin Gradle project`() {
-        val project = createProject(languageType = LanguageType.KOTLIN)
-
-        assertThat(isKotlinProject(project)).isTrue
-    }
-
-    @Test
-    fun `isKotlinProject function returns false for non-Kotlin Gradle project`() {
-        val project = createProject(languageType = LanguageType.JAVA)
-
-        assertThat(isKotlinProject(project)).isFalse
-    }
-
-    @Test
-    fun `transform function transforms list of source items into mutable list of converted items`() {
-        val source = listOf(1, 2, 3, 4, 5)
-
-        val converted = transform(source, fun(i: Int) : String = i.toString())
-
-        assertThat(converted).isEqualTo(listOf("1", "2", "3", "4", "5"))
-    }
-}
+})

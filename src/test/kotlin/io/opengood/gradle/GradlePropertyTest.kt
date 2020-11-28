@@ -11,18 +11,7 @@ import org.gradle.testfixtures.ProjectBuilder
 class GradlePropertyTest : WordSpec({
 
     "Gradle Property" should {
-        "Set default value" {
-            val greeting = object {
-                val message by GradleProperty(
-                    ProjectBuilder.builder().build(),
-                    String::class.java,
-                    "Hello World!")
-            }
-
-            greeting.message shouldBe "Hello World!"
-        }
-
-        "Set and return exact same value" {
+        "Set given value" {
             val greeting = Greeting()
             val value = "Hello World!"
 
@@ -30,11 +19,12 @@ class GradlePropertyTest : WordSpec({
             greeting.message should beTheSameInstanceAs(value)
         }
 
+        "Set default value" {
+            Greeting().message shouldBe "Hello World!"
+        }
+
         "Throw exception if not set"  {
-            val greeting = Greeting()
-            shouldThrow<IllegalStateException> {
-                greeting.message
-            }
+            shouldThrow<IllegalStateException> { Greeting().message }
         }
     }
 })
@@ -42,6 +32,7 @@ class GradlePropertyTest : WordSpec({
 private class Greeting {
     var message by GradleProperty(
         ProjectBuilder.builder().build(),
-        String::class.java
+        String::class.java,
+        "Hello World!"
     )
 }

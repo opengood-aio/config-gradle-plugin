@@ -41,7 +41,7 @@ class ConfigPlugin : Plugin<Project> {
     private lateinit var extension: OpenGoodExtension
 
     override fun apply(project: Project) {
-        languageType = getLanguageType(project)
+        languageType = project.languageType
 
         createExtensions(project)
         configurePlugins(project)
@@ -70,8 +70,8 @@ class ConfigPlugin : Plugin<Project> {
             with(plugins) {
                 if (afterEval) {
                     with(extension) {
-                        val basePlugin = convention.getPlugin(BasePluginConvention::class.java)
-                        basePlugin.archivesBaseName = artifact.archiveBaseName
+                        val basePluginConvention = convention.getPlugin(BasePluginConvention::class.java)
+                        basePluginConvention.archivesBaseName = artifact.archiveBaseName
 
                         if (main.projectType == ProjectType.LIB) {
                             apply(Plugins.JAVA_LIBRARY)
@@ -265,7 +265,7 @@ class ConfigPlugin : Plugin<Project> {
 
     private fun configureJarTask(project: Project) {
         if (extension.main.projectType == ProjectType.LIB) {
-            project.tasks.withType(Jar::class.java) {
+            project.tasks.withType(Jar::class.java).getByName("jar") {
                 it.enabled = true
             }
         }
@@ -273,7 +273,7 @@ class ConfigPlugin : Plugin<Project> {
 
     private fun configureBootJarTask(project: Project) {
         if (extension.main.projectType == ProjectType.LIB) {
-            project.tasks.withType(BootJar::class.java) {
+            project.tasks.withType(BootJar::class.java).getByName("bootJar") {
                 it.enabled = false
             }
         }
@@ -281,14 +281,14 @@ class ConfigPlugin : Plugin<Project> {
 
     private fun configureUploadArchivesTask(project: Project) {
         project.tasks.withType(Upload::class.java) {
-            val ossUsername = getProperty(project, "ossUsername", "")
-            val ossPassword = getProperty(project, "ossPassword", "")
+            val ossrhUsername = project.getProperty("ossrhUsername", getEnvVar("OSSRH_USERNAME", ""))
+            val ossrhPassword = project.getProperty("ossrhPassword", getEnvVar("OSSRH_USERNAME", ""))
 
             val mavenConvention = DslObject(it.repositories).convention.getPlugin(MavenRepositoryHandlerConvention::class.java)
             mavenConvention.mavenDeployer { mavenDeployer ->
                 with(mavenDeployer) {
                     beforeDeployment { deployment ->
-                        val signing = getExtensionByType<SigningExtension>(project)
+                        val signing = project.getExtension<SigningExtension>()
                         signing.signPom(deployment)
                     }
 
@@ -296,15 +296,15 @@ class ConfigPlugin : Plugin<Project> {
                         repository = RemoteRepository().apply {
                             url = artifact.stagingUri
                             addAuthentication(Authentication().apply {
-                                userName = ossUsername
-                                password = ossPassword
+                                userName = ossrhUsername
+                                password = ossrhPassword
                             })
                         }
                         snapshotRepository = RemoteRepository().apply {
                             url = artifact.snapshotsUri
                             addAuthentication(Authentication().apply {
-                                userName = ossUsername
-                                password = ossPassword
+                                userName = ossrhUsername
+                                password = ossrhPassword
                             })
                         }
                         pom { pom ->
@@ -322,7 +322,7 @@ class ConfigPlugin : Plugin<Project> {
                                         developerConnection = artifact.scm.developerConnection
                                         url = artifact.scm.uri
                                     }
-                                    licenses = transform(artifact.licenses.toList(),
+                                    licenses = artifact.licenses.toList().transform(
                                         fun(license: LicenseConfiguration): License {
                                             return License().apply {
                                                 name = license.name
@@ -330,7 +330,7 @@ class ConfigPlugin : Plugin<Project> {
                                             }
                                         }
                                     )
-                                    developers = transform(artifact.developers.toList(),
+                                    developers = artifact.developers.toList().transform(
                                         fun(developer: DeveloperConfiguration): Developer {
                                             return Developer().apply {
                                                 id = developer.id
@@ -352,7 +352,7 @@ class ConfigPlugin : Plugin<Project> {
         with(project) {
             if (extension.main.projectType == ProjectType.LIB) {
                 val sourcesJar = tasks.create("sourcesJar", Jar::class.java) {
-                    val sourceSets = getExtensionByName<SourceSetContainer>(project, "sourceSets")
+                    val sourceSets = project.getExtension<SourceSetContainer>("sourceSets")
                     it.dependsOn("classes")
                     it.from(sourceSets.getByName("main").allSource)
                     it.archiveClassifier.set("sources")

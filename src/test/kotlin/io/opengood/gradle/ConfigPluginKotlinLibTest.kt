@@ -2,6 +2,7 @@ package io.opengood.gradle
 
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import helper.*
+import io.kotlintest.matchers.string.shouldContain
 import io.kotlintest.matchers.types.shouldBeTypeOf
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -12,24 +13,26 @@ import io.opengood.gradle.enumeration.PackagingType
 import io.opengood.gradle.enumeration.ProjectType
 import io.opengood.gradle.enumeration.ScmProvider
 import io.opengood.gradle.extension.opengood
-import org.gradle.api.artifacts.repositories.MavenArtifactRepository
-import org.gradle.api.internal.artifacts.dsl.DefaultRepositoryHandler
-import org.gradle.api.internal.plugins.DslObject
-import org.gradle.api.plugins.MavenRepositoryHandlerConvention
-import org.gradle.api.publication.maven.internal.deployer.DefaultGroovyMavenDeployer
+import org.gradle.api.internal.artifacts.publish.ArchivePublishArtifact
+import org.gradle.api.plugins.BasePluginConvention
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.Upload
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
 import org.gradle.internal.impldep.org.apache.maven.model.Model
+import org.gradle.plugins.signing.Signature
+import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
-class ConfigPluginKotlinTest : WordSpec({
+class ConfigPluginKotlinLibTest : WordSpec({
 
-    "Configuring Plugin ID" should {
-        val project = createProject(languageType = LanguageType.KOTLIN)
+    "Configure Plugin" should {
+        val project = createProject(
+            languageType = LanguageType.KOTLIN,
+            projectType = ProjectType.LIB
+        )
 
         "Apply Plugin" {
             getPlugin(project, ConfigPlugin.PLUGIN_ID) shouldNotBe null
@@ -41,18 +44,18 @@ class ConfigPluginKotlinTest : WordSpec({
             with(project.opengood()) {
                 with(main) {
                     languageType shouldBe LanguageType.KOTLIN
-                    projectType shouldBe ProjectType.APP
+                    projectType shouldBe ProjectType.LIB
                 }
                 with(repo) {
-                    name shouldBe "test"
-                    baseUri shouldBe GitHub.OPENGOOD_ORG_REPO_URI
+                    name shouldBe project.name
+                    baseUri shouldBe GitHub.OPENGOOD_ORG_URI
                 }
                 with(test) {
                     maxParallelForks shouldBe Tests.MAX_PARALLEL_FORKS
                 }
                 with(artifact) {
-                    archiveBaseName shouldBe "test"
-                    name shouldBe "test"
+                    archiveBaseName shouldBe project.name
+                    name shouldBe project.name
                     packaging shouldBe PackagingType.JAR
                     description shouldBe ""
                     uri shouldBe "${repo.baseUri}/${repo.name}"
@@ -89,6 +92,7 @@ class ConfigPluginKotlinTest : WordSpec({
         "Apply Plugins" {
             getPlugin(project, Plugins.BASE) shouldNotBe null
             getPlugin(project, Plugins.IDEA) shouldNotBe null
+            getPlugin(project, Plugins.JAVA_LIBRARY) shouldNotBe null
             getPlugin(project, Plugins.KOTLIN) shouldNotBe null
             getPlugin(project, Plugins.KOTLIN_SPRING) shouldNotBe null
             getPlugin(project, Plugins.MAVEN) shouldNotBe null
@@ -97,6 +101,9 @@ class ConfigPluginKotlinTest : WordSpec({
             getPlugin(project, Plugins.SPRING_BOOT) shouldNotBe null
             getPlugin(project, Plugins.SPRING_DEPENDENCY_MANAGEMENT) shouldNotBe null
             getPlugin(project, Plugins.VERSIONS) shouldNotBe null
+
+            val basePluginConvention = getConvention<BasePluginConvention>(project)
+            basePluginConvention.archivesBaseName shouldBe project.name
         }
 
         "Add Repositories" {
@@ -149,7 +156,6 @@ class ConfigPluginKotlinTest : WordSpec({
 
             with(task) {
                 task shouldNotBe null
-
                 with(testLogging) {
                     events shouldBe Tests.LOGGING_EVENTS
                     exceptionFormat shouldBe Tests.EXCEPTION_FORMAT
@@ -163,17 +169,21 @@ class ConfigPluginKotlinTest : WordSpec({
         }
 
         "Configure Jar Task" {
-            val task = getTask<Jar>(project)
+            val task = getTask<Jar>(project, "jar")
 
-            task shouldNotBe null
-            task.enabled shouldBe true
+            with(task) {
+                task shouldNotBe null
+                enabled shouldBe true
+            }
         }
 
         "Configure Boot Jar Task" {
-            val task = getTask<BootJar>(project)
+            val task = getTask<BootJar>(project, "bootJar")
 
-            task shouldNotBe null
-            task.enabled shouldBe true
+            with(task) {
+                task shouldNotBe null
+                enabled shouldBe false
+            }
         }
 
         "Configure Upload Archives Task" {
@@ -182,11 +192,7 @@ class ConfigPluginKotlinTest : WordSpec({
             with(task) {
                 task shouldNotBe null
 
-                val mavenDeployer = DslObject(repositories).convention.getPlugin(MavenRepositoryHandlerConvention::class.java)
-                    .let { it.accessField("container") as DefaultRepositoryHandler }
-                    .let { it.getByName("mavenDeployer") as DefaultGroovyMavenDeployer }
-
-                with(mavenDeployer) {
+                with(getMavenDeployer(repositories)) {
                     with(snapshotRepository) {
                         url shouldBe Repositories.OSS_SNAPSHOTS_REPO_URI
                         with(authentication) {
@@ -203,7 +209,6 @@ class ConfigPluginKotlinTest : WordSpec({
                     }
 
                     val pom = pom.effectivePom.model as Model
-
                     with(pom) {
                         groupId shouldBe project.group
                         artifactId shouldBe project.name
@@ -211,17 +216,17 @@ class ConfigPluginKotlinTest : WordSpec({
                         name shouldBe project.name
                         packaging shouldBe PackagingType.JAR.toString()
                         description shouldBe ""
-                        url shouldBe "${GitHub.OPENGOOD_ORG_REPO_URI}/${project.name}"
+                        url shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}"
                         with(scm) {
-                            connection shouldBe "${ScmProvider.PROTOCOL}:${ScmProvider.GIT}:${GitHub.OPENGOOD_ORG_REPO_URI}/${project.name}"
-                            developerConnection shouldBe "${ScmProvider.PROTOCOL}:${ScmProvider.GIT}:${GitHub.OPENGOOD_ORG_REPO_URI}/${project.name}"
-                            url shouldBe "${GitHub.OPENGOOD_ORG_REPO_URI}/${project.name}"
+                            connection shouldBe "${ScmProvider.PROTOCOL}:${ScmProvider.GIT}:${GitHub.OPENGOOD_ORG_URI}/${project.name}"
+                            developerConnection shouldBe "${ScmProvider.PROTOCOL}:${ScmProvider.GIT}:${GitHub.OPENGOOD_ORG_URI}/${project.name}"
+                            url shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}"
                         }
-                        with(licenses[0]) {
+                        with(licenses.first()) {
                             name shouldBe ""
                             url shouldBe ""
                         }
-                        with(developers[0]) {
+                        with(developers.first()) {
                             id shouldBe "dev"
                             name shouldBe ""
                             email shouldBe ""
@@ -231,13 +236,64 @@ class ConfigPluginKotlinTest : WordSpec({
             }
         }
 
-        "Configure Publishing Extension" {
-            val extension = getExtensionByType<PublishingExtension>(project)
+        "Configure Artifacts" {
+            val sourcesJar = getArtifact<ArchivePublishArtifact>(project, "archives", "sources", "jar", "jar")
+            with(sourcesJar) {
+                sourcesJar shouldNotBe null
+                archiveTask.name shouldBe "sourcesJar"
+            }
 
-            val mavenLocalRepo = extension.repositories.getByName(Repositories.LOCAL_REPO_NAME) as MavenArtifactRepository
+            val javadocJar = getArtifact<ArchivePublishArtifact>(project, "archives", "javadoc", "jar", "jar")
+            with(javadocJar) {
+                javadocJar shouldNotBe null
+                archiveTask.name shouldBe "javadocJar"
+            }
+
+            val jar = getArtifact<ArchivePublishArtifact>(project, "archives", "", "jar", "jar")
+            with(jar) {
+                jar shouldNotBe null
+                archiveTask.name shouldBe "jar"
+            }
+        }
+
+        "Configure Publishing Extension" {
+            val extension = project.getExtension<PublishingExtension>()
+
+            extension shouldNotBe null
+
+            val mavenJavaPublication = getMavenPublication(extension, "mavenJava")
+            with(mavenJavaPublication) {
+                artifacts shouldNotBe null
+            }
+
+            val mavenLocalRepo = getMavenRepository(extension, Repositories.LOCAL_REPO_NAME)
             with(mavenLocalRepo) {
                 name shouldBe Repositories.LOCAL_REPO_NAME
                 url shouldBe project.repositories.mavenLocal().url
+            }
+        }
+
+        "Configure Signing Extension" {
+            val extension = project.getExtension<SigningExtension>()
+
+            extension shouldNotBe null
+
+            val sourcesJar = getArtifact<Signature>(project, "archives", "sources", "jar.asc", "asc")
+            with(sourcesJar) {
+                sourcesJar shouldNotBe null
+                signatureSpec.toString().shouldContain("signArchives")
+            }
+
+            val javadocJar = getArtifact<Signature>(project, "archives", "javadoc", "jar.asc", "asc")
+            with(javadocJar) {
+                javadocJar shouldNotBe null
+                signatureSpec.toString().shouldContain("signArchives")
+            }
+
+            val jar = getArtifact<Signature>(project, "archives", "", "jar.asc", "asc")
+            with(jar) {
+                jar shouldNotBe null
+                signatureSpec.toString().shouldContain("signArchives")
             }
         }
     }

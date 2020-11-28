@@ -11,17 +11,20 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.ArtifactRepository
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository
+import org.gradle.api.internal.artifacts.dsl.DefaultRepositoryHandler
+import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.internal.project.ProjectInternal
+import org.gradle.api.plugins.MavenRepositoryHandlerConvention
+import org.gradle.api.publication.maven.internal.deployer.DefaultGroovyMavenDeployer
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.kotlin.gradle.utils.`is`
 import java.nio.file.Files
 import java.nio.file.Path
-
-fun <T : Any> T.accessField(fieldName: String): Any? =
-    javaClass.getDeclaredField(fieldName).let { field ->
-        field.isAccessible = true
-        return@let field.get(this)
-    }
 
 fun createProject(
     languageType: LanguageType,
@@ -62,9 +65,34 @@ fun createProjectDir(languageType: LanguageType): Path {
     return projectDir
 }
 
+inline fun <reified T : Any> getArtifact(
+    project: Project,
+    configuration: String,
+    name: String,
+    vararg parts: String
+): T =
+    project.configurations.getByName(configuration).artifacts
+        .filter { it.`is`(T::class.java) }
+        .first { it.toString().endsWith("${project.name}:${parts.joinToString(":")}:$name") }
+        .let { it as T }
+
+inline fun <reified T : Any> getConvention(project: Project): T =
+    project.convention.getPlugin(T::class.java)
+
 fun getDependency(project: Project, configuration: String, name: String): Dependency =
     project.configurations.getByName(configuration).dependencies
         .takeIf { project.dependencies.create(name) in it }!!.first()
+
+fun getMavenDeployer(repositories: RepositoryHandler): DefaultGroovyMavenDeployer =
+    DslObject(repositories).convention.getPlugin(MavenRepositoryHandlerConvention::class.java)
+        .let { it.accessField("container") as DefaultRepositoryHandler }
+        .let { it.getByName("mavenDeployer") as DefaultGroovyMavenDeployer }
+
+fun getMavenPublication(extension: PublishingExtension, name: String): MavenPublication =
+    extension.publications.getByName(name) as MavenPublication
+
+fun getMavenRepository(extension: PublishingExtension, name: String): MavenArtifactRepository =
+    extension.repositories.getByName(name) as MavenArtifactRepository
 
 inline fun <reified T : Plugin<*>> getPlugin(project: Project): T =
     project.plugins.getPlugin(T::class.java)
@@ -80,3 +108,9 @@ inline fun <reified T : Task> getTask(project: Project, name: String): T =
 
 inline fun <reified T : Task> getTask(project: Project): T =
     project.tasks.withType(T::class.java).first()
+
+private fun <T : Any> T.accessField(fieldName: String): Any? =
+    javaClass.getDeclaredField(fieldName).let { field ->
+        field.isAccessible = true
+        return@let field.get(this)
+    }

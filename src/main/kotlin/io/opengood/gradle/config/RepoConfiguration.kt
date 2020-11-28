@@ -6,5 +6,5 @@ import org.gradle.api.Project
 
 class RepoConfiguration(project: Project) {
     var name by GradleProperty(project, String::class.java, project.name)
-    var baseUri by GradleProperty(project, String::class.java, GitHub.OPENGOOD_ORG_REPO_URI)
+    var baseUri by GradleProperty(project, String::class.java, GitHub.OPENGOOD_ORG_URI)
 }
