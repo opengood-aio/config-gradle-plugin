@@ -3,8 +3,7 @@ package io.opengood.gradle
 import com.diogonunes.jcolor.Ansi.colorize
 import com.diogonunes.jcolor.Attribute.*
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
-import io.opengood.gradle.config.DeveloperConfiguration
-import io.opengood.gradle.config.LicenseConfiguration
+import io.opengood.gradle.builder.groovy.withGroovyBuilder
 import io.opengood.gradle.constant.*
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
@@ -25,12 +24,6 @@ import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.TestDescriptor
 import org.gradle.api.tasks.testing.TestListener
 import org.gradle.api.tasks.testing.TestResult
-import org.gradle.internal.impldep.org.apache.maven.artifact.ant.Authentication
-import org.gradle.internal.impldep.org.apache.maven.artifact.ant.RemoteRepository
-import org.gradle.internal.impldep.org.apache.maven.model.Developer
-import org.gradle.internal.impldep.org.apache.maven.model.License
-import org.gradle.internal.impldep.org.apache.maven.model.Model
-import org.gradle.internal.impldep.org.apache.maven.model.Scm
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.tasks.bundling.BootJar
@@ -292,53 +285,56 @@ class ConfigPlugin : Plugin<Project> {
                         signing.signPom(deployment)
                     }
 
-                    with(extension) {
-                        repository = RemoteRepository().apply {
-                            url = artifact.stagingUri
-                            addAuthentication(Authentication().apply {
-                                userName = ossrhUsername
-                                password = ossrhPassword
-                            })
+                    with(extension.artifact) {
+                        with(mavenDeployer) {
+                            withGroovyBuilder {
+                                "repository"("url" to stagingUri) {
+                                    "authentication"(
+                                        "userName" to ossrhUsername,
+                                        "password" to ossrhPassword
+                                    )
+                                }
+                                "snapshotRepository"("url" to snapshotsUri) {
+                                    "authentication"(
+                                        "userName" to ossrhUsername,
+                                        "password" to ossrhPassword
+                                    )
+                                }
+                            }
                         }
-                        snapshotRepository = RemoteRepository().apply {
-                            url = artifact.snapshotsUri
-                            addAuthentication(Authentication().apply {
-                                userName = ossrhUsername
-                                password = ossrhPassword
-                            })
-                        }
-                        pom { pom ->
-                            pom.apply {
-                                model = Model().apply {
-                                    groupId = project.group.toString()
-                                    artifactId = project.name
-                                    version = project.version.toString()
-                                    name = artifact.name
-                                    packaging = artifact.packaging.toString()
-                                    description = artifact.description
-                                    url = artifact.uri
-                                    scm = Scm().apply {
-                                        connection = artifact.scm.connection
-                                        developerConnection = artifact.scm.developerConnection
-                                        url = artifact.scm.uri
+
+                        pom.project { pom ->
+                            with(pom) {
+                                withGroovyBuilder {
+                                    "groupId"(project.group)
+                                    "artifactId"(project.name)
+                                    "version"(project.version)
+                                    "name"(name)
+                                    "packaging"(packaging)
+                                    "description"(description)
+                                    "url"(uri)
+                                    "scm" {
+                                        "connection"(scm.connection)
+                                        "developerConnection"(scm.developerConnection)
+                                        "url"(scm.uri)
                                     }
-                                    licenses = artifact.licenses.toList().transform(
-                                        fun(license: LicenseConfiguration): License {
-                                            return License().apply {
-                                                name = license.name
-                                                url = license.uri
+                                    "licenses" {
+                                        licenses.forEach { license ->
+                                            "license" {
+                                                "name"(license.name)
+                                                "url"(license.uri)
                                             }
                                         }
-                                    )
-                                    developers = artifact.developers.toList().transform(
-                                        fun(developer: DeveloperConfiguration): Developer {
-                                            return Developer().apply {
-                                                id = developer.id
-                                                name = developer.name
-                                                email = developer.email
+                                    }
+                                    "developers" {
+                                        developers.forEach { dev ->
+                                            "developer" {
+                                                "id"(dev.id)
+                                                "name"(dev.name)
+                                                "email"(dev.email)
                                             }
                                         }
-                                    )
+                                    }
                                 }
                             }
                         }

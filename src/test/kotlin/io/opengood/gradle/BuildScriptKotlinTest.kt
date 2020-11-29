@@ -8,17 +8,13 @@ import org.gradle.testkit.runner.GradleRunner
 
 class BuildScriptKotlinTest : WordSpec({
 
-    "A Kotlin DSL build script with configured plugin ID and properties" should {
-        "Lead to a successful build " {
+    "Gradle Kotlin DSL build script with configured plugin and properties" should {
+        "Lead to successful build " {
             val projectDir = createProjectDir(LanguageType.KOTLIN)
             val buildScript = projectDir.resolve("build.gradle.kts").toFile()
             buildScript.writeText("""
                 plugins {
                     id("io.opengood.gradle.config")
-                }
-                
-                opengood {
-                    testMaxParallelForks = 1
                 }
               """.trimIndent())
 
