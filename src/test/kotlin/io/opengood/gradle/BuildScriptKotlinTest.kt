@@ -1,8 +1,8 @@
 package io.opengood.gradle
 
 import helper.createProjectDir
-import io.kotlintest.matchers.string.shouldContain
-import io.kotlintest.specs.WordSpec
+import io.kotest.core.spec.style.WordSpec
+import io.kotest.matchers.string.shouldContain
 import io.opengood.gradle.enumeration.LanguageType
 import org.gradle.testkit.runner.GradleRunner
 

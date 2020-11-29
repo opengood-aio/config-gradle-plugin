@@ -39,7 +39,7 @@ object Versions {
     const val ASSERT_J = "3.18.1"
     const val J_COLOR = "5.0.1"
     const val JUNIT_JUPITER = "5.7.0"
-    const val KOTLIN_TEST = "3.4.2"
+    const val KO_TEST = "4.3.1"
     const val LOMBOK_PLUGIN = "4.0.0"
     const val MOCK_K = "1.10.2"
     const val SPRING_BOOT_PLUGIN = "2.3.6.RELEASE"
@@ -74,7 +74,7 @@ dependencies {
 
     testImplementation(kotlin("test"))
 
-    testImplementation("io.kotlintest:kotlintest-runner-junit5:${Versions.KOTLIN_TEST}")
+    testImplementation("io.kotest:kotest-runner-junit5:${Versions.KO_TEST}")
     testImplementation("org.junit.jupiter:junit-jupiter:${Versions.JUNIT_JUPITER}")
     testImplementation("org.assertj:assertj-core:${Versions.ASSERT_J}")
     testImplementation("io.mockk:mockk:${Versions.MOCK_K}")

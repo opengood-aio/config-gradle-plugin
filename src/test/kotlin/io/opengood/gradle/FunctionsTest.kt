@@ -1,11 +1,14 @@
 package io.opengood.gradle
 
 import helper.createProject
-import io.kotlintest.matchers.types.shouldBeSameInstanceAs
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import io.kotlintest.shouldThrow
-import io.kotlintest.specs.WordSpec
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.WordSpec
+import io.kotest.extensions.system.withEnvironment
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.extension.OpenGoodExtension
 import io.opengood.gradle.extension.opengood
@@ -15,7 +18,9 @@ class FunctionsTest : WordSpec({
 
     "Plugin Functions and Properties" should {
         "getEnvVar returns environment variable value when variable exists" {
-            getEnvVar("HOME", "none") shouldNotBe null
+            withEnvironment("NAME", "test") {
+                getEnvVar("NAME", "none") shouldBe "test"
+            }
         }
 
         "getEnvVar returns default value when variable does not exist" {
@@ -53,37 +58,37 @@ class FunctionsTest : WordSpec({
         "isGroovy returns true for Groovy Gradle project" {
             val project = createProject(languageType = LanguageType.GROOVY)
 
-            project.isGroovy shouldBe true
+            project.isGroovy.shouldBeTrue()
         }
 
         "isGroovy returns false for non-Groovy Gradle project" {
             val project = createProject(languageType = LanguageType.KOTLIN)
 
-            project.isGroovy shouldBe false
+            project.isGroovy.shouldBeFalse()
         }
 
         "isJava returns true for Java Gradle project" {
             val project = createProject(languageType = LanguageType.JAVA)
 
-            project.isJava shouldBe true
+            project.isJava.shouldBeTrue()
         }
 
         "isJava returns false for non-Java Gradle project" {
             val project = createProject(languageType = LanguageType.KOTLIN)
 
-            project.isJava shouldBe false
+            project.isJava.shouldBeFalse()
         }
 
         "isKotlin returns true for Kotlin Gradle project" {
             val project = createProject(languageType = LanguageType.KOTLIN)
 
-            project.isKotlin shouldBe true
+            project.isKotlin.shouldBeTrue()
         }
 
         "isKotlin returns false for non-Kotlin Gradle project" {
             val project = createProject(languageType = LanguageType.JAVA)
 
-            project.isKotlin shouldBe false
+            project.isKotlin.shouldBeFalse()
         }
 
         "languageType returns Groovy for Groovy Gradle project" {

@@ -1,10 +1,9 @@
 package io.opengood.gradle
 
-import io.kotlintest.matchers.beTheSameInstanceAs
-import io.kotlintest.should
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
-import io.kotlintest.specs.WordSpec
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.WordSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.opengood.gradle.property.GradleProperty
 import org.gradle.testfixtures.ProjectBuilder
 
@@ -12,15 +11,15 @@ class GradlePropertyTest : WordSpec({
 
     "Gradle Property" should {
         "Set given value" {
-            val greeting = Greeting()
             val value = "Hello World!"
-
+            val greeting = Greeting()
             greeting.message = value
-            greeting.message should beTheSameInstanceAs(value)
+
+            greeting.message shouldBeSameInstanceAs value
         }
 
         "Set default value" {
-            Greeting().message shouldBe "Hello World!"
+            Greeting("Hello World!").message shouldBe "Hello World!"
         }
 
         "Throw exception if not set"  {
@@ -29,10 +28,6 @@ class GradlePropertyTest : WordSpec({
     }
 })
 
-private class Greeting {
-    var message by GradleProperty(
-        ProjectBuilder.builder().build(),
-        String::class.java,
-        "Hello World!"
-    )
+private class Greeting(default: String? = null) {
+    var message by GradleProperty(ProjectBuilder.builder().build(), String::class.java, default)
 }

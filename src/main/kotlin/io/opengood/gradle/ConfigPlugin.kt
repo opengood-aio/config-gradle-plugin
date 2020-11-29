@@ -129,7 +129,7 @@ class ConfigPlugin : Plugin<Project> {
                         LanguageType.KOTLIN -> {
                             implementation.dependencies.add(create(Dependencies.KOTLIN_STD_LIB))
                             implementation.dependencies.add(create(Dependencies.KOTLIN_REFLECT))
-                            testImplementation.dependencies.add(create(Dependencies.KOTLIN_TEST))
+                            testImplementation.dependencies.add(create(Dependencies.KO_TEST))
                             testImplementation.dependencies.add(create(Dependencies.MOCK_K))
                         }
                     }
