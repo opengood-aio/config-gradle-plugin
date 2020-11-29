@@ -286,20 +286,18 @@ class ConfigPlugin : Plugin<Project> {
                     }
 
                     with(extension.artifact) {
-                        with(mavenDeployer) {
-                            withGroovyBuilder {
-                                "repository"("url" to stagingUri) {
-                                    "authentication"(
-                                        "userName" to ossrhUsername,
-                                        "password" to ossrhPassword
-                                    )
-                                }
-                                "snapshotRepository"("url" to snapshotsUri) {
-                                    "authentication"(
-                                        "userName" to ossrhUsername,
-                                        "password" to ossrhPassword
-                                    )
-                                }
+                        mavenDeployer.withGroovyBuilder {
+                            "repository"("url" to stagingUri) {
+                                "authentication"(
+                                    "userName" to ossrhUsername,
+                                    "password" to ossrhPassword
+                                )
+                            }
+                            "snapshotRepository"("url" to snapshotsUri) {
+                                "authentication"(
+                                    "userName" to ossrhUsername,
+                                    "password" to ossrhPassword
+                                )
                             }
                         }
 
@@ -314,24 +312,30 @@ class ConfigPlugin : Plugin<Project> {
                                     "description"(description)
                                     "url"(uri)
                                     "scm" {
-                                        "connection"(scm.connection)
-                                        "developerConnection"(scm.developerConnection)
-                                        "url"(scm.uri)
+                                        with(scm) {
+                                            "connection"(connection)
+                                            "developerConnection"(developerConnection)
+                                            "url"(uri)
+                                        }
                                     }
                                     "licenses" {
                                         licenses.forEach { license ->
                                             "license" {
-                                                "name"(license.name)
-                                                "url"(license.uri)
+                                                with(license) {
+                                                    "name"(name)
+                                                    "url"(uri)
+                                                }
                                             }
                                         }
                                     }
                                     "developers" {
-                                        developers.forEach { dev ->
+                                        developers.forEach { developer ->
                                             "developer" {
-                                                "id"(dev.id)
-                                                "name"(dev.name)
-                                                "email"(dev.email)
+                                                with(developer) {
+                                                    "id"(id)
+                                                    "name"(name)
+                                                    "email"(email)
+                                                }
                                             }
                                         }
                                     }

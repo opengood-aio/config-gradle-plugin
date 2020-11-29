@@ -81,7 +81,8 @@ inline fun <reified T : Any> getConvention(project: Project): T =
 
 fun getDependency(project: Project, configuration: String, name: String): Dependency =
     project.configurations.getByName(configuration).dependencies
-        .takeIf { project.dependencies.create(name) in it }!!.first()
+        .takeIf { project.dependencies.create(name) in it }!!
+        .first()
 
 fun getMavenDeployer(repositories: RepositoryHandler): DefaultGroovyMavenDeployer =
     DslObject(repositories).convention.getPlugin(MavenRepositoryHandlerConvention::class.java)

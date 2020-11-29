@@ -114,13 +114,5 @@ class FunctionsTest : WordSpec({
 
             shouldThrow<IllegalStateException> { project.languageType }
         }
-
-        "transform converts list of source items into mutable list of items" {
-            val source = listOf(1, 2, 3, 4, 5)
-
-            val converted = source.transform(fun(i: Int): String = i.toString())
-
-            converted shouldBe mutableListOf("1", "2", "3", "4", "5")
-        }
     }
 })

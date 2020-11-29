@@ -5,7 +5,7 @@ import io.opengood.gradle.enumeration.LanguageType
 import org.gradle.api.Project
 import java.nio.file.Path
 
-internal inline fun <reified V : Any> getEnvVar(name: String, default : V): V =
+internal inline fun <reified V : Any> getEnvVar(name: String, default: V): V =
     try {
         System.getenv(name) as V
     } catch (ignored: Exception) {
@@ -25,29 +25,23 @@ internal inline fun <reified V : Any> Project.getProperty(name: String, default:
         default
     }
 
-internal val Project.isGroovy: Boolean get() =
-    Path.of(projectDir.absolutePath, Directories.GROOVY_SRC).toFile().exists()
+internal val Project.isGroovy: Boolean
+    get() =
+        Path.of(projectDir.absolutePath, Directories.GROOVY_SRC).toFile().exists()
 
-internal val Project.isJava: Boolean get() =
-    Path.of(projectDir.absolutePath, Directories.JAVA_SRC).toFile().exists()
+internal val Project.isJava: Boolean
+    get() =
+        Path.of(projectDir.absolutePath, Directories.JAVA_SRC).toFile().exists()
 
-internal val Project.isKotlin: Boolean get() =
-    Path.of(projectDir.absolutePath, Directories.KOTLIN_SRC).toFile().exists()
+internal val Project.isKotlin: Boolean
+    get() =
+        Path.of(projectDir.absolutePath, Directories.KOTLIN_SRC).toFile().exists()
 
-internal val Project.languageType: LanguageType get() =
-    when {
-        isGroovy -> LanguageType.GROOVY
-        isJava -> LanguageType.JAVA
-        isKotlin -> LanguageType.KOTLIN
-        else -> throw IllegalStateException("Unable to detect LanguageType from Gradle project")
-    }
-
-internal fun <TSource : Any, TConverted : Any> List<TSource>.transform(
-    converter: (source: TSource) -> TConverted
-): MutableList<TConverted> {
-    val list = mutableListOf<TConverted>()
-    forEach { item ->
-        list.add(converter(item))
-    }
-    return list
-}
+internal val Project.languageType: LanguageType
+    get() =
+        when {
+            isGroovy -> LanguageType.GROOVY
+            isJava -> LanguageType.JAVA
+            isKotlin -> LanguageType.KOTLIN
+            else -> throw IllegalStateException("Unable to detect LanguageType from Gradle project")
+        }

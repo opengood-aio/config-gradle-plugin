@@ -12,7 +12,7 @@ class ArtifactConfiguration(
     var archiveBaseName by GradleProperty(project, String::class.java, project.name)
     var name by GradleProperty(project, String::class.java, project.name)
     var packaging by GradleProperty(project, PackagingType::class.java, PackagingType.JAR)
-    var description by GradleProperty(project, String::class.java,"")
+    var description by GradleProperty(project, String::class.java, "")
     var uri by GradleProperty(project, String::class.java, "${repo.baseUri}/${repo.name}")
     var snapshotsUri by GradleProperty(project, String::class.java, Repositories.OSS_SNAPSHOTS_REPO_URI)
     var stagingUri by GradleProperty(project, String::class.java, Repositories.OSS_STAGING_REPO_URI)
