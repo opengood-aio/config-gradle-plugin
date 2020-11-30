@@ -4,15 +4,13 @@ import io.opengood.gradle.config.ArtifactConfiguration
 import io.opengood.gradle.config.MainConfiguration
 import io.opengood.gradle.config.RepoConfiguration
 import io.opengood.gradle.config.TestConfiguration
-import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.extension.OpenGoodExtension.Companion.EXTENSION_NAME
 import org.gradle.api.Project
 
 open class OpenGoodExtension(
-    project: Project,
-    languageType: LanguageType
+    project: Project
 ) {
-    val main = MainConfiguration(project, languageType)
+    val main = MainConfiguration(project)
     val repo = RepoConfiguration(project)
     val test = TestConfiguration(project)
     val artifact = ArtifactConfiguration(project, RepoConfiguration(project))

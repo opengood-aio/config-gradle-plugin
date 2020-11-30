@@ -3,6 +3,7 @@ package helper
 import io.opengood.gradle.ConfigPlugin
 import io.opengood.gradle.config.DeveloperConfiguration
 import io.opengood.gradle.config.LicenseConfiguration
+import io.opengood.gradle.constant.Artifacts
 import io.opengood.gradle.constant.Directories
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
@@ -26,7 +27,13 @@ import org.jetbrains.kotlin.gradle.utils.`is`
 import java.nio.file.Files
 import java.nio.file.Path
 
-fun createProject(
+private fun <T : Any> T.accessField(fieldName: String): Any? =
+    javaClass.getDeclaredField(fieldName).let { field ->
+        field.isAccessible = true
+        return@let field.get(this)
+    }
+
+internal fun createProject(
     languageType: LanguageType,
     name: String = "test",
     group: String = "org.example",
@@ -45,8 +52,8 @@ fun createProject(
                     ext.apply {
                         main.projectType = projectType
                         artifact.apply {
-                            licenses.add(LicenseConfiguration(project, "license"))
-                            developers.add(DeveloperConfiguration(project, "dev"))
+                            licenses.add(LicenseConfiguration(project, repo, Artifacts.LICENSE_ID))
+                            developers.add(DeveloperConfiguration(project, Artifacts.DEVELOPER_ID))
                         }
                     }
                 }
@@ -55,7 +62,7 @@ fun createProject(
         }
 }
 
-fun createProjectDir(languageType: LanguageType): Path {
+internal fun createProjectDir(languageType: LanguageType): Path {
     val projectDir = Files.createTempDirectory("")
     when (languageType) {
         LanguageType.GROOVY -> projectDir.resolve(Directories.GROOVY_SRC).toFile().mkdirs()
@@ -65,7 +72,11 @@ fun createProjectDir(languageType: LanguageType): Path {
     return projectDir
 }
 
-inline fun <reified T : Any> getArtifact(
+internal inline fun <reified V : Any> expectedProperty(map: Map<String, Any>, name: String): V =
+    map.takeIf { it.containsKey(name) }
+        .let { it?.get(name) as V }
+
+internal inline fun <reified T : Any> getArtifact(
     project: Project,
     configuration: String,
     name: String,
@@ -76,42 +87,36 @@ inline fun <reified T : Any> getArtifact(
         .first { it.toString().endsWith("${project.name}:${parts.joinToString(":")}:$name") }
         .let { it as T }
 
-inline fun <reified T : Any> getConvention(project: Project): T =
+internal inline fun <reified T : Any> getConvention(project: Project): T =
     project.convention.getPlugin(T::class.java)
 
-fun getDependency(project: Project, configuration: String, name: String): Dependency =
+internal fun getDependency(project: Project, configuration: String, name: String): Dependency =
     project.configurations.getByName(configuration).dependencies
         .takeIf { project.dependencies.create(name) in it }!!
         .first()
 
-fun getMavenDeployer(repositories: RepositoryHandler): DefaultGroovyMavenDeployer =
+internal fun getMavenDeployer(repositories: RepositoryHandler): DefaultGroovyMavenDeployer =
     DslObject(repositories).convention.getPlugin(MavenRepositoryHandlerConvention::class.java)
         .let { it.accessField("container") as DefaultRepositoryHandler }
         .let { it.getByName("mavenDeployer") as DefaultGroovyMavenDeployer }
 
-fun getMavenPublication(extension: PublishingExtension, name: String): MavenPublication =
+internal fun getMavenPublication(extension: PublishingExtension, name: String): MavenPublication =
     extension.publications.getByName(name) as MavenPublication
 
-fun getMavenRepository(extension: PublishingExtension, name: String): MavenArtifactRepository =
+internal fun getMavenRepository(extension: PublishingExtension, name: String): MavenArtifactRepository =
     extension.repositories.getByName(name) as MavenArtifactRepository
 
-inline fun <reified T : Plugin<*>> getPlugin(project: Project): T =
+internal inline fun <reified T : Plugin<*>> getPlugin(project: Project): T =
     project.plugins.getPlugin(T::class.java)
 
-fun getPlugin(project: Project, id: String): Plugin<Any> =
+internal fun getPlugin(project: Project, id: String): Plugin<Any> =
     project.plugins.getPlugin(id)
 
-fun getRepository(project: Project, name: String): ArtifactRepository =
+internal fun getRepository(project: Project, name: String): ArtifactRepository =
     project.repositories.getByName(name)
 
-inline fun <reified T : Task> getTask(project: Project, name: String): T =
+internal inline fun <reified T : Task> getTask(project: Project, name: String): T =
     project.tasks.withType(T::class.java).getByName(name)
 
-inline fun <reified T : Task> getTask(project: Project): T =
+internal inline fun <reified T : Task> getTask(project: Project): T =
     project.tasks.withType(T::class.java).first()
-
-private fun <T : Any> T.accessField(fieldName: String): Any? =
-    javaClass.getDeclaredField(fieldName).let { field ->
-        field.isAccessible = true
-        return@let field.get(this)
-    }

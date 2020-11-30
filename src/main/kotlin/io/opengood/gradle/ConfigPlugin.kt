@@ -8,6 +8,7 @@ import io.opengood.gradle.constant.*
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
 import io.opengood.gradle.extension.OpenGoodExtension
+import io.opengood.gradle.extension.opengood
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.plugins.DslObject
@@ -30,12 +31,9 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 class ConfigPlugin : Plugin<Project> {
 
-    private lateinit var languageType: LanguageType
     private lateinit var extension: OpenGoodExtension
 
     override fun apply(project: Project) {
-        languageType = project.languageType
-
         createExtensions(project)
         configurePlugins(project)
         configureRepositories(project)
@@ -53,8 +51,7 @@ class ConfigPlugin : Plugin<Project> {
         extension = project.extensions.create(
             OpenGoodExtension.EXTENSION_NAME,
             OpenGoodExtension::class.java,
-            project,
-            languageType
+            project
         )
     }
 
@@ -145,8 +142,10 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     private fun configureTasks(project: Project) {
-        if (languageType == LanguageType.KOTLIN) {
-            configureKotlinCompileTask(project)
+        with(project.opengood()) {
+            if (main.languageType == LanguageType.KOTLIN) {
+                configureKotlinCompileTask(project)
+            }
         }
 
         configureJavaCompileTask(project)

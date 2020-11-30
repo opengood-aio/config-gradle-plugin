@@ -19,7 +19,7 @@ class ArtifactConfiguration(
     val scm = ScmConfiguration(project, repo)
 
     val licenses = project.container(LicenseConfiguration::class.java) { id ->
-        LicenseConfiguration(project, id)
+        LicenseConfiguration(project, repo, id)
     }
 
     val developers = project.container(DeveloperConfiguration::class.java) { id ->
