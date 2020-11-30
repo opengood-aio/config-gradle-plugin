@@ -41,6 +41,7 @@ class ConfigPlugin : Plugin<Project> {
 
         project.afterEvaluate {
             configurePlugins(project, afterEval = true)
+            configureConventions(project)
             configureTasks(project)
             configureArtifacts(project)
             configureExtensions(project)
@@ -60,9 +61,6 @@ class ConfigPlugin : Plugin<Project> {
             with(plugins) {
                 if (afterEval) {
                     with(extension) {
-                        val basePluginConvention = convention.getPlugin(BasePluginConvention::class.java)
-                        basePluginConvention.archivesBaseName = artifact.archiveBaseName
-
                         if (main.projectType == ProjectType.LIB) {
                             apply(Plugins.JAVA_LIBRARY)
                         }
@@ -91,6 +89,15 @@ class ConfigPlugin : Plugin<Project> {
                     apply(Plugins.SPRING_DEPENDENCY_MANAGEMENT)
                     apply(Plugins.VERSIONS)
                 }
+            }
+        }
+    }
+
+    private fun configureConventions(project: Project) {
+        with(project) {
+            with(extension) {
+                val basePluginConvention = convention.getPlugin(BasePluginConvention::class.java)
+                basePluginConvention.archivesBaseName = artifact.archiveBaseName
             }
         }
     }

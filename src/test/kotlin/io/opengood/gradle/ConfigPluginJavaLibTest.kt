@@ -11,10 +11,10 @@ import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
 import spec.*
 
-class ConfigPluginKotlinLibTest : FunSpec({
+class ConfigPluginJavaLibTest : FunSpec({
 
     val project = createProject(
-        languageType = LanguageType.KOTLIN,
+        languageType = LanguageType.JAVA,
         projectType = ProjectType.LIB
     )
 
@@ -29,9 +29,9 @@ class ConfigPluginKotlinLibTest : FunSpec({
     include(applyCommonPluginsTest(project))
 
     test("Applies specific plugins") {
+        getPlugin(project, Plugins.JAVA).shouldNotBeNull()
         getPlugin(project, Plugins.JAVA_LIBRARY).shouldNotBeNull()
-        getPlugin(project, Plugins.KOTLIN).shouldNotBeNull()
-        getPlugin(project, Plugins.KOTLIN_SPRING).shouldNotBeNull()
+        getPlugin(project, Plugins.LOMBOK).shouldNotBeNull()
     }
 
     include(configureConventionsTest(project))
@@ -41,13 +41,11 @@ class ConfigPluginKotlinLibTest : FunSpec({
     include(addCommonDependenciesTest(project))
 
     test("Adds specific dependencies") {
-        getDependency(project, "implementation", Dependencies.KOTLIN_STD_LIB).shouldNotBeNull()
-        getDependency(project, "implementation", Dependencies.KOTLIN_REFLECT).shouldNotBeNull()
-        getDependency(project, "testImplementation", Dependencies.KO_TEST).shouldNotBeNull()
-        getDependency(project, "testImplementation", Dependencies.MOCK_K).shouldNotBeNull()
+        getDependency(project, "implementation", Dependencies.LOMBOK).shouldNotBeNull()
+        getDependency(project, "annotationProcessor", Dependencies.LOMBOK).shouldNotBeNull()
+        getDependency(project, "testImplementation", Dependencies.LOMBOK).shouldNotBeNull()
+        getDependency(project, "testAnnotationProcessor", Dependencies.LOMBOK).shouldNotBeNull()
     }
-
-    include(configureKotlinCompileTaskTest(project))
 
     include(configureJavaCompileTaskTest(project))
 

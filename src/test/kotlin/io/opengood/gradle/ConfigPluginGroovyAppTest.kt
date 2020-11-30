@@ -11,15 +11,15 @@ import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
 import spec.*
 
-class ConfigPluginKotlinLibTest : FunSpec({
+class ConfigPluginGroovyAppTest : FunSpec({
 
     val project = createProject(
-        languageType = LanguageType.KOTLIN,
-        projectType = ProjectType.LIB
+        languageType = LanguageType.GROOVY,
+        projectType = ProjectType.APP
     )
 
     val properties = mapOf(
-        "projectType" to ProjectType.LIB
+        "projectType" to ProjectType.APP
     )
 
     include(applyPluginTest(project))
@@ -29,9 +29,7 @@ class ConfigPluginKotlinLibTest : FunSpec({
     include(applyCommonPluginsTest(project))
 
     test("Applies specific plugins") {
-        getPlugin(project, Plugins.JAVA_LIBRARY).shouldNotBeNull()
-        getPlugin(project, Plugins.KOTLIN).shouldNotBeNull()
-        getPlugin(project, Plugins.KOTLIN_SPRING).shouldNotBeNull()
+        getPlugin(project, Plugins.GROOVY).shouldNotBeNull()
     }
 
     include(configureConventionsTest(project))
@@ -41,13 +39,8 @@ class ConfigPluginKotlinLibTest : FunSpec({
     include(addCommonDependenciesTest(project))
 
     test("Adds specific dependencies") {
-        getDependency(project, "implementation", Dependencies.KOTLIN_STD_LIB).shouldNotBeNull()
-        getDependency(project, "implementation", Dependencies.KOTLIN_REFLECT).shouldNotBeNull()
-        getDependency(project, "testImplementation", Dependencies.KO_TEST).shouldNotBeNull()
-        getDependency(project, "testImplementation", Dependencies.MOCK_K).shouldNotBeNull()
+        getDependency(project, "implementation", Dependencies.GROOVY).shouldNotBeNull()
     }
-
-    include(configureKotlinCompileTaskTest(project))
 
     include(configureJavaCompileTaskTest(project))
 
@@ -55,25 +48,17 @@ class ConfigPluginKotlinLibTest : FunSpec({
 
     include(configureTestTaskTest(project))
 
-    include(configureJarTaskTest(project, isEnabled = true))
+    include(configureJarTaskTest(project, isEnabled = false))
 
-    include(configureBootJarTaskTest(project, isEnabled = false))
+    include(configureBootJarTaskTest(project, isEnabled = true))
 
     include(configureUploadArchivesTaskTest(project))
-
-    include(configureSourcesJarArtifactTest(project))
-
-    include(configureJavadocJarArtifactTest(project))
 
     include(configureJarArtifactTest(project))
 
     include(configurePublishingExtensionTest(project))
 
     include(configureSigningExtensionTest(project))
-
-    include(configureSourcesJarSigningTest(project))
-
-    include(configureJavadocJarSigningTest(project))
 
     include(configureJarSigningTest(project))
 })

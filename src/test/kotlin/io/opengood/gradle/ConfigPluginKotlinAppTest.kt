@@ -11,15 +11,15 @@ import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
 import spec.*
 
-class ConfigPluginKotlinLibTest : FunSpec({
+class ConfigPluginKotlinAppTest : FunSpec({
 
     val project = createProject(
         languageType = LanguageType.KOTLIN,
-        projectType = ProjectType.LIB
+        projectType = ProjectType.APP
     )
 
     val properties = mapOf(
-        "projectType" to ProjectType.LIB
+        "projectType" to ProjectType.APP
     )
 
     include(applyPluginTest(project))
@@ -29,7 +29,6 @@ class ConfigPluginKotlinLibTest : FunSpec({
     include(applyCommonPluginsTest(project))
 
     test("Applies specific plugins") {
-        getPlugin(project, Plugins.JAVA_LIBRARY).shouldNotBeNull()
         getPlugin(project, Plugins.KOTLIN).shouldNotBeNull()
         getPlugin(project, Plugins.KOTLIN_SPRING).shouldNotBeNull()
     }
@@ -55,25 +54,17 @@ class ConfigPluginKotlinLibTest : FunSpec({
 
     include(configureTestTaskTest(project))
 
-    include(configureJarTaskTest(project, isEnabled = true))
+    include(configureJarTaskTest(project, isEnabled = false))
 
-    include(configureBootJarTaskTest(project, isEnabled = false))
+    include(configureBootJarTaskTest(project, isEnabled = true))
 
     include(configureUploadArchivesTaskTest(project))
-
-    include(configureSourcesJarArtifactTest(project))
-
-    include(configureJavadocJarArtifactTest(project))
 
     include(configureJarArtifactTest(project))
 
     include(configurePublishingExtensionTest(project))
 
     include(configureSigningExtensionTest(project))
-
-    include(configureSourcesJarSigningTest(project))
-
-    include(configureJavadocJarSigningTest(project))
 
     include(configureJarSigningTest(project))
 })
