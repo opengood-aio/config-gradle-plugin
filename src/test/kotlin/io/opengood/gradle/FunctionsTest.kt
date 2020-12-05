@@ -8,12 +8,31 @@ import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.opengood.gradle.enumeration.BuildGradleType
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.extension.OpenGoodExtension
 import io.opengood.gradle.extension.opengood
 import org.gradle.testfixtures.ProjectBuilder
 
 class FunctionsTest : FunSpec({
+
+    test("buildGradleType returns Groovy for Groovy Gradle project") {
+        val project = createProject(languageType = LanguageType.GROOVY)
+
+        project.buildGradleType shouldBe BuildGradleType.GROOVY
+    }
+
+    test("buildGradleType returns Groovy for Java Gradle project") {
+        val project = createProject(languageType = LanguageType.JAVA)
+
+        project.buildGradleType shouldBe BuildGradleType.GROOVY
+    }
+
+    test("buildGradleType returns Kotlin for Kotlin Gradle project") {
+        val project = createProject(languageType = LanguageType.KOTLIN)
+
+        project.buildGradleType shouldBe BuildGradleType.KOTLIN
+    }
 
     test("getEnvVar returns environment variable value when variable exists") {
         withEnvironment("NAME", "test") {

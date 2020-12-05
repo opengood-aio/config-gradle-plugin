@@ -47,6 +47,8 @@ class ConfigPluginJavaLibTest : FunSpec({
         getDependency(project, "testAnnotationProcessor", Dependencies.LOMBOK).shouldNotBeNull()
     }
 
+    include(configureGradleWrapperTaskTest(project))
+
     include(configureJavaCompileTaskTest(project))
 
     include(configureDependencyUpdatesTaskTest(project))

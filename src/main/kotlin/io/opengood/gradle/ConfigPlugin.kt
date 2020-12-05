@@ -8,7 +8,6 @@ import io.opengood.gradle.constant.*
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
 import io.opengood.gradle.extension.OpenGoodExtension
-import io.opengood.gradle.extension.opengood
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.plugins.DslObject
@@ -25,8 +24,12 @@ import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.TestDescriptor
 import org.gradle.api.tasks.testing.TestListener
 import org.gradle.api.tasks.testing.TestResult
+import org.gradle.api.tasks.wrapper.Wrapper
+import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
+import org.gradle.language.jvm.tasks.ProcessResources
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.springframework.boot.gradle.dsl.SpringBootExtension
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 class ConfigPlugin : Plugin<Project> {
@@ -97,7 +100,7 @@ class ConfigPlugin : Plugin<Project> {
         with(project) {
             with(extension) {
                 val basePluginConvention = convention.getPlugin(BasePluginConvention::class.java)
-                basePluginConvention.archivesBaseName = artifact.archiveBaseName
+                basePluginConvention.archivesBaseName = artifact.name
             }
         }
     }
@@ -133,7 +136,8 @@ class ConfigPlugin : Plugin<Project> {
                         LanguageType.KOTLIN -> {
                             implementation.dependencies.add(create(Dependencies.KOTLIN_STD_LIB))
                             implementation.dependencies.add(create(Dependencies.KOTLIN_REFLECT))
-                            testImplementation.dependencies.add(create(Dependencies.KO_TEST))
+                            testImplementation.dependencies.add(create(Dependencies.KO_TEST_JUNIT_RUNNER))
+                            testImplementation.dependencies.add(create(Dependencies.KO_TEST_JUNIT_SPRING))
                             testImplementation.dependencies.add(create(Dependencies.MOCK_K))
                         }
                     }
@@ -149,18 +153,27 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     private fun configureTasks(project: Project) {
-        with(project.opengood()) {
+        configureGradleWrapperTask(project)
+
+        with(extension) {
             if (main.languageType == LanguageType.KOTLIN) {
                 configureKotlinCompileTask(project)
             }
         }
 
         configureJavaCompileTask(project)
+        configureProcessResourcesTask(project)
         configureDependencyUpdatesTask(project)
         configureTestTask(project)
         configureJarTask(project)
         configureBootJarTask(project)
         configureUploadArchivesTask(project)
+    }
+
+    private fun configureGradleWrapperTask(project: Project) {
+        project.tasks.withType(Wrapper::class.java) {
+            it.distributionType = DistributionType.ALL
+        }
     }
 
     private fun configureKotlinCompileTask(project: Project) {
@@ -179,6 +192,18 @@ class ConfigPlugin : Plugin<Project> {
         }
     }
 
+    private fun configureProcessResourcesTask(project: Project) {
+        with(extension.main) {
+            if (projectType == ProjectType.APP) {
+                project.tasks.withType(ProcessResources::class.java) {
+                    it.filesMatching(Resources.APPLICATION_PROPERTIES) { file ->
+                        file.expand(project.properties)
+                    }
+                }
+            }
+        }
+    }
+
     private fun configureDependencyUpdatesTask(project: Project) {
         val isDependencyVersionNotStable = fun(version: String): Boolean {
             val stableKeywords = listOf("RELEASE", "FINAL", "GA").any { version.toUpperCase() in it }
@@ -192,7 +217,8 @@ class ConfigPlugin : Plugin<Project> {
                 strategy.componentSelection { component ->
                     component.all {
                         if (isDependencyVersionNotStable(it.candidate.version) &&
-                            !isDependencyVersionNotStable(it.currentVersion)) {
+                            !isDependencyVersionNotStable(it.currentVersion)
+                        ) {
                             it.reject("Release candidate")
                         }
                     }
@@ -263,17 +289,21 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     private fun configureJarTask(project: Project) {
-        if (extension.main.projectType == ProjectType.LIB) {
-            project.tasks.withType(Jar::class.java).getByName("jar") {
-                it.enabled = true
+        with(extension) {
+            if (main.projectType == ProjectType.LIB) {
+                project.tasks.withType(Jar::class.java).getByName("jar") {
+                    it.enabled = true
+                }
             }
         }
     }
 
     private fun configureBootJarTask(project: Project) {
-        if (extension.main.projectType == ProjectType.LIB) {
-            project.tasks.withType(BootJar::class.java).getByName("bootJar") {
-                it.enabled = false
+        with(extension) {
+            if (main.projectType == ProjectType.LIB) {
+                project.tasks.withType(BootJar::class.java).getByName("bootJar") {
+                    it.enabled = false
+                }
             }
         }
     }
@@ -292,18 +322,20 @@ class ConfigPlugin : Plugin<Project> {
                     }
 
                     with(extension.artifact) {
-                        mavenDeployer.withGroovyBuilder {
-                            "repository"("url" to stagingUri) {
-                                "authentication"(
-                                    "userName" to ossrhUsername,
-                                    "password" to ossrhPassword
-                                )
-                            }
-                            "snapshotRepository"("url" to snapshotsUri) {
-                                "authentication"(
-                                    "userName" to ossrhUsername,
-                                    "password" to ossrhPassword
-                                )
+                        with(repo) {
+                            mavenDeployer.withGroovyBuilder {
+                                "repository"("url" to stagingRepoUri) {
+                                    "authentication"(
+                                        "userName" to ossrhUsername,
+                                        "password" to ossrhPassword
+                                    )
+                                }
+                                "snapshotRepository"("url" to snapshotsRepoUri) {
+                                    "authentication"(
+                                        "userName" to ossrhUsername,
+                                        "password" to ossrhPassword
+                                    )
+                                }
                             }
                         }
 
@@ -325,23 +357,19 @@ class ConfigPlugin : Plugin<Project> {
                                         }
                                     }
                                     "licenses" {
-                                        licenses.forEach { license ->
-                                            "license" {
-                                                with(license) {
-                                                    "name"(name)
-                                                    "url"(uri)
-                                                }
+                                        "license" {
+                                            with(license) {
+                                                "name"(name)
+                                                "url"(uri)
                                             }
                                         }
                                     }
                                     "developers" {
-                                        developers.forEach { developer ->
-                                            "developer" {
-                                                with(developer) {
-                                                    "id"(id)
-                                                    "name"(name)
-                                                    "email"(email)
-                                                }
+                                        "developer" {
+                                            with(developer) {
+                                                "id"(id)
+                                                "name"(name)
+                                                "email"(email)
                                             }
                                         }
                                     }
@@ -356,22 +384,24 @@ class ConfigPlugin : Plugin<Project> {
 
     private fun configureArtifacts(project: Project) {
         with(project) {
-            if (extension.main.projectType == ProjectType.LIB) {
-                val sourcesJar = tasks.create("sourcesJar", Jar::class.java) {
-                    val sourceSets = project.getExtension<SourceSetContainer>("sourceSets")
-                    it.dependsOn("classes")
-                    it.from(sourceSets.getByName("main").allSource)
-                    it.archiveClassifier.set("sources")
-                }
-                artifacts.add("archives", sourcesJar)
+            with(extension) {
+                if (main.projectType == ProjectType.LIB) {
+                    val sourcesJar = tasks.create("sourcesJar", Jar::class.java) {
+                        val sourceSets = project.getExtension<SourceSetContainer>("sourceSets")
+                        it.dependsOn("classes")
+                        it.from(sourceSets.getByName("main").allSource)
+                        it.archiveClassifier.set("sources")
+                    }
+                    artifacts.add("archives", sourcesJar)
 
-                val javadocJar = tasks.create("javadocJar", Jar::class.java) {
-                    val javadoc = tasks.getByName("javadoc") as Javadoc
-                    it.dependsOn.add(javadoc)
-                    it.from(javadoc)
-                    it.archiveClassifier.set("javadoc")
+                    val javadocJar = tasks.create("javadocJar", Jar::class.java) {
+                        val javadoc = tasks.getByName("javadoc") as Javadoc
+                        it.dependsOn.add(javadoc)
+                        it.from(javadoc)
+                        it.archiveClassifier.set("javadoc")
+                    }
+                    artifacts.add("archives", javadocJar)
                 }
-                artifacts.add("archives", javadocJar)
             }
 
             val jar = tasks.getByName("jar") as Jar
@@ -380,8 +410,23 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     private fun configureExtensions(project: Project) {
+        configureSpringBootExtension(project)
         configurePublishingExtension(project)
         configureSigningExtension(project)
+    }
+
+    private fun configureSpringBootExtension(project: Project) {
+        with(extension) {
+            if (main.projectType == ProjectType.APP) {
+                with(project) {
+                    pluginManager.withPlugin(Plugins.SPRING_BOOT) {
+                        extensions.configure(SpringBootExtension::class.java) {
+                            it.buildInfo()
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun configurePublishingExtension(project: Project) {

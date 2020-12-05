@@ -12,13 +12,3 @@ plugins {
     id("io.opengood.gradle.config") version "VERSION"
 }
 ```
-
-Add plugin repository to `settings.gradle.kts`:
-
-```kotlin
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-    }
-}
-```

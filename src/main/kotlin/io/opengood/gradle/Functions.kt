@@ -1,9 +1,17 @@
 package io.opengood.gradle
 
 import io.opengood.gradle.constant.Directories
+import io.opengood.gradle.enumeration.BuildGradleType
 import io.opengood.gradle.enumeration.LanguageType
 import org.gradle.api.Project
 import java.nio.file.Path
+
+internal val Project.buildGradleType: BuildGradleType
+    get() =
+        when {
+            isKotlin -> BuildGradleType.KOTLIN
+            else -> BuildGradleType.GROOVY
+        }
 
 internal inline fun <reified V : Any> getEnvVar(name: String, default: V): V =
     try {
@@ -12,11 +20,11 @@ internal inline fun <reified V : Any> getEnvVar(name: String, default: V): V =
         default
     }
 
-internal inline fun <reified T : Any> Project.getExtension(name: String): T =
-    extensions.getByName(name) as T
-
 internal inline fun <reified T : Any> Project.getExtension(): T =
     extensions.getByType(T::class.java)
+
+internal inline fun <reified T : Any> Project.getExtension(name: String): T =
+    extensions.getByName(name) as T
 
 internal inline fun <reified V : Any> Project.getProperty(name: String, default: V): V =
     try {

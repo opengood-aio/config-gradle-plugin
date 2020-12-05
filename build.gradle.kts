@@ -75,6 +75,7 @@ dependencies {
     testImplementation(kotlin("test"))
 
     testImplementation("io.kotest:kotest-runner-junit5:${Versions.KO_TEST}")
+    testImplementation("io.kotest:kotest-extensions-spring:${Versions.KO_TEST}")
     testImplementation("org.junit.jupiter:junit-jupiter:${Versions.JUNIT_JUPITER}")
     testImplementation("org.assertj:assertj-core:${Versions.ASSERT_J}")
     testImplementation("io.mockk:mockk:${Versions.MOCK_K}")

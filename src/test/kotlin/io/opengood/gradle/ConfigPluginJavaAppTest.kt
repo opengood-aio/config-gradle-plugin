@@ -46,7 +46,11 @@ class ConfigPluginJavaAppTest : FunSpec({
         getDependency(project, "testAnnotationProcessor", Dependencies.LOMBOK).shouldNotBeNull()
     }
 
+    include(configureGradleWrapperTaskTest(project))
+
     include(configureJavaCompileTaskTest(project))
+
+    include(configureProcessResourcesTaskTest(project))
 
     include(configureDependencyUpdatesTaskTest(project))
 
@@ -59,6 +63,8 @@ class ConfigPluginJavaAppTest : FunSpec({
     include(configureUploadArchivesTaskTest(project))
 
     include(configureJarArtifactTest(project))
+
+    include(configureSpringBootExtensionTest(project))
 
     include(configurePublishingExtensionTest(project))
 

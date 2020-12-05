@@ -1,10 +1,12 @@
 package io.opengood.gradle.config
 
-import io.opengood.gradle.constant.GitHub
+import io.opengood.gradle.constant.Repositories
 import io.opengood.gradle.property.GradleProperty
 import org.gradle.api.Project
 
-class RepoConfiguration(project: Project) {
-    var name by GradleProperty(project, String::class.java, project.name)
-    var baseUri by GradleProperty(project, String::class.java, GitHub.OPENGOOD_ORG_URI)
+open class RepoConfiguration(
+    project: Project
+) {
+    var snapshotsRepoUri by GradleProperty(project, String::class.java, Repositories.OSS_SNAPSHOTS_REPO_URI)
+    var stagingRepoUri by GradleProperty(project, String::class.java, Repositories.OSS_STAGING_REPO_URI)
 }

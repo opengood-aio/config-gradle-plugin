@@ -1,10 +1,8 @@
 package helper
 
 import io.opengood.gradle.ConfigPlugin
-import io.opengood.gradle.config.DeveloperConfiguration
-import io.opengood.gradle.config.LicenseConfiguration
-import io.opengood.gradle.constant.Artifacts
 import io.opengood.gradle.constant.Directories
+import io.opengood.gradle.enumeration.BuildGradleType
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
 import io.opengood.gradle.extension.OpenGoodExtension
@@ -51,10 +49,6 @@ internal fun createProject(
                 extensions.configure(OpenGoodExtension::class.java) { ext ->
                     ext.apply {
                         main.projectType = projectType
-                        artifact.apply {
-                            licenses.add(LicenseConfiguration(project, repo, Artifacts.LICENSE_ID))
-                            developers.add(DeveloperConfiguration(project, Artifacts.DEVELOPER_ID))
-                        }
                     }
                 }
             }
@@ -86,6 +80,12 @@ internal inline fun <reified T : Any> getArtifact(
         .filter { it.`is`(T::class.java) }
         .first { it.toString().endsWith("${project.name}:${parts.joinToString(":")}:$name") }
         .let { it as T }
+
+internal fun getBuildGradleFile(languageType: LanguageType): String =
+    when (languageType) {
+        LanguageType.KOTLIN -> BuildGradleType.KOTLIN.toString()
+        else -> BuildGradleType.GROOVY.toString()
+    }
 
 internal inline fun <reified T : Any> getConvention(project: Project): T =
     project.convention.getPlugin(T::class.java)

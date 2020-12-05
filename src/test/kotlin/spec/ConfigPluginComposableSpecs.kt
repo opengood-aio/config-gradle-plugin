@@ -8,8 +8,6 @@ import helper.getDependency
 import helper.getPlugin
 import helper.getRepository
 import io.kotest.core.spec.style.funSpec
-import io.kotest.matchers.booleans.shouldBeFalse
-import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
@@ -30,10 +28,14 @@ import org.gradle.api.tasks.Upload
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
+import org.gradle.api.tasks.wrapper.Wrapper
+import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
 import org.gradle.internal.impldep.org.apache.maven.model.Model
+import org.gradle.language.jvm.tasks.ProcessResources
 import org.gradle.plugins.signing.Signature
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.springframework.boot.gradle.dsl.SpringBootExtension
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 fun applyPluginTest(project: Project) = funSpec {
@@ -46,52 +48,40 @@ fun applyPluginTest(project: Project) = funSpec {
 
 fun createExtensionTest(
     project: Project,
-    properties: Map<String, Any>
+    expectedProperties: Map<String, Any>
 ) = funSpec {
     test("Creates extension") {
         with(project.opengood()) {
             with(main) {
                 languageType shouldBe project.languageType
-                projectType shouldBe expectedProperty(properties, "projectType")
-            }
-            with(repo) {
-                name shouldBe project.name
-                baseUri shouldBe GitHub.OPENGOOD_ORG_URI
+                projectType shouldBe expectedProperty(expectedProperties, "projectType")
             }
             with(test) {
                 maxParallelForks shouldBe Tests.MAX_PARALLEL_FORKS
             }
             with(artifact) {
-                archiveBaseName shouldBe project.name
                 name shouldBe project.name
                 packaging shouldBe PackagingType.JAR
                 description.shouldBeEmpty()
-                uri shouldBe "${repo.baseUri}/${repo.name}"
-                snapshotsUri shouldBe Repositories.OSS_SNAPSHOTS_REPO_URI
-                stagingUri shouldBe Repositories.OSS_STAGING_REPO_URI
+                uri shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}"
+                with(repo) {
+                    snapshotsRepoUri shouldBe Repositories.OSS_SNAPSHOTS_REPO_URI
+                    stagingRepoUri shouldBe Repositories.OSS_STAGING_REPO_URI
+                }
                 with(scm) {
                     provider shouldBe ScmProvider.GIT
-                    connection shouldBe "${ScmProvider.PROTOCOL}:$provider:${repo.baseUri}/${repo.name}"
-                    developerConnection shouldBe "${ScmProvider.PROTOCOL}:$provider:${repo.baseUri}/${repo.name}"
-                    uri shouldBe "${repo.baseUri}/${repo.name}"
+                    connection shouldBe "${ScmProvider.PROTOCOL}:$provider:${GitHub.OPENGOOD_ORG_URI}/${project.name}"
+                    developerConnection shouldBe "${ScmProvider.PROTOCOL}:$provider:${GitHub.OPENGOOD_ORG_URI}/${project.name}"
+                    uri shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}"
                 }
-                with(licenses) {
-                    if (isNotEmpty()) {
-                        with(first()) {
-                            id shouldBe Artifacts.LICENSE_ID
-                            name shouldBe Artifacts.LICENSE_NAME
-                            uri shouldBe "${repo.baseUri}/${repo.name}/${GitHub.RESOURCE_ENDPOINT}/${GitHub.BRANCH}/${Artifacts.LICENSE_RESOURCE}"
-                        }
-                    }
+                with(license) {
+                    name shouldBe Artifacts.LICENSE_NAME
+                    uri shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}/${GitHub.RESOURCE_ENDPOINT}/${GitHub.BRANCH}/${Artifacts.LICENSE_RESOURCE}"
                 }
-                with(developers) {
-                    if (isNotEmpty()) {
-                        with(first()) {
-                            id shouldBe Artifacts.DEVELOPER_ID
-                            name shouldBe Artifacts.DEVELOPER_NAME
-                            email shouldBe Artifacts.DEVELOPER_EMAIL
-                        }
-                    }
+                with(developer) {
+                    id shouldBe Artifacts.DEVELOPER_ID
+                    name shouldBe Artifacts.DEVELOPER_NAME
+                    email shouldBe Artifacts.DEVELOPER_EMAIL
                 }
             }
         }
@@ -120,10 +110,12 @@ fun configureConventionsTest(project: Project) = funSpec {
 
 fun addRepositoriesTest(project: Project) = funSpec {
     test("Adds repositories") {
-        getRepository(project, project.repositories.mavenCentral().name).shouldNotBeNull()
-        getRepository(project, project.repositories.jcenter().name).shouldNotBeNull()
-        getRepository(project, project.repositories.gradlePluginPortal().name).shouldNotBeNull()
-        getRepository(project, project.repositories.mavenLocal().name).shouldNotBeNull()
+        with(project.repositories) {
+            getRepository(project, mavenCentral().name).shouldNotBeNull()
+            getRepository(project, jcenter().name).shouldNotBeNull()
+            getRepository(project, gradlePluginPortal().name).shouldNotBeNull()
+            getRepository(project, mavenLocal().name).shouldNotBeNull()
+        }
     }
 }
 
@@ -134,6 +126,17 @@ fun addCommonDependenciesTest(project: Project) = funSpec {
         getDependency(project, "testImplementation", Dependencies.SPRING_BOOT_STARTER_TEST).shouldNotBeNull()
         getDependency(project, "testImplementation", Dependencies.JUNIT_JUPITER).shouldNotBeNull()
         getDependency(project, "testImplementation", Dependencies.ASSERT_J).shouldNotBeNull()
+    }
+}
+
+fun configureGradleWrapperTaskTest(project: Project) = funSpec {
+    test("Configures Gradle Wrapper task") {
+        val task = getTask<Wrapper>(project)
+
+        with(task) {
+            task.shouldNotBeNull()
+            distributionType shouldBe DistributionType.ALL
+        }
     }
 }
 
@@ -157,6 +160,17 @@ fun configureJavaCompileTaskTest(project: Project) = funSpec {
             task.shouldNotBeNull()
             sourceCompatibility shouldBe Versions.JAVA
             targetCompatibility shouldBe Versions.JAVA
+        }
+    }
+}
+
+fun configureProcessResourcesTaskTest(project: Project) = funSpec {
+    test("Configures Process Resources task") {
+        val task = getTask<ProcessResources>(project)
+
+        with(task) {
+            task.shouldNotBeNull()
+            destinationDir.absolutePath shouldContain "resources/main"
         }
     }
 }
@@ -285,6 +299,14 @@ fun configureJarArtifactTest(project: Project) = funSpec {
     with(jar) {
         jar.shouldNotBeNull()
         archiveTask.name shouldBe "jar"
+    }
+}
+
+fun configureSpringBootExtensionTest(project: Project) = funSpec {
+    test("Configures Spring Boot extension") {
+        val extension = project.getExtension<SpringBootExtension>()
+
+        extension.shouldNotBeNull()
     }
 }
 

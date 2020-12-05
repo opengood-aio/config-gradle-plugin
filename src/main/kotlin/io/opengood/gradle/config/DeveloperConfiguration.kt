@@ -4,16 +4,10 @@ import io.opengood.gradle.constant.Artifacts
 import io.opengood.gradle.property.GradleProperty
 import org.gradle.api.Project
 
-class DeveloperConfiguration(
-    project: Project,
-    val id: String
+open class DeveloperConfiguration(
+    project: Project
 ) {
-    init {
-        if (id.isBlank()) {
-            throw IllegalArgumentException("Developer configuration identifier must not be blank")
-        }
-    }
-
+    var id by GradleProperty(project, String::class.java, Artifacts.DEVELOPER_ID)
     var name by GradleProperty(project, String::class.java, Artifacts.DEVELOPER_NAME)
     var email by GradleProperty(project, String::class.java, Artifacts.DEVELOPER_EMAIL)
 }

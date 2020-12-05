@@ -43,6 +43,8 @@ class ConfigPluginGroovyLibTest : FunSpec({
         getDependency(project, "implementation", Dependencies.GROOVY).shouldNotBeNull()
     }
 
+    include(configureGradleWrapperTaskTest(project))
+
     include(configureJavaCompileTaskTest(project))
 
     include(configureDependencyUpdatesTaskTest(project))

@@ -42,6 +42,10 @@ class ConfigPluginGroovyAppTest : FunSpec({
         getDependency(project, "implementation", Dependencies.GROOVY).shouldNotBeNull()
     }
 
+    include(configureGradleWrapperTaskTest(project))
+
+    include(configureProcessResourcesTaskTest(project))
+
     include(configureJavaCompileTaskTest(project))
 
     include(configureDependencyUpdatesTaskTest(project))
@@ -55,6 +59,8 @@ class ConfigPluginGroovyAppTest : FunSpec({
     include(configureUploadArchivesTaskTest(project))
 
     include(configureJarArtifactTest(project))
+
+    include(configureSpringBootExtensionTest(project))
 
     include(configurePublishingExtensionTest(project))
 

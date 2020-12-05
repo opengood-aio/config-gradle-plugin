@@ -6,7 +6,9 @@ import io.opengood.gradle.languageType
 import io.opengood.gradle.property.GradleProperty
 import org.gradle.api.Project
 
-class MainConfiguration(project: Project) {
+open class MainConfiguration(
+    project: Project
+) {
     val languageType: LanguageType = project.languageType
     var projectType by GradleProperty(project, ProjectType::class.java, ProjectType.APP)
 }

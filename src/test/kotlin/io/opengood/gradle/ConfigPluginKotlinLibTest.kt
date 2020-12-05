@@ -43,9 +43,12 @@ class ConfigPluginKotlinLibTest : FunSpec({
     test("Adds specific dependencies") {
         getDependency(project, "implementation", Dependencies.KOTLIN_STD_LIB).shouldNotBeNull()
         getDependency(project, "implementation", Dependencies.KOTLIN_REFLECT).shouldNotBeNull()
-        getDependency(project, "testImplementation", Dependencies.KO_TEST).shouldNotBeNull()
+        getDependency(project, "testImplementation", Dependencies.KO_TEST_JUNIT_RUNNER).shouldNotBeNull()
+        getDependency(project, "testImplementation", Dependencies.KO_TEST_JUNIT_SPRING).shouldNotBeNull()
         getDependency(project, "testImplementation", Dependencies.MOCK_K).shouldNotBeNull()
     }
+
+    include(configureGradleWrapperTaskTest(project))
 
     include(configureKotlinCompileTaskTest(project))
 
