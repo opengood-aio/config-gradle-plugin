@@ -24,7 +24,7 @@ class ConfigPluginGroovyLibTest : FunSpec({
 
     include(applyPluginTest(project))
 
-    include(createExtensionTest(project, properties))
+    include(createExtensionTest(project, ProjectType.LIB))
 
     include(applyCommonPluginsTest(project))
 

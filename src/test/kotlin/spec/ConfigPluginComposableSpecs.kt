@@ -2,11 +2,6 @@ package spec
 
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import helper.*
-import helper.expectedProperty
-import helper.getConvention
-import helper.getDependency
-import helper.getPlugin
-import helper.getRepository
 import io.kotest.core.spec.style.funSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -16,6 +11,7 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import io.opengood.gradle.ConfigPlugin
 import io.opengood.gradle.constant.*
 import io.opengood.gradle.enumeration.PackagingType
+import io.opengood.gradle.enumeration.ProjectType
 import io.opengood.gradle.enumeration.ScmProvider
 import io.opengood.gradle.extension.opengood
 import io.opengood.gradle.getExtension
@@ -48,13 +44,13 @@ fun applyPluginTest(project: Project) = funSpec {
 
 fun createExtensionTest(
     project: Project,
-    expectedProperties: Map<String, Any>
+    projectType: ProjectType
 ) = funSpec {
     test("Creates extension") {
         with(project.opengood()) {
             with(main) {
                 languageType shouldBe project.languageType
-                projectType shouldBe expectedProperty(expectedProperties, "projectType")
+                main.projectType shouldBe projectType
             }
             with(test) {
                 maxParallelForks shouldBe Tests.MAX_PARALLEL_FORKS
@@ -76,7 +72,7 @@ fun createExtensionTest(
                 }
                 with(license) {
                     name shouldBe Artifacts.LICENSE_NAME
-                    uri shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}/${GitHub.RESOURCE_ENDPOINT}/${GitHub.BRANCH}/${Artifacts.LICENSE_RESOURCE}"
+                    uri shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}/${GitHub.BLOB_ENDPOINT}/${GitHub.BRANCH}/${Artifacts.LICENSE_RESOURCE}"
                 }
                 with(developer) {
                     id shouldBe Artifacts.DEVELOPER_ID
@@ -125,7 +121,9 @@ fun addCommonDependenciesTest(project: Project) = funSpec {
         getDependency(project, "annotationProcessor", Dependencies.SPRING_BOOT_CONFIG_PROCESSOR).shouldNotBeNull()
         getDependency(project, "testImplementation", Dependencies.SPRING_BOOT_STARTER_TEST).shouldNotBeNull()
         getDependency(project, "testImplementation", Dependencies.JUNIT_JUPITER).shouldNotBeNull()
-        getDependency(project, "testImplementation", Dependencies.ASSERT_J).shouldNotBeNull()
+        getDependency(project, "testImplementation", Dependencies.ASSERTJ).shouldNotBeNull()
+        getDependency(project, "testImplementation", Dependencies.MOCKITO).shouldNotBeNull()
+        getDependency(project, "testImplementation", Dependencies.MOCKITO_JUNIT_JUPITER).shouldNotBeNull()
     }
 }
 
@@ -263,7 +261,7 @@ fun configureUploadArchivesTaskTest(project: Project) = funSpec {
                     }
                     with(licenses.first()) {
                         name shouldBe Artifacts.LICENSE_NAME
-                        url shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}/${GitHub.RESOURCE_ENDPOINT}/${GitHub.BRANCH}/${Artifacts.LICENSE_RESOURCE}"
+                        url shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}/${GitHub.BLOB_ENDPOINT}/${GitHub.BRANCH}/${Artifacts.LICENSE_RESOURCE}"
                     }
                     with(developers.first()) {
                         id shouldBe Artifacts.DEVELOPER_ID

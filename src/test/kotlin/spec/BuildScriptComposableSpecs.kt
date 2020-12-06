@@ -49,6 +49,7 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
                             uri = "https://repo.uri/project/LICENSE"
                         }
                         developer {
+                            id = "developer"
                             name = "Developer"
                             email = "dev@example.org"
                         }

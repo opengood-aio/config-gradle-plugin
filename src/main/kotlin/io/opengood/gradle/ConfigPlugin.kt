@@ -136,9 +136,11 @@ class ConfigPlugin : Plugin<Project> {
                         LanguageType.KOTLIN -> {
                             implementation.dependencies.add(create(Dependencies.KOTLIN_STD_LIB))
                             implementation.dependencies.add(create(Dependencies.KOTLIN_REFLECT))
-                            testImplementation.dependencies.add(create(Dependencies.KO_TEST_JUNIT_RUNNER))
-                            testImplementation.dependencies.add(create(Dependencies.KO_TEST_JUNIT_SPRING))
-                            testImplementation.dependencies.add(create(Dependencies.MOCK_K))
+                            testImplementation.dependencies.add(create(Dependencies.KOTEST_JUNIT_RUNNER))
+                            testImplementation.dependencies.add(create(Dependencies.KOTEST_JUNIT_EXTENSIONS))
+                            testImplementation.dependencies.add(create(Dependencies.KOTEST_SPRING_EXTENSIONS))
+                            testImplementation.dependencies.add(create(Dependencies.KOTEST_KOIN_EXTENSIONS))
+                            testImplementation.dependencies.add(create(Dependencies.MOCKK))
                         }
                     }
 
@@ -146,7 +148,9 @@ class ConfigPlugin : Plugin<Project> {
                     annotationProcessor.dependencies.add(create(Dependencies.SPRING_BOOT_CONFIG_PROCESSOR))
                     testImplementation.dependencies.add(create(Dependencies.SPRING_BOOT_STARTER_TEST))
                     testImplementation.dependencies.add(create(Dependencies.JUNIT_JUPITER))
-                    testImplementation.dependencies.add(create(Dependencies.ASSERT_J))
+                    testImplementation.dependencies.add(create(Dependencies.ASSERTJ))
+                    testImplementation.dependencies.add(create(Dependencies.MOCKITO))
+                    testImplementation.dependencies.add(create(Dependencies.MOCKITO_JUNIT_JUPITER))
                 }
             }
         }

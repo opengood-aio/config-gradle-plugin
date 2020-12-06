@@ -36,12 +36,13 @@ val javaVersion = JavaVersion.VERSION_11
 val jvmTargetVersion = "11"
 
 object Versions {
-    const val ASSERT_J = "3.18.1"
-    const val J_COLOR = "5.0.1"
+    const val ASSERTJ = "3.18.1"
+    const val JCOLOR = "5.0.1"
     const val JUNIT_JUPITER = "5.7.0"
-    const val KO_TEST = "4.3.1"
+    const val KOTEST = "4.3.1"
     const val LOMBOK_PLUGIN = "4.0.0"
-    const val MOCK_K = "1.10.2"
+    const val MOCKITO = "3.6.28"
+    const val MOCKK = "1.10.2"
     const val SPRING_BOOT_PLUGIN = "2.3.6.RELEASE"
     const val SPRING_DEPENDENCY_MANAGEMENT_PLUGIN = "1.0.10.RELEASE"
     const val VERSIONS_PLUGIN = "0.36.0"
@@ -70,15 +71,20 @@ dependencies {
     implementation("io.franzbecker:gradle-lombok:${Versions.LOMBOK_PLUGIN}")
     implementation("com.github.ben-manes:gradle-versions-plugin:${Versions.VERSIONS_PLUGIN}")
 
-    implementation("com.diogonunes:JColor:${Versions.J_COLOR}")
+    implementation("com.diogonunes:JColor:${Versions.JCOLOR}")
 
     testImplementation(kotlin("test"))
 
-    testImplementation("io.kotest:kotest-runner-junit5:${Versions.KO_TEST}")
-    testImplementation("io.kotest:kotest-extensions-spring:${Versions.KO_TEST}")
+    testImplementation("io.kotest:kotest-runner-junit5:${Versions.KOTEST}")
+    testImplementation("io.kotest:kotest-extensions-junit5:${Versions.KOTEST}")
+    testImplementation("io.kotest:kotest-extensions-spring:${Versions.KOTEST}")
+    testImplementation("io.kotest:kotest-extensions-koin:${Versions.KOTEST}")
+    testImplementation("io.mockk:mockk:${Versions.MOCKK}")
+
     testImplementation("org.junit.jupiter:junit-jupiter:${Versions.JUNIT_JUPITER}")
-    testImplementation("org.assertj:assertj-core:${Versions.ASSERT_J}")
-    testImplementation("io.mockk:mockk:${Versions.MOCK_K}")
+    testImplementation("org.assertj:assertj-core:${Versions.ASSERTJ}")
+    testImplementation("org.mockito:mockito-core:${Versions.MOCKITO}")
+    testImplementation("org.mockito:mockito-junit-jupiter:${Versions.MOCKITO}")
 }
 
 val out: StyledTextOutput = project.serviceOf<StyledTextOutputFactory>().create("colored-output")
@@ -125,7 +131,6 @@ tasks.withType<Test> {
     }
 
     maxParallelForks = Runtime.getRuntime().availableProcessors() / 2 + 1
-
     systemProperty("junit.jupiter.testinstance.lifecycle.default", "per_class")
 
     doFirst {

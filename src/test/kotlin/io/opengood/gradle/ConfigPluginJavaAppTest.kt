@@ -24,7 +24,7 @@ class ConfigPluginJavaAppTest : FunSpec({
 
     include(applyPluginTest(project))
 
-    include(createExtensionTest(project, properties))
+    include(createExtensionTest(project, ProjectType.APP))
 
     include(applyCommonPluginsTest(project))
 

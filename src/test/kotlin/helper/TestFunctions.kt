@@ -66,10 +66,6 @@ internal fun createProjectDir(languageType: LanguageType): Path {
     return projectDir
 }
 
-internal inline fun <reified V : Any> expectedProperty(map: Map<String, Any>, name: String): V =
-    map.takeIf { it.containsKey(name) }
-        .let { it?.get(name) as V }
-
 internal inline fun <reified T : Any> getArtifact(
     project: Project,
     configuration: String,

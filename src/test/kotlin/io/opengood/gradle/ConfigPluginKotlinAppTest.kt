@@ -24,7 +24,7 @@ class ConfigPluginKotlinAppTest : FunSpec({
 
     include(applyPluginTest(project))
 
-    include(createExtensionTest(project, properties))
+    include(createExtensionTest(project, ProjectType.APP))
 
     include(applyCommonPluginsTest(project))
 
@@ -42,9 +42,11 @@ class ConfigPluginKotlinAppTest : FunSpec({
     test("Adds specific dependencies") {
         getDependency(project, "implementation", Dependencies.KOTLIN_STD_LIB).shouldNotBeNull()
         getDependency(project, "implementation", Dependencies.KOTLIN_REFLECT).shouldNotBeNull()
-        getDependency(project, "testImplementation", Dependencies.KO_TEST_JUNIT_RUNNER).shouldNotBeNull()
-        getDependency(project, "testImplementation", Dependencies.KO_TEST_JUNIT_SPRING).shouldNotBeNull()
-        getDependency(project, "testImplementation", Dependencies.MOCK_K).shouldNotBeNull()
+        getDependency(project, "testImplementation", Dependencies.KOTEST_JUNIT_RUNNER).shouldNotBeNull()
+        getDependency(project, "testImplementation", Dependencies.KOTEST_JUNIT_EXTENSIONS).shouldNotBeNull()
+        getDependency(project, "testImplementation", Dependencies.KOTEST_SPRING_EXTENSIONS).shouldNotBeNull()
+        getDependency(project, "testImplementation", Dependencies.KOTEST_KOIN_EXTENSIONS).shouldNotBeNull()
+        getDependency(project, "testImplementation", Dependencies.MOCKK).shouldNotBeNull()
     }
 
     include(configureGradleWrapperTaskTest(project))
