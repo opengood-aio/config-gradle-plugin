@@ -10,7 +10,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.4.20"
+    kotlin("jvm") version "1.4.21"
     id("java-gradle-plugin")
     id("maven")
     id("maven-publish")
@@ -42,7 +42,7 @@ object Versions {
     const val KOTEST = "4.3.1"
     const val LOMBOK_PLUGIN = "4.0.0"
     const val MOCKITO = "3.6.28"
-    const val MOCKK = "1.10.2"
+    const val MOCKK = "1.10.3"
     const val SPRING_BOOT_PLUGIN = "2.3.6.RELEASE"
     const val SPRING_DEPENDENCY_MANAGEMENT_PLUGIN = "1.0.10.RELEASE"
     const val VERSIONS_PLUGIN = "0.36.0"
