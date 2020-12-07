@@ -37,6 +37,9 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
                     }
                     test {
                         maxParallelForks = 1
+                        multipleFrameworks {
+                            kotlin = true
+                        }
                     }
                     artifact {
                         name = "test"

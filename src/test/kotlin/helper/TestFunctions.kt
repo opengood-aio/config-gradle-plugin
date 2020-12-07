@@ -36,7 +36,8 @@ internal fun createProject(
     group: String = "org.example",
     version: String = "1.0.0-SNAPSHOT",
     projectType: ProjectType = ProjectType.APP,
-    features: Int = defaultFeatures
+    features: Int = defaultFeatures,
+    multipleFrameworks: Int = defaultMultipleFrameworks
 ): Project {
     return ProjectBuilder.builder()
         .withName(name)
@@ -49,6 +50,7 @@ internal fun createProject(
                 extensions.configure(OpenGoodExtension::class.java) { ext ->
                     ext.main.projectType = projectType
                     ext.features = getFeatures(project, features)
+                    ext.test.multipleFrameworks = getMultipleFrameworks(project, multipleFrameworks)
                 }
             }
             (project as ProjectInternal).evaluate()

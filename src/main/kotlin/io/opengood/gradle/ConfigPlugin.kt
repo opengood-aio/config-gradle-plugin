@@ -70,13 +70,19 @@ class ConfigPlugin : Plugin<Project> {
                             }
                         }
                         with(features) {
+                            if (languageType == LanguageType.JAVA) {
+                                if (lombok) {
+                                    apply(Plugins.LOMBOK)
+                                }
+                            }
+                            if (languageType == LanguageType.KOTLIN) {
+                                if (spring) {
+                                    apply(Plugins.KOTLIN_SPRING)
+                                }
+                            }
                             if (spring) {
-                                apply(Plugins.KOTLIN_SPRING)
                                 apply(Plugins.SPRING_BOOT)
                                 apply(Plugins.SPRING_DEPENDENCY_MANAGEMENT)
-                            }
-                            if (lombok) {
-                                apply(Plugins.LOMBOK)
                             }
                         }
                     }
@@ -132,12 +138,12 @@ class ConfigPlugin : Plugin<Project> {
 
                 with(dependencies) {
                     with(extension) {
-                        when (languageType) {
-                            LanguageType.GROOVY -> {
-                                implementation.dependencies.add(create(Dependencies.GROOVY))
-                            }
-                            LanguageType.JAVA -> {
-                                with(features) {
+                        with(features) {
+                            when (languageType) {
+                                LanguageType.GROOVY -> {
+                                    implementation.dependencies.add(create(Dependencies.GROOVY))
+                                }
+                                LanguageType.JAVA -> {
                                     if (lombok) {
                                         implementation.dependencies.add(create(Dependencies.LOMBOK))
                                         annotationProcessor.dependencies.add(create(Dependencies.LOMBOK))
@@ -145,11 +151,9 @@ class ConfigPlugin : Plugin<Project> {
                                         testAnnotationProcessor.dependencies.add(create(Dependencies.LOMBOK))
                                     }
                                 }
-                            }
-                            LanguageType.KOTLIN -> {
-                                implementation.dependencies.add(create(Dependencies.KOTLIN_STD_LIB))
-                                implementation.dependencies.add(create(Dependencies.KOTLIN_REFLECT))
-                                with(features) {
+                                LanguageType.KOTLIN -> {
+                                    implementation.dependencies.add(create(Dependencies.KOTLIN_STD_LIB))
+                                    implementation.dependencies.add(create(Dependencies.KOTLIN_REFLECT))
                                     if (kotest) {
                                         testImplementation.dependencies.add(create(Dependencies.KOTEST_JUNIT_RUNNER))
                                         testImplementation.dependencies.add(create(Dependencies.KOTEST_JUNIT_EXTENSIONS))
@@ -161,23 +165,28 @@ class ConfigPlugin : Plugin<Project> {
                                     }
                                 }
                             }
-                        }
 
-                        with(features) {
                             if (spring) {
                                 implementation.dependencies.add(create(Dependencies.SPRING_BOOT_STARTER))
                                 annotationProcessor.dependencies.add(create(Dependencies.SPRING_BOOT_CONFIG_PROCESSOR))
                                 testImplementation.dependencies.add(create(Dependencies.SPRING_BOOT_STARTER_TEST))
                             }
-                            if (junit) {
-                                testImplementation.dependencies.add(create(Dependencies.JUNIT_JUPITER))
-                            }
-                            if (assertj) {
-                                testImplementation.dependencies.add(create(Dependencies.ASSERTJ))
-                            }
-                            if (mockito) {
-                                testImplementation.dependencies.add(create(Dependencies.MOCKITO))
-                                testImplementation.dependencies.add(create(Dependencies.MOCKITO_JUNIT_JUPITER))
+
+                            with(test) {
+                                if (languageType != LanguageType.KOTLIN ||
+                                    (languageType == LanguageType.KOTLIN && multipleFrameworks.kotlin)
+                                ) {
+                                    if (junit) {
+                                        testImplementation.dependencies.add(create(Dependencies.JUNIT_JUPITER))
+                                    }
+                                    if (assertj) {
+                                        testImplementation.dependencies.add(create(Dependencies.ASSERTJ))
+                                    }
+                                    if (mockito) {
+                                        testImplementation.dependencies.add(create(Dependencies.MOCKITO))
+                                        testImplementation.dependencies.add(create(Dependencies.MOCKITO_JUNIT_JUPITER))
+                                    }
+                                }
                             }
                         }
                     }

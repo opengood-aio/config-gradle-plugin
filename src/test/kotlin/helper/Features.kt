@@ -4,6 +4,7 @@ import io.opengood.gradle.config.FeatureConfiguration
 import org.gradle.api.Project
 
 internal enum class Features(val flag: Int) {
+    NONE(0),
     SPRING(0b0000001),
     LOMBOK(0b0000010),
     JUNIT(0b0000100),

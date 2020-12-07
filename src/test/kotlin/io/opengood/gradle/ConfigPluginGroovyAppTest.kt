@@ -1,12 +1,7 @@
 package io.opengood.gradle
 
 import helper.createProject
-import helper.getDependency
-import helper.getPlugin
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.nulls.shouldNotBeNull
-import io.opengood.gradle.constant.Dependencies
-import io.opengood.gradle.constant.Plugins
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
 import spec.*
@@ -22,44 +17,42 @@ class ConfigPluginGroovyAppTest : FunSpec({
 
     include(createExtensionTest(project, ProjectType.APP))
 
+    include(applyGroovyPluginTest(project))
+    include(applyJavaPluginTest(project))
     include(applyCommonPluginsTest(project))
-
-    test("Applies specific plugins") {
-        getPlugin(project, Plugins.GROOVY).shouldNotBeNull()
-    }
+    include(applySpringPluginsTest(project))
+    include(doNotApplyKotlinPluginTest(project))
+    include(doNotApplyLibraryPluginTest(project))
+    include(doNotApplyKotlinSpringPluginsTest(project))
+    include(doNotApplyLombokPluginTest(project))
 
     include(configureConventionsTest(project))
 
     include(addRepositoriesTest(project))
 
-    include(addCommonDependenciesTest(project))
-
-    test("Adds specific dependencies") {
-        getDependency(project, "implementation", Dependencies.GROOVY).shouldNotBeNull()
-    }
+    include(addGroovyDependenciesTest(project))
+    include(addSpringDependenciesTest(project))
+    include(addJunitDependenciesTest(project))
+    include(addAssertjDependenciesTest(project))
+    include(addMockitoDependenciesTest(project))
+    include(doNotAddKotlinDependenciesTest(project))
+    include(doNotAddLombokDependenciesTest(project))
+    include(doNotAddKotestDependenciesTest(project))
+    include(doNotAddMockkDependenciesTest(project))
 
     include(configureGradleWrapperTaskTest(project))
-
     include(configureProcessResourcesTaskTest(project))
-
     include(configureJavaCompileTaskTest(project))
-
     include(configureDependencyUpdatesTaskTest(project))
-
     include(configureTestTaskTest(project))
-
     include(configureJarTaskTest(project, isEnabled = false))
-
     include(configureBootJarTaskTest(project, isEnabled = true))
-
     include(configureUploadArchivesTaskTest(project))
 
     include(configureJarArtifactTest(project))
 
     include(configureSpringBootExtensionTest(project))
-
     include(configurePublishingExtensionTest(project))
-
     include(configureSigningExtensionTest(project))
 
     include(configureJarSigningTest(project))
