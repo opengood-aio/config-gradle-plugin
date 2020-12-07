@@ -21,7 +21,6 @@ import org.gradle.api.publication.maven.internal.deployer.DefaultGroovyMavenDepl
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.kotlin.gradle.utils.`is`
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -36,7 +35,8 @@ internal fun createProject(
     name: String = "test",
     group: String = "org.example",
     version: String = "1.0.0-SNAPSHOT",
-    projectType: ProjectType = ProjectType.APP
+    projectType: ProjectType = ProjectType.APP,
+    features: Int = defaultFeatures
 ): Project {
     return ProjectBuilder.builder()
         .withName(name)
@@ -47,9 +47,8 @@ internal fun createProject(
             with(project) {
                 pluginManager.apply(ConfigPlugin.PLUGIN_ID)
                 extensions.configure(OpenGoodExtension::class.java) { ext ->
-                    ext.apply {
-                        main.projectType = projectType
-                    }
+                    ext.main.projectType = projectType
+                    ext.features = getFeatures(project, features)
                 }
             }
             (project as ProjectInternal).evaluate()
@@ -73,7 +72,7 @@ internal inline fun <reified T : Any> getArtifact(
     vararg parts: String
 ): T =
     project.configurations.getByName(configuration).artifacts
-        .filter { it.`is`(T::class.java) }
+        .filter { it is T }
         .first { it.toString().endsWith("${project.name}:${parts.joinToString(":")}:$name") }
         .let { it as T }
 
@@ -86,10 +85,9 @@ internal fun getBuildGradleFile(languageType: LanguageType): String =
 internal inline fun <reified T : Any> getConvention(project: Project): T =
     project.convention.getPlugin(T::class.java)
 
-internal fun getDependency(project: Project, configuration: String, name: String): Dependency =
+internal fun getDependency(project: Project, configuration: String, name: String): Dependency? =
     project.configurations.getByName(configuration).dependencies
-        .takeIf { project.dependencies.create(name) in it }!!
-        .first()
+        .firstOrNull { it == project.dependencies.create(name) }
 
 internal fun getMavenDeployer(repositories: RepositoryHandler): DefaultGroovyMavenDeployer =
     DslObject(repositories).convention.getPlugin(MavenRepositoryHandlerConvention::class.java)
@@ -111,8 +109,8 @@ internal fun getPlugin(project: Project, id: String): Plugin<Any> =
 internal fun getRepository(project: Project, name: String): ArtifactRepository =
     project.repositories.getByName(name)
 
-internal inline fun <reified T : Task> getTask(project: Project, name: String): T =
-    project.tasks.withType(T::class.java).getByName(name)
-
 internal inline fun <reified T : Task> getTask(project: Project): T =
     project.tasks.withType(T::class.java).first()
+
+internal inline fun <reified T : Task> getTask(project: Project, name: String): T =
+    project.tasks.withType(T::class.java).getByName(name)

@@ -37,21 +37,21 @@ class ConfigPlugin : Plugin<Project> {
     private lateinit var extension: OpenGoodExtension
 
     override fun apply(project: Project) {
-        createExtensions(project)
+        createExtension(project)
         configurePlugins(project)
         configureRepositories(project)
-        configureDependencies(project)
 
         project.afterEvaluate {
             configurePlugins(project, afterEval = true)
             configureConventions(project)
+            configureDependencies(project)
             configureTasks(project)
             configureArtifacts(project)
             configureExtensions(project)
         }
     }
 
-    private fun createExtensions(project: Project) {
+    private fun createExtension(project: Project) {
         extension = project.extensions.create(
             OpenGoodExtension.EXTENSION_NAME,
             OpenGoodExtension::class.java,
@@ -64,8 +64,20 @@ class ConfigPlugin : Plugin<Project> {
             with(plugins) {
                 if (afterEval) {
                     with(extension) {
-                        if (main.projectType == ProjectType.LIB) {
-                            apply(Plugins.JAVA_LIBRARY)
+                        with(main) {
+                            if (projectType == ProjectType.LIB) {
+                                apply(Plugins.JAVA_LIBRARY)
+                            }
+                        }
+                        with(features) {
+                            if (spring) {
+                                apply(Plugins.KOTLIN_SPRING)
+                                apply(Plugins.SPRING_BOOT)
+                                apply(Plugins.SPRING_DEPENDENCY_MANAGEMENT)
+                            }
+                            if (lombok) {
+                                apply(Plugins.LOMBOK)
+                            }
                         }
                     }
                 } else {
@@ -75,11 +87,9 @@ class ConfigPlugin : Plugin<Project> {
                         }
                         LanguageType.JAVA -> {
                             apply(Plugins.JAVA)
-                            apply(Plugins.LOMBOK)
                         }
                         LanguageType.KOTLIN -> {
                             apply(Plugins.KOTLIN)
-                            apply(Plugins.KOTLIN_SPRING)
                         }
                     }
 
@@ -88,8 +98,6 @@ class ConfigPlugin : Plugin<Project> {
                     apply(Plugins.MAVEN)
                     apply(Plugins.MAVEN_PUBLISH)
                     apply(Plugins.SIGNING)
-                    apply(Plugins.SPRING_BOOT)
-                    apply(Plugins.SPRING_DEPENDENCY_MANAGEMENT)
                     apply(Plugins.VERSIONS)
                 }
             }
@@ -123,34 +131,56 @@ class ConfigPlugin : Plugin<Project> {
                 val testAnnotationProcessor = getByName("testAnnotationProcessor")
 
                 with(dependencies) {
-                    when (languageType) {
-                        LanguageType.GROOVY -> {
-                            implementation.dependencies.add(create(Dependencies.GROOVY))
+                    with(extension) {
+                        when (languageType) {
+                            LanguageType.GROOVY -> {
+                                implementation.dependencies.add(create(Dependencies.GROOVY))
+                            }
+                            LanguageType.JAVA -> {
+                                with(features) {
+                                    if (lombok) {
+                                        implementation.dependencies.add(create(Dependencies.LOMBOK))
+                                        annotationProcessor.dependencies.add(create(Dependencies.LOMBOK))
+                                        testImplementation.dependencies.add(create(Dependencies.LOMBOK))
+                                        testAnnotationProcessor.dependencies.add(create(Dependencies.LOMBOK))
+                                    }
+                                }
+                            }
+                            LanguageType.KOTLIN -> {
+                                implementation.dependencies.add(create(Dependencies.KOTLIN_STD_LIB))
+                                implementation.dependencies.add(create(Dependencies.KOTLIN_REFLECT))
+                                with(features) {
+                                    if (kotest) {
+                                        testImplementation.dependencies.add(create(Dependencies.KOTEST_JUNIT_RUNNER))
+                                        testImplementation.dependencies.add(create(Dependencies.KOTEST_JUNIT_EXTENSIONS))
+                                        testImplementation.dependencies.add(create(Dependencies.KOTEST_SPRING_EXTENSIONS))
+                                        testImplementation.dependencies.add(create(Dependencies.KOTEST_KOIN_EXTENSIONS))
+                                    }
+                                    if (mockk) {
+                                        testImplementation.dependencies.add(create(Dependencies.MOCKK))
+                                    }
+                                }
+                            }
                         }
-                        LanguageType.JAVA -> {
-                            implementation.dependencies.add(create(Dependencies.LOMBOK))
-                            annotationProcessor.dependencies.add(create(Dependencies.LOMBOK))
-                            testImplementation.dependencies.add(create(Dependencies.LOMBOK))
-                            testAnnotationProcessor.dependencies.add(create(Dependencies.LOMBOK))
-                        }
-                        LanguageType.KOTLIN -> {
-                            implementation.dependencies.add(create(Dependencies.KOTLIN_STD_LIB))
-                            implementation.dependencies.add(create(Dependencies.KOTLIN_REFLECT))
-                            testImplementation.dependencies.add(create(Dependencies.KOTEST_JUNIT_RUNNER))
-                            testImplementation.dependencies.add(create(Dependencies.KOTEST_JUNIT_EXTENSIONS))
-                            testImplementation.dependencies.add(create(Dependencies.KOTEST_SPRING_EXTENSIONS))
-                            testImplementation.dependencies.add(create(Dependencies.KOTEST_KOIN_EXTENSIONS))
-                            testImplementation.dependencies.add(create(Dependencies.MOCKK))
+
+                        with(features) {
+                            if (spring) {
+                                implementation.dependencies.add(create(Dependencies.SPRING_BOOT_STARTER))
+                                annotationProcessor.dependencies.add(create(Dependencies.SPRING_BOOT_CONFIG_PROCESSOR))
+                                testImplementation.dependencies.add(create(Dependencies.SPRING_BOOT_STARTER_TEST))
+                            }
+                            if (junit) {
+                                testImplementation.dependencies.add(create(Dependencies.JUNIT_JUPITER))
+                            }
+                            if (assertj) {
+                                testImplementation.dependencies.add(create(Dependencies.ASSERTJ))
+                            }
+                            if (mockito) {
+                                testImplementation.dependencies.add(create(Dependencies.MOCKITO))
+                                testImplementation.dependencies.add(create(Dependencies.MOCKITO_JUNIT_JUPITER))
+                            }
                         }
                     }
-
-                    implementation.dependencies.add(create(Dependencies.SPRING_BOOT_STARTER))
-                    annotationProcessor.dependencies.add(create(Dependencies.SPRING_BOOT_CONFIG_PROCESSOR))
-                    testImplementation.dependencies.add(create(Dependencies.SPRING_BOOT_STARTER_TEST))
-                    testImplementation.dependencies.add(create(Dependencies.JUNIT_JUPITER))
-                    testImplementation.dependencies.add(create(Dependencies.ASSERTJ))
-                    testImplementation.dependencies.add(create(Dependencies.MOCKITO))
-                    testImplementation.dependencies.add(create(Dependencies.MOCKITO_JUNIT_JUPITER))
                 }
             }
         }
@@ -160,8 +190,15 @@ class ConfigPlugin : Plugin<Project> {
         configureGradleWrapperTask(project)
 
         with(extension) {
-            if (main.languageType == LanguageType.KOTLIN) {
-                configureKotlinCompileTask(project)
+            with(main) {
+                if (languageType == LanguageType.KOTLIN) {
+                    configureKotlinCompileTask(project)
+                }
+            }
+            with(features) {
+                if (spring) {
+                    configureBootJarTask(project)
+                }
             }
         }
 
@@ -170,7 +207,6 @@ class ConfigPlugin : Plugin<Project> {
         configureDependencyUpdatesTask(project)
         configureTestTask(project)
         configureJarTask(project)
-        configureBootJarTask(project)
         configureUploadArchivesTask(project)
     }
 
@@ -271,15 +307,18 @@ class ConfigPlugin : Plugin<Project> {
                         val startItem = "| "
                         val endItem = " |"
                         val repeatLength = startItem.length + output.length + endItem.length
-                        println(colorize("""
+                        println(
+                            colorize(
+                                """
                             |
                             |${"-".repeat(repeatLength)}
                             |$startItem$output$endItem
                             |${"-".repeat(repeatLength)}
                             |
                             """.trimMargin(),
-                            if (result.failedTestCount == 0L) GREEN_TEXT() else RED_TEXT()
-                        ))
+                                if (result.failedTestCount == 0L) GREEN_TEXT() else RED_TEXT()
+                            )
+                        )
                     }
                 }
             })
@@ -293,8 +332,8 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     private fun configureJarTask(project: Project) {
-        with(extension) {
-            if (main.projectType == ProjectType.LIB) {
+        with(extension.main) {
+            if (projectType == ProjectType.LIB) {
                 project.tasks.withType(Jar::class.java).getByName("jar") {
                     it.enabled = true
                 }
@@ -303,8 +342,8 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     private fun configureBootJarTask(project: Project) {
-        with(extension) {
-            if (main.projectType == ProjectType.LIB) {
+        with(extension.main) {
+            if (projectType == ProjectType.LIB) {
                 project.tasks.withType(BootJar::class.java).getByName("bootJar") {
                     it.enabled = false
                 }
@@ -317,7 +356,9 @@ class ConfigPlugin : Plugin<Project> {
             val ossrhUsername = project.getProperty("ossrhUsername", getEnvVar("OSSRH_USERNAME", ""))
             val ossrhPassword = project.getProperty("ossrhPassword", getEnvVar("OSSRH_USERNAME", ""))
 
-            val mavenConvention = DslObject(it.repositories).convention.getPlugin(MavenRepositoryHandlerConvention::class.java)
+            val mavenConvention =
+                DslObject(it.repositories).convention.getPlugin(MavenRepositoryHandlerConvention::class.java)
+
             mavenConvention.mavenDeployer { mavenDeployer ->
                 with(mavenDeployer) {
                     beforeDeployment { deployment ->
@@ -388,8 +429,8 @@ class ConfigPlugin : Plugin<Project> {
 
     private fun configureArtifacts(project: Project) {
         with(project) {
-            with(extension) {
-                if (main.projectType == ProjectType.LIB) {
+            with(extension.main) {
+                if (projectType == ProjectType.LIB) {
                     val sourcesJar = tasks.create("sourcesJar", Jar::class.java) {
                         val sourceSets = project.getExtension<SourceSetContainer>("sourceSets")
                         it.dependsOn("classes")
@@ -420,8 +461,8 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     private fun configureSpringBootExtension(project: Project) {
-        with(extension) {
-            if (main.projectType == ProjectType.APP) {
+        with(extension.main) {
+            if (projectType == ProjectType.APP) {
                 with(project) {
                     pluginManager.withPlugin(Plugins.SPRING_BOOT) {
                         extensions.configure(SpringBootExtension::class.java) {

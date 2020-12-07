@@ -18,10 +18,6 @@ class ConfigPluginKotlinLibTest : FunSpec({
         projectType = ProjectType.LIB
     )
 
-    val properties = mapOf(
-        "projectType" to ProjectType.LIB
-    )
-
     include(applyPluginTest(project))
 
     include(createExtensionTest(project, ProjectType.LIB))

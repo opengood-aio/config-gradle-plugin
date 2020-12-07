@@ -2,6 +2,7 @@ package io.opengood.gradle.extension
 
 import groovy.lang.Closure
 import io.opengood.gradle.config.ArtifactConfiguration
+import io.opengood.gradle.config.FeatureConfiguration
 import io.opengood.gradle.config.MainConfiguration
 import io.opengood.gradle.config.TestConfiguration
 import io.opengood.gradle.extension.OpenGoodExtension.Companion.EXTENSION_NAME
@@ -13,6 +14,7 @@ open class OpenGoodExtension(
     project: Project
 ) {
     var main = MainConfiguration(project)
+    var features = FeatureConfiguration(project)
     var test = TestConfiguration(project)
     var artifact = ArtifactConfiguration(project)
 
@@ -21,6 +23,12 @@ open class OpenGoodExtension(
 
     open fun main(closure: Closure<Unit>) =
         ConfigureUtil.configure(closure, main)
+
+    open fun features(action: Action<in FeatureConfiguration>) =
+        action.execute(features)
+
+    open fun features(closure: Closure<Unit>) =
+        ConfigureUtil.configure(closure, features)
 
     open fun test(action: Action<in TestConfiguration>) =
         action.execute(test)

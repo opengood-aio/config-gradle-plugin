@@ -26,6 +26,15 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
                     main {
                         projectType = ProjectType.APP
                     }
+                    features {
+                        spring = false
+                        lombok = false
+                        junit = false
+                        assertj = false
+                        mockito = false
+                        kotest = false
+                        mockk = false
+                    }
                     test {
                         maxParallelForks = 1
                     }

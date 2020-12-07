@@ -18,10 +18,6 @@ class ConfigPluginKotlinAppTest : FunSpec({
         projectType = ProjectType.APP
     )
 
-    val properties = mapOf(
-        "projectType" to ProjectType.APP
-    )
-
     include(applyPluginTest(project))
 
     include(createExtensionTest(project, ProjectType.APP))

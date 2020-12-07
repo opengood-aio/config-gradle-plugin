@@ -3,6 +3,7 @@ package spec
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import helper.*
 import io.kotest.core.spec.style.funSpec
+import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
@@ -51,6 +52,15 @@ fun createExtensionTest(
             with(main) {
                 languageType shouldBe project.languageType
                 main.projectType shouldBe projectType
+            }
+            with(features) {
+                spring.shouldBeTrue()
+                lombok.shouldBeTrue()
+                junit.shouldBeTrue()
+                assertj.shouldBeTrue()
+                mockito.shouldBeTrue()
+                kotest.shouldBeTrue()
+                mockk.shouldBeTrue()
             }
             with(test) {
                 maxParallelForks shouldBe Tests.MAX_PARALLEL_FORKS
