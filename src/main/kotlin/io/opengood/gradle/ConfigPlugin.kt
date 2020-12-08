@@ -95,7 +95,8 @@ class ConfigPlugin : Plugin<Project> {
                             apply(Plugins.JAVA)
                         }
                         LanguageType.KOTLIN -> {
-                            apply(Plugins.KOTLIN)
+                            apply(Plugins.KOTLIN_JVM)
+                            apply(Plugins.KOTLIN_ALL_OPEN)
                         }
                     }
 

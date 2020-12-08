@@ -17,7 +17,7 @@ class ConfigPluginKotlinAppTest : FunSpec({
 
     include(createExtensionTest(project, ProjectType.APP))
 
-    include(applyKotlinPluginTest(project))
+    include(applyKotlinPluginsTest(project))
     include(applyJavaPluginTest(project))
     include(applyCommonPluginsTest(project))
     include(applySpringPluginsTest(project))

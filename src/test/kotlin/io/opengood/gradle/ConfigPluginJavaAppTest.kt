@@ -22,7 +22,7 @@ class ConfigPluginJavaAppTest : FunSpec({
     include(applySpringPluginsTest(project))
     include(applyLombokPluginTest(project))
     include(doNotApplyGroovyPluginTest(project))
-    include(doNotApplyKotlinPluginTest(project))
+    include(doNotApplyKotlinPluginsTest(project))
     include(doNotApplyLibraryPluginTest(project))
     include(doNotApplyKotlinSpringPluginsTest(project))
 

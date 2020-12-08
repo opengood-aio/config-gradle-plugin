@@ -17,7 +17,7 @@ class ConfigPluginKotlinLibTest : FunSpec({
 
     include(createExtensionTest(project, ProjectType.LIB))
 
-    include(applyKotlinPluginTest(project))
+    include(applyKotlinPluginsTest(project))
     include(applyJavaPluginTest(project))
     include(applyCommonPluginsTest(project))
     include(applyLibraryPluginTest(project))

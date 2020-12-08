@@ -113,9 +113,10 @@ fun applyJavaPluginTest(project: Project) = funSpec {
     }
 }
 
-fun applyKotlinPluginTest(project: Project) = funSpec {
-    test("Applies Kotlin plugin") {
-        getPlugin(project, Plugins.KOTLIN).shouldNotBeNull()
+fun applyKotlinPluginsTest(project: Project) = funSpec {
+    test("Applies Kotlin plugins") {
+        getPlugin(project, Plugins.KOTLIN_JVM).shouldNotBeNull()
+        getPlugin(project, Plugins.KOTLIN_ALL_OPEN).shouldNotBeNull()
     }
 }
 
@@ -167,9 +168,10 @@ fun dotNotApplyJavaPluginTest(project: Project) = funSpec {
     }
 }
 
-fun doNotApplyKotlinPluginTest(project: Project) = funSpec {
-    test("Does not apply Kotlin plugin") {
-        shouldThrow<UnknownPluginException> { getPlugin(project, Plugins.KOTLIN).shouldNotBeNull() }
+fun doNotApplyKotlinPluginsTest(project: Project) = funSpec {
+    test("Does not apply Kotlin plugins") {
+        shouldThrow<UnknownPluginException> { getPlugin(project, Plugins.KOTLIN_JVM).shouldNotBeNull() }
+        shouldThrow<UnknownPluginException> { getPlugin(project, Plugins.KOTLIN_ALL_OPEN).shouldNotBeNull() }
     }
 }
 

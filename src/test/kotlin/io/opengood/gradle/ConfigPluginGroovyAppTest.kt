@@ -21,7 +21,7 @@ class ConfigPluginGroovyAppTest : FunSpec({
     include(applyJavaPluginTest(project))
     include(applyCommonPluginsTest(project))
     include(applySpringPluginsTest(project))
-    include(doNotApplyKotlinPluginTest(project))
+    include(doNotApplyKotlinPluginsTest(project))
     include(doNotApplyLibraryPluginTest(project))
     include(doNotApplyKotlinSpringPluginsTest(project))
     include(doNotApplyLombokPluginTest(project))
