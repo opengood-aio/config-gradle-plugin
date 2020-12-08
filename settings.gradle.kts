@@ -1,1 +1,1 @@
-rootProject.name = "opengood-config-gradle-plugin"
+rootProject.name = "config-gradle-plugin"
