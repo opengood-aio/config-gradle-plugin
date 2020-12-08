@@ -13,9 +13,6 @@ class ConfigPluginFeaturesTest : FunSpec({
         features = Features.NONE.flag
     )
 
-    include(doNotApplySpringPluginsTest(project))
-    include(doNotApplyLombokPluginTest(project))
-
     include(doNotAddSpringDependenciesTest(project))
     include(doNotAddLombokDependenciesTest(project))
     include(doNotAddJunitDependenciesTest(project))

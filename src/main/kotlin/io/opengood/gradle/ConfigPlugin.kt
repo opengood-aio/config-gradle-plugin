@@ -69,22 +69,6 @@ class ConfigPlugin : Plugin<Project> {
                                 apply(Plugins.JAVA_LIBRARY)
                             }
                         }
-                        with(features) {
-                            if (languageType == LanguageType.JAVA) {
-                                if (lombok) {
-                                    apply(Plugins.LOMBOK)
-                                }
-                            }
-                            if (languageType == LanguageType.KOTLIN) {
-                                if (spring) {
-                                    apply(Plugins.KOTLIN_SPRING)
-                                }
-                            }
-                            if (spring) {
-                                apply(Plugins.SPRING_BOOT)
-                                apply(Plugins.SPRING_DEPENDENCY_MANAGEMENT)
-                            }
-                        }
                     }
                 } else {
                     when (languageType) {
@@ -93,10 +77,12 @@ class ConfigPlugin : Plugin<Project> {
                         }
                         LanguageType.JAVA -> {
                             apply(Plugins.JAVA)
+                            apply(Plugins.LOMBOK)
                         }
                         LanguageType.KOTLIN -> {
                             apply(Plugins.KOTLIN_JVM)
                             apply(Plugins.KOTLIN_ALL_OPEN)
+                            apply(Plugins.KOTLIN_SPRING)
                         }
                     }
 
@@ -106,6 +92,8 @@ class ConfigPlugin : Plugin<Project> {
                     apply(Plugins.MAVEN_PUBLISH)
                     apply(Plugins.SIGNING)
                     apply(Plugins.VERSIONS)
+                    apply(Plugins.SPRING_BOOT)
+                    apply(Plugins.SPRING_DEPENDENCY_MANAGEMENT)
                 }
             }
         }
