@@ -34,12 +34,17 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
                         mockito = false
                         kotest = false
                         mockk = false
+                        publishing = false
                     }
                     test {
                         maxParallelForks = 1
                         multipleFrameworks {
                             kotlin = true
                         }
+                    }
+                    release {
+                        requireBranch = "main"
+                        pushToRemote = "origin"
                     }
                     artifact {
                         name = "test"

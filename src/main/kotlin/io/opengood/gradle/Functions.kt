@@ -3,6 +3,8 @@ package io.opengood.gradle
 import io.opengood.gradle.constant.Directories
 import io.opengood.gradle.enumeration.BuildGradleType
 import io.opengood.gradle.enumeration.LanguageType
+import net.researchgate.release.GitAdapter
+import net.researchgate.release.ReleaseExtension
 import org.gradle.api.Project
 import java.nio.file.Path
 
@@ -32,6 +34,13 @@ internal inline fun <reified V : Any> Project.getProperty(name: String, default:
     } catch (ignored: Exception) {
         default
     }
+
+internal fun ReleaseExtension.git(config: GitAdapter.GitConfig.() -> Unit) =
+    (propertyMissing("git") as GitAdapter.GitConfig).config()
+
+internal val ReleaseExtension.git: GitAdapter.GitConfig
+    get() =
+        (propertyMissing("git") as GitAdapter.GitConfig)
 
 internal val Project.isGroovy: Boolean
     get() =

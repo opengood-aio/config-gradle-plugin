@@ -47,11 +47,13 @@ class ConfigPluginJavaAppTest : FunSpec({
     include(configureTestTaskTest(project))
     include(configureJarTaskTest(project, isEnabled = false))
     include(configureBootJarTaskTest(project, isEnabled = true))
+    include(configureAfterReleaseBuildTaskTest(project))
     include(configureUploadArchivesTaskTest(project))
 
     include(configureJarArtifactTest(project))
 
     include(configureSpringBootExtensionTest(project))
+    include(configureReleaseExtensionTest(project))
     include(configurePublishingExtensionTest(project))
     include(configureSigningExtensionTest(project))
 

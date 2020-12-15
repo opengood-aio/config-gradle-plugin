@@ -111,8 +111,11 @@ internal fun getPlugin(project: Project, id: String): Plugin<Any> =
 internal fun getRepository(project: Project, name: String): ArtifactRepository =
     project.repositories.getByName(name)
 
-internal inline fun <reified T : Task> getTask(project: Project): T =
+internal fun getTaskByName(project: Project, name: String): Task =
+    project.tasks.getByName(name)
+
+internal inline fun <reified T : Task> getTaskByType(project: Project): T =
     project.tasks.withType(T::class.java).first()
 
-internal inline fun <reified T : Task> getTask(project: Project, name: String): T =
+ internal inline fun <reified T : Task> getTaskByTypeAndName(project: Project, name: String): T =
     project.tasks.withType(T::class.java).getByName(name)

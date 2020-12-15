@@ -14,6 +14,7 @@ class Plugins {
         const val LOMBOK = "io.franzbecker.gradle-lombok"
         const val MAVEN = "maven"
         const val MAVEN_PUBLISH = "maven-publish"
+        const val RELEASE = "net.researchgate.release"
         const val SIGNING = "signing"
         const val SPRING_BOOT = "org.springframework.boot"
         const val SPRING_DEPENDENCY_MANAGEMENT = "io.spring.dependency-management"
