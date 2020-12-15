@@ -47,12 +47,14 @@ class ConfigPluginKotlinLibTest : FunSpec({
     include(configureTestTaskTest(project))
     include(configureJarTaskTest(project, isEnabled = true))
     include(configureBootJarTaskTest(project, isEnabled = false))
+    include(configureAfterReleaseBuildTaskTest(project))
     include(configureUploadArchivesTaskTest(project))
 
     include(configureSourcesJarArtifactTest(project))
     include(configureJavadocJarArtifactTest(project))
     include(configureJarArtifactTest(project))
 
+    include(configureReleaseExtensionTest(project))
     include(configurePublishingExtensionTest(project))
     include(configureSigningExtensionTest(project))
 

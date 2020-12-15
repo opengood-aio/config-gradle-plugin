@@ -8,6 +8,9 @@ import io.opengood.gradle.constant.*
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
 import io.opengood.gradle.extension.OpenGoodExtension
+import net.researchgate.release.BaseScmAdapter
+import net.researchgate.release.GitAdapter
+import net.researchgate.release.ReleaseExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.plugins.DslObject
@@ -61,7 +64,7 @@ class ConfigPlugin : Plugin<Project> {
 
     private fun configurePlugins(project: Project, afterEval: Boolean = false) {
         with(project) {
-            with(plugins) {
+            with(pluginManager) {
                 if (afterEval) {
                     with(extension) {
                         with(main) {
@@ -90,6 +93,7 @@ class ConfigPlugin : Plugin<Project> {
                     apply(Plugins.IDEA)
                     apply(Plugins.MAVEN)
                     apply(Plugins.MAVEN_PUBLISH)
+                    apply(Plugins.RELEASE)
                     apply(Plugins.SIGNING)
                     apply(Plugins.VERSIONS)
                     apply(Plugins.SPRING_BOOT)
@@ -103,7 +107,9 @@ class ConfigPlugin : Plugin<Project> {
         with(project) {
             with(extension) {
                 val basePluginConvention = convention.getPlugin(BasePluginConvention::class.java)
-                basePluginConvention.archivesBaseName = artifact.name
+                with(basePluginConvention) {
+                    archivesBaseName = artifact.name
+                }
             }
         }
     }
@@ -194,8 +200,9 @@ class ConfigPlugin : Plugin<Project> {
                 }
             }
             with(features) {
-                if (spring) {
-                    configureBootJarTask(project)
+                if (publishing) {
+                    configureAfterReleaseBuildTask(project)
+                    configureUploadArchivesTask(project)
                 }
             }
         }
@@ -205,7 +212,7 @@ class ConfigPlugin : Plugin<Project> {
         configureDependencyUpdatesTask(project)
         configureTestTask(project)
         configureJarTask(project)
-        configureUploadArchivesTask(project)
+        configureBootJarTask(project)
     }
 
     private fun configureGradleWrapperTask(project: Project) {
@@ -340,12 +347,22 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     private fun configureBootJarTask(project: Project) {
-        with(extension.main) {
-            if (projectType == ProjectType.LIB) {
-                project.tasks.withType(BootJar::class.java).getByName("bootJar") {
-                    it.enabled = false
+        with(extension) {
+            with(main) {
+                with(features) {
+                    if (!spring || projectType == ProjectType.LIB) {
+                        project.tasks.withType(BootJar::class.java).getByName("bootJar") {
+                            it.enabled = false
+                        }
+                    }
                 }
             }
+        }
+    }
+
+    private fun configureAfterReleaseBuildTask(project: Project) {
+        project.tasks.getByName("afterReleaseBuild") {
+            it.dependsOn("uploadArchives")
         }
     }
 
@@ -454,8 +471,14 @@ class ConfigPlugin : Plugin<Project> {
 
     private fun configureExtensions(project: Project) {
         configureSpringBootExtension(project)
-        configurePublishingExtension(project)
-        configureSigningExtension(project)
+        configureReleaseExtension(project)
+
+        with(extension.features) {
+            if (publishing) {
+                configurePublishingExtension(project)
+                configureSigningExtension(project)
+            }
+        }
     }
 
     private fun configureSpringBootExtension(project: Project) {
@@ -465,6 +488,24 @@ class ConfigPlugin : Plugin<Project> {
                     pluginManager.withPlugin(Plugins.SPRING_BOOT) {
                         extensions.configure(SpringBootExtension::class.java) {
                             it.buildInfo()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun configureReleaseExtension(project: Project) {
+        with(project) {
+            pluginManager.withPlugin(Plugins.RELEASE) {
+                extensions.configure(ReleaseExtension::class.java) {
+                    it.scmAdapters = mutableListOf<Class<out BaseScmAdapter>>(GitAdapter::class.java)
+                    it.preTagCommitMessage = Releases.PRE_TAG_COMMIT_MESSAGE
+                    it.newVersionCommitMessage = Releases.NEW_VERSION_COMMIT_MESSAGE
+                    it.git {
+                        with(extension) {
+                            requireBranch = release.requireBranch
+                            pushToRemote = release.pushToRemote
                         }
                     }
                 }

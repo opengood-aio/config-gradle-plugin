@@ -13,4 +13,5 @@ open class FeatureConfiguration(
     var mockito by GradleProperty(project, Boolean::class.java, true)
     var kotest by GradleProperty(project, Boolean::class.java, true)
     var mockk by GradleProperty(project, Boolean::class.java, true)
+    var publishing by GradleProperty(project, Boolean::class.java, true)
 }

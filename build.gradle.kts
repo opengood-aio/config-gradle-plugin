@@ -1,4 +1,6 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import net.researchgate.release.GitAdapter.GitConfig
+import net.researchgate.release.ReleaseExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent.*
 import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
@@ -15,6 +17,7 @@ plugins {
     id("maven")
     id("maven-publish")
     id("com.github.ben-manes.versions") version "0.36.0"
+    id("net.researchgate.release") version "2.8.1"
     id("com.gradle.plugin-publish") version "0.12.0"
 }
 
@@ -43,6 +46,7 @@ object Versions {
     const val LOMBOK_PLUGIN = "4.0.0"
     const val MOCKITO = "3.6.28"
     const val MOCKK = "1.10.3"
+    const val RELEASE_PLUGIN = "2.8.1"
     const val SPRING_BOOT_PLUGIN = "2.3.6.RELEASE"
     const val SPRING_DEPENDENCY_MANAGEMENT_PLUGIN = "1.0.10.RELEASE"
     const val VERSIONS_PLUGIN = "0.36.0"
@@ -69,6 +73,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-gradle-plugin:${Versions.SPRING_BOOT_PLUGIN}")
     implementation("io.spring.gradle:dependency-management-plugin:${Versions.SPRING_DEPENDENCY_MANAGEMENT_PLUGIN}")
     implementation("io.franzbecker:gradle-lombok:${Versions.LOMBOK_PLUGIN}")
+    implementation("net.researchgate:gradle-release:${Versions.RELEASE_PLUGIN}")
     implementation("com.github.ben-manes:gradle-versions-plugin:${Versions.VERSIONS_PLUGIN}")
 
     implementation("com.diogonunes:JColor:${Versions.JCOLOR}")
@@ -171,6 +176,22 @@ tasks.withType<Test> {
         out.style(Style.Header).println("***************************************************")
         out.style(Style.Header).println(" >> Tests FINISHED")
         out.style(Style.Header).println("***************************************************")
+    }
+}
+
+tasks.getByName("afterReleaseBuild") {
+    dependsOn("publishPlugins")
+}
+
+fun ReleaseExtension.git(config: GitConfig.() -> Unit) =
+    (propertyMissing("git") as GitConfig).config()
+
+release {
+    preTagCommitMessage = "[Gradle Release] - pre tag commit: "
+    newVersionCommitMessage = "[Gradle Release] - new version commit: "
+    git {
+        requireBranch = ""
+        pushToRemote = "origin"
     }
 }
 

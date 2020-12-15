@@ -20,4 +20,10 @@ class ConfigPluginFeaturesTest : FunSpec({
     include(doNotAddMockitoDependenciesTest(project))
     include(doNotAddKotestDependenciesTest(project))
     include(doNotAddMockkDependenciesTest(project))
+
+    include(doNotConfigureAfterReleaseBuildTaskTest(project))
+    include(doNotConfigureUploadArchivesTaskTest(project))
+
+    include(doNotConfigurePublishingExtensionTest(project))
+    include(doNotConfigureSigningExtensionTest(project))
 })

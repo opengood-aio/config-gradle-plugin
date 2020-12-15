@@ -6,6 +6,8 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.funSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -19,8 +21,13 @@ import io.opengood.gradle.enumeration.ProjectType
 import io.opengood.gradle.enumeration.ScmProvider
 import io.opengood.gradle.extension.opengood
 import io.opengood.gradle.getExtension
+import io.opengood.gradle.git
 import io.opengood.gradle.languageType
+import net.researchgate.release.GitAdapter
+import net.researchgate.release.ReleaseExtension
 import org.gradle.api.Project
+import org.gradle.api.UnknownDomainObjectException
+import org.gradle.api.artifacts.UnknownRepositoryException
 import org.gradle.api.internal.artifacts.publish.ArchivePublishArtifact
 import org.gradle.api.plugins.BasePluginConvention
 import org.gradle.api.plugins.UnknownPluginException
@@ -53,6 +60,8 @@ fun createExtensionTest(
 ) = funSpec {
     test("Creates extension") {
         with(project.opengood()) {
+            shouldNotBeNull()
+
             with(main) {
                 languageType shouldBe project.languageType
                 main.projectType shouldBe projectType
@@ -65,12 +74,17 @@ fun createExtensionTest(
                 mockito.shouldBeTrue()
                 kotest.shouldBeTrue()
                 mockk.shouldBeTrue()
+                publishing.shouldBeTrue()
             }
             with(test) {
                 maxParallelForks shouldBe Tests.MAX_PARALLEL_FORKS
                 with(multipleFrameworks) {
                     kotlin.shouldBeFalse()
                 }
+            }
+            with(release) {
+                requireBranch shouldBe Releases.REQUIRE_BRANCH
+                pushToRemote shouldBe Releases.PUSH_TO_REMOTE
             }
             with(artifact) {
                 name shouldBe project.name
@@ -126,6 +140,7 @@ fun applyCommonPluginsTest(project: Project) = funSpec {
         getPlugin(project, Plugins.IDEA).shouldNotBeNull()
         getPlugin(project, Plugins.MAVEN).shouldNotBeNull()
         getPlugin(project, Plugins.MAVEN_PUBLISH).shouldNotBeNull()
+        getPlugin(project, Plugins.RELEASE).shouldNotBeNull()
         getPlugin(project, Plugins.SIGNING).shouldNotBeNull()
         getPlugin(project, Plugins.VERSIONS).shouldNotBeNull()
     }
@@ -203,7 +218,11 @@ fun doNotApplyLombokPluginTest(project: Project) = funSpec {
 fun configureConventionsTest(project: Project) = funSpec {
     test("Configures conventions") {
         val basePluginConvention = getConvention<BasePluginConvention>(project)
-        basePluginConvention.archivesBaseName shouldBe project.name
+
+        with(basePluginConvention) {
+            shouldNotBeNull()
+            archivesBaseName shouldBe project.name
+        }
     }
 }
 
@@ -348,10 +367,10 @@ fun doNotAddMockkDependenciesTest(project: Project) = funSpec {
 
 fun configureGradleWrapperTaskTest(project: Project) = funSpec {
     test("Configures Gradle Wrapper task") {
-        val task = getTask<Wrapper>(project)
+        val task = getTaskByType<Wrapper>(project)
 
         with(task) {
-            task.shouldNotBeNull()
+            shouldNotBeNull()
             distributionType shouldBe DistributionType.ALL
         }
     }
@@ -359,10 +378,10 @@ fun configureGradleWrapperTaskTest(project: Project) = funSpec {
 
 fun configureKotlinCompileTaskTest(project: Project) = funSpec {
     test("Configures Kotlin Compile task") {
-        val task = getTask<KotlinCompile>(project, "compileKotlin")
+        val task = getTaskByTypeAndName<KotlinCompile>(project, "compileKotlin")
 
         with(task) {
-            task.shouldNotBeNull()
+            shouldNotBeNull()
             kotlinOptions.freeCompilerArgs shouldBe KotlinOptions.FREE_COMPILER_ARGS
             kotlinOptions.jvmTarget shouldBe Versions.JAVA
         }
@@ -371,10 +390,10 @@ fun configureKotlinCompileTaskTest(project: Project) = funSpec {
 
 fun configureJavaCompileTaskTest(project: Project) = funSpec {
     test("Configures Java Compile task") {
-        val task = getTask<JavaCompile>(project, "compileJava")
+        val task = getTaskByTypeAndName<JavaCompile>(project, "compileJava")
 
         with(task) {
-            task.shouldNotBeNull()
+            shouldNotBeNull()
             sourceCompatibility shouldBe Versions.JAVA
             targetCompatibility shouldBe Versions.JAVA
         }
@@ -383,10 +402,10 @@ fun configureJavaCompileTaskTest(project: Project) = funSpec {
 
 fun configureProcessResourcesTaskTest(project: Project) = funSpec {
     test("Configures Process Resources task") {
-        val task = getTask<ProcessResources>(project)
+        val task = getTaskByType<ProcessResources>(project)
 
         with(task) {
-            task.shouldNotBeNull()
+            shouldNotBeNull()
             destinationDir.absolutePath shouldContain "resources/main"
         }
     }
@@ -394,18 +413,20 @@ fun configureProcessResourcesTaskTest(project: Project) = funSpec {
 
 fun configureDependencyUpdatesTaskTest(project: Project) = funSpec {
     test("Configures Dependency Updates task") {
-        val task = getTask<DependencyUpdatesTask>(project, "dependencyUpdates")
+        val task = getTaskByTypeAndName<DependencyUpdatesTask>(project, "dependencyUpdates")
 
-        task.shouldNotBeNull()
+        with(task) {
+            shouldNotBeNull()
+        }
     }
 }
 
 fun configureTestTaskTest(project: Project) = funSpec {
     test("Configures Test task") {
-        val task = getTask<Test>(project, "test")
+        val task = getTaskByTypeAndName<Test>(project, "test")
 
         with(task) {
-            task.shouldNotBeNull()
+            shouldNotBeNull()
             with(testLogging) {
                 events shouldBe Tests.LOGGING_EVENTS
                 exceptionFormat shouldBe Tests.EXCEPTION_FORMAT
@@ -421,10 +442,10 @@ fun configureTestTaskTest(project: Project) = funSpec {
 
 fun configureJarTaskTest(project: Project, isEnabled: Boolean) = funSpec {
     test("Configures Jar task") {
-        val task = getTask<Jar>(project, "jar")
+        val task = getTaskByTypeAndName<Jar>(project, "jar")
 
         with(task) {
-            task.shouldNotBeNull()
+            shouldNotBeNull()
             enabled shouldBe isEnabled
         }
     }
@@ -432,23 +453,37 @@ fun configureJarTaskTest(project: Project, isEnabled: Boolean) = funSpec {
 
 fun configureBootJarTaskTest(project: Project, isEnabled: Boolean) = funSpec {
     test("Configures Boot Jar task") {
-        val task = getTask<BootJar>(project, "bootJar")
+        val task = getTaskByTypeAndName<BootJar>(project, "bootJar")
 
         with(task) {
-            task.shouldNotBeNull()
+            shouldNotBeNull()
             enabled shouldBe isEnabled
+        }
+    }
+}
+
+fun configureAfterReleaseBuildTaskTest(project: Project) = funSpec {
+    test("Configures After Release Build task") {
+        val task = getTaskByName(project, "afterReleaseBuild")
+
+        with(task) {
+            shouldNotBeNull()
+            dependsOn.contains("uploadArchives").shouldBeTrue()
         }
     }
 }
 
 fun configureUploadArchivesTaskTest(project: Project) = funSpec {
     test("Configures Upload Archives task") {
-        val task = getTask<Upload>(project)
+        val task = getTaskByType<Upload>(project)
 
         with(task) {
-            task.shouldNotBeNull()
+            shouldNotBeNull()
 
-            with(getMavenDeployer(repositories)) {
+            val mavenDeployer = getMavenDeployer(repositories)
+            with(mavenDeployer) {
+                shouldNotBeNull()
+
                 with(snapshotRepository) {
                     url shouldBe Repositories.OSS_SNAPSHOTS_REPO_URI
                     with(authentication) {
@@ -493,11 +528,34 @@ fun configureUploadArchivesTaskTest(project: Project) = funSpec {
     }
 }
 
+fun doNotConfigureAfterReleaseBuildTaskTest(project: Project) = funSpec {
+    test("Does not configure After Release Build task") {
+        val task = getTaskByName(project, "afterReleaseBuild")
+
+        with(task) {
+            shouldNotBeNull()
+            dependsOn.contains("uploadArchives").shouldBeFalse()
+        }
+    }
+}
+
+fun doNotConfigureUploadArchivesTaskTest(project: Project) = funSpec {
+    test("Does not configure Upload Archives task") {
+        val task = getTaskByType<Upload>(project)
+
+        with(task) {
+            shouldNotBeNull()
+            shouldThrow<UnknownRepositoryException> { getMavenDeployer(repositories) }
+        }
+    }
+}
+
 fun configureSourcesJarArtifactTest(project: Project) = funSpec {
     test("Configures sources jar artifacts") {
         val sourcesJar = getArtifact<ArchivePublishArtifact>(project, "archives", "sources", "jar", "jar")
+
         with(sourcesJar) {
-            sourcesJar.shouldNotBeNull()
+            shouldNotBeNull()
             archiveTask.name shouldBe "sourcesJar"
         }
     }
@@ -506,8 +564,9 @@ fun configureSourcesJarArtifactTest(project: Project) = funSpec {
 fun configureJavadocJarArtifactTest(project: Project) = funSpec {
     test("Configures Javadoc jar artifacts") {
         val javadocJar = getArtifact<ArchivePublishArtifact>(project, "archives", "javadoc", "jar", "jar")
+
         with(javadocJar) {
-            javadocJar.shouldNotBeNull()
+            shouldNotBeNull()
             archiveTask.name shouldBe "javadocJar"
         }
     }
@@ -516,8 +575,9 @@ fun configureJavadocJarArtifactTest(project: Project) = funSpec {
 fun configureJarArtifactTest(project: Project) = funSpec {
     test("Configures jar artifacts") {
         val jar = getArtifact<ArchivePublishArtifact>(project, "archives", "", "jar", "jar")
+
         with(jar) {
-            jar.shouldNotBeNull()
+            shouldNotBeNull()
             archiveTask.name shouldBe "jar"
         }
     }
@@ -527,7 +587,26 @@ fun configureSpringBootExtensionTest(project: Project) = funSpec {
     test("Configures Spring Boot extension") {
         val extension = project.getExtension<SpringBootExtension>()
 
-        extension.shouldNotBeNull()
+        with(extension) {
+            shouldNotBeNull()
+        }
+    }
+}
+
+fun configureReleaseExtensionTest(project: Project) = funSpec {
+    test("Configures Release extension") {
+        val extension = project.getExtension<ReleaseExtension>()
+
+        with(extension) {
+            shouldNotBeNull()
+            scmAdapters shouldContain GitAdapter::class.java
+            preTagCommitMessage shouldBe Releases.PRE_TAG_COMMIT_MESSAGE
+            newVersionCommitMessage shouldBe Releases.NEW_VERSION_COMMIT_MESSAGE
+            with(git) {
+                requireBranch = Releases.REQUIRE_BRANCH
+                pushToRemote = Releases.PUSH_TO_REMOTE
+            }
+        }
     }
 }
 
@@ -535,32 +614,65 @@ fun configurePublishingExtensionTest(project: Project) = funSpec {
     test("Configures Publishing extension") {
         val extension = project.getExtension<PublishingExtension>()
 
-        extension.shouldNotBeNull()
+        with(extension) {
+            shouldNotBeNull()
 
-        val mavenJavaPublication = getMavenPublication(extension, "mavenJava")
-        with(mavenJavaPublication) {
-            artifacts.shouldNotBeNull()
-        }
+            val mavenJavaPublication = getMavenPublication(extension, "mavenJava")
+            with(mavenJavaPublication) {
+                shouldNotBeNull()
+                artifacts.shouldNotBeNull()
+            }
 
-        val mavenLocalRepo = getMavenRepository(extension, Repositories.LOCAL_REPO_NAME)
-        with(mavenLocalRepo) {
-            name shouldBe Repositories.LOCAL_REPO_NAME
-            url shouldBe project.repositories.mavenLocal().url
+            val mavenLocalRepo = getMavenRepository(extension, Repositories.LOCAL_REPO_NAME)
+            with(mavenLocalRepo) {
+                shouldNotBeNull()
+                name shouldBe Repositories.LOCAL_REPO_NAME
+                url shouldBe project.repositories.mavenLocal().url
+            }
         }
     }
 }
 
 fun configureSigningExtensionTest(project: Project) = funSpec {
     test("Configures Signing extension") {
-        project.getExtension<SigningExtension>().shouldNotBeNull()
+        val extension = project.getExtension<SigningExtension>()
+
+        with(extension) {
+            shouldNotBeNull()
+            extension.configuration.artifacts.size shouldBeGreaterThan 0
+        }
+    }
+}
+
+fun doNotConfigurePublishingExtensionTest(project: Project) = funSpec {
+    test("Does not configure Publishing extension") {
+        val extension = project.getExtension<PublishingExtension>()
+
+        with(extension) {
+            shouldNotBeNull()
+            shouldThrow<UnknownDomainObjectException> { getMavenPublication(extension, "mavenJava") }
+            shouldThrow<UnknownRepositoryException> { getMavenRepository(extension, Repositories.LOCAL_REPO_NAME) }
+        }
+    }
+}
+
+fun doNotConfigureSigningExtensionTest(project: Project) = funSpec {
+    test("Does not configure Signing extension") {
+        val extension = project.getExtension<SigningExtension>()
+
+        with(extension) {
+            shouldNotBeNull()
+            extension.configuration.artifacts.size shouldBe 0
+        }
     }
 }
 
 fun configureSourcesJarSigningTest(project: Project) = funSpec {
     test("Configures sources jar signing") {
         val sourcesJar = getArtifact<Signature>(project, "archives", "sources", "jar.asc", "asc")
+
         with(sourcesJar) {
-            sourcesJar.shouldNotBeNull()
+            shouldNotBeNull()
             signatureSpec.toString().shouldContain("signArchives")
         }
     }
@@ -569,8 +681,9 @@ fun configureSourcesJarSigningTest(project: Project) = funSpec {
 fun configureJavadocJarSigningTest(project: Project) = funSpec {
     test("Configures Javadoc jar signing") {
         val javadocJar = getArtifact<Signature>(project, "archives", "javadoc", "jar.asc", "asc")
+
         with(javadocJar) {
-            javadocJar.shouldNotBeNull()
+            shouldNotBeNull()
             signatureSpec.toString().shouldContain("signArchives")
         }
     }
@@ -579,8 +692,9 @@ fun configureJavadocJarSigningTest(project: Project) = funSpec {
 fun configureJarSigningTest(project: Project) = funSpec {
     test("Configures jar signing") {
         val jar = getArtifact<Signature>(project, "archives", "", "jar.asc", "asc")
+
         with(jar) {
-            jar.shouldNotBeNull()
+            shouldNotBeNull()
             signatureSpec.toString().shouldContain("signArchives")
         }
     }
