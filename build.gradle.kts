@@ -179,6 +179,12 @@ tasks.withType<Test> {
     }
 }
 
+tasks.getByName("release") {
+    tasks.withType<Test> {
+        enabled = false
+    }
+}
+
 tasks.getByName("afterReleaseBuild") {
     dependsOn("publishPlugins")
 }
@@ -189,6 +195,11 @@ fun ReleaseExtension.git(config: GitConfig.() -> Unit) =
 release {
     preTagCommitMessage = "[Gradle Release] - pre tag commit: "
     newVersionCommitMessage = "[Gradle Release] - new version commit: "
+    versionPatterns = mapOf(
+        """[.]*\.(\d+)\.(\d+)[.]*""" to KotlinClosure2<java.util.regex.Matcher, Project, String>({ matcher, project ->
+            matcher.replaceAll(".${(matcher.group(0)[1]) + 1}.0")
+        })
+    )
     git {
         requireBranch = ""
         pushToRemote = "origin"
