@@ -4,6 +4,7 @@ import com.diogonunes.jcolor.Ansi.colorize
 import com.diogonunes.jcolor.Attribute.*
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import io.opengood.gradle.builder.groovy.withGroovyBuilder
+import io.opengood.gradle.closure.KotlinClosure2
 import io.opengood.gradle.constant.*
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
@@ -34,6 +35,7 @@ import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.dsl.SpringBootExtension
 import org.springframework.boot.gradle.tasks.bundling.BootJar
+import java.util.regex.Matcher
 
 class ConfigPlugin : Plugin<Project> {
 
@@ -502,6 +504,7 @@ class ConfigPlugin : Plugin<Project> {
                     it.scmAdapters = mutableListOf<Class<out BaseScmAdapter>>(GitAdapter::class.java)
                     it.preTagCommitMessage = Releases.PRE_TAG_COMMIT_MESSAGE
                     it.newVersionCommitMessage = Releases.NEW_VERSION_COMMIT_MESSAGE
+                    it.versionPatterns = Releases.VERSION_PATTERNS
                     it.git {
                         with(extension) {
                             requireBranch = release.requireBranch

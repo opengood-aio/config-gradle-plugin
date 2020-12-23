@@ -10,6 +10,7 @@ import org.gradle.internal.logging.text.StyledTextOutputFactory
 import org.gradle.kotlin.dsl.support.serviceOf
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.util.regex.Matcher
 
 plugins {
     kotlin("jvm") version "1.4.21"
@@ -52,8 +53,10 @@ object Versions {
     const val VERSIONS_PLUGIN = "0.36.0"
 }
 
-java.sourceCompatibility = javaVersion
-java.targetCompatibility = javaVersion
+java.apply {
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+}
 
 repositories {
     mavenCentral()
@@ -94,99 +97,101 @@ dependencies {
 
 val out: StyledTextOutput = project.serviceOf<StyledTextOutputFactory>().create("colored-output")
 
-tasks.withType<Wrapper> {
-    distributionType = DistributionType.ALL
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = jvmTargetVersion
-    }
-}
-
-tasks.withType<DependencyUpdatesTask> {
-    val isDependencyVersionNotStable = fun(version: String): Boolean {
-        val stableKeywords = listOf("RELEASE", "FINAL", "GA").any { version.toUpperCase().contains(it) }
-        val regex = "^[0-9,.v-]+(-r)?$".toRegex()
-        val isStable = stableKeywords || regex.matches(version)
-        return isStable.not()
+with(tasks) {
+    withType<Wrapper> {
+        distributionType = DistributionType.ALL
     }
 
-    resolutionStrategy {
-        componentSelection {
-            all {
-                if (isDependencyVersionNotStable(candidate.version) && !isDependencyVersionNotStable(currentVersion)) {
-                    reject("Release candidate")
+    withType<KotlinCompile> {
+        kotlinOptions {
+            freeCompilerArgs = listOf("-Xjsr305=strict")
+            jvmTarget = jvmTargetVersion
+        }
+    }
+
+    withType<DependencyUpdatesTask> {
+        val isDependencyVersionNotStable = fun(version: String): Boolean {
+            val stableKeywords = listOf("RELEASE", "FINAL", "GA").any { version.toUpperCase().contains(it) }
+            val regex = "^[0-9,.v-]+(-r)?$".toRegex()
+            val isStable = stableKeywords || regex.matches(version)
+            return isStable.not()
+        }
+
+        resolutionStrategy {
+            componentSelection {
+                all {
+                    if (isDependencyVersionNotStable(candidate.version) && !isDependencyVersionNotStable(currentVersion)) {
+                        reject("Release candidate")
+                    }
                 }
             }
         }
     }
-}
 
-tasks.withType<Test> {
-    useJUnitPlatform()
+    withType<Test> {
+        useJUnitPlatform()
 
-    testLogging {
-        events = setOf(PASSED, SKIPPED, FAILED, STANDARD_ERROR)
-        exceptionFormat = TestExceptionFormat.FULL
-        showCauses = true
-        showExceptions = true
-        showStackTraces = true
-    }
+        testLogging {
+            events = setOf(PASSED, SKIPPED, FAILED, STANDARD_ERROR)
+            exceptionFormat = TestExceptionFormat.FULL
+            showCauses = true
+            showExceptions = true
+            showStackTraces = true
+        }
 
-    maxParallelForks = Runtime.getRuntime().availableProcessors() / 2 + 1
-    systemProperty("junit.jupiter.testinstance.lifecycle.default", "per_class")
+        maxParallelForks = Runtime.getRuntime().availableProcessors() / 2 + 1
+        systemProperty("junit.jupiter.testinstance.lifecycle.default", "per_class")
 
-    doFirst {
-        out.style(Style.Header).println("***************************************************")
-        out.style(Style.Header).println(" >> Running Tests")
-        out.style(Style.Header).println("***************************************************")
-    }
+        doFirst {
+            with(out.style(Style.Header)) {
+                println("***************************************************")
+                println(" >> Running Tests")
+                println("***************************************************")
+            }
+        }
 
-    addTestListener(object : TestListener {
-        override fun beforeSuite(suite: TestDescriptor) {}
-        override fun beforeTest(testDescriptor: TestDescriptor) {}
-        override fun afterTest(testDescriptor: TestDescriptor, result: TestResult) {}
-        override fun afterSuite(suite: TestDescriptor, result: TestResult) {
-            if (suite.parent == null) {
-                val output =
-                    "Results: ${result.resultType} " +
-                        "(" +
-                        "${result.testCount} tests, " +
-                        "${result.successfulTestCount} successes, " +
-                        "${result.failedTestCount} failures, " +
-                        "${result.skippedTestCount} skipped" +
-                        ")"
-                val startItem = "| "
-                val endItem = " |"
-                val repeatLength = startItem.length + output.length + endItem.length
-                out.style(if (result.failedTestCount == 0L) Style.SuccessHeader else Style.FailureHeader).println("""
+        addTestListener(object : TestListener {
+            override fun beforeSuite(suite: TestDescriptor) {}
+            override fun beforeTest(testDescriptor: TestDescriptor) {}
+            override fun afterTest(testDescriptor: TestDescriptor, result: TestResult) {}
+            override fun afterSuite(suite: TestDescriptor, result: TestResult) {
+                if (suite.parent == null) {
+                    val output =
+                        "Results: ${result.resultType} " +
+                            "(" +
+                            "${result.testCount} tests, " +
+                            "${result.successfulTestCount} successes, " +
+                            "${result.failedTestCount} failures, " +
+                            "${result.skippedTestCount} skipped" +
+                            ")"
+                    val startItem = "| "
+                    val endItem = " |"
+                    val repeatLength = startItem.length + output.length + endItem.length
+                    out.style(if (result.failedTestCount == 0L) Style.SuccessHeader else Style.FailureHeader).println(
+                        """
                     |
                     |${"-".repeat(repeatLength)}
                     |$startItem$output$endItem
                     |${"-".repeat(repeatLength)}
                     |
-                    """.trimMargin())
+                    """.trimMargin()
+                    )
+                }
+            }
+        })
+
+        doLast {
+            with(out.style(Style.Header)) {
+                println("***************************************************")
+                println(" >> Tests FINISHED")
+                println("***************************************************")
             }
         }
-    })
-
-    doLast {
-        out.style(Style.Header).println("***************************************************")
-        out.style(Style.Header).println(" >> Tests FINISHED")
-        out.style(Style.Header).println("***************************************************")
     }
-}
 
-tasks.getByName("release") {
-    tasks.withType<Test> {
-        enabled = false
+    getByName("afterReleaseBuild") {
+        dependsOn("publishPlugins")
     }
-}
-
-tasks.getByName("afterReleaseBuild") {
-    dependsOn("publishPlugins")
 }
 
 fun ReleaseExtension.git(config: GitConfig.() -> Unit) =
@@ -196,7 +201,7 @@ release {
     preTagCommitMessage = "[Gradle Release] - pre tag commit: "
     newVersionCommitMessage = "[Gradle Release] - new version commit: "
     versionPatterns = mapOf(
-        """[.]*\.(\d+)\.(\d+)[.]*""" to KotlinClosure2<java.util.regex.Matcher, Project, String>({ matcher, project ->
+        """[.]*\.(\d+)\.(\d+)[.]*""" to KotlinClosure2<Matcher, Project, String>({ matcher, project ->
             matcher.replaceAll(".${(matcher.group(0)[1]) + 1}.0")
         })
     )
