@@ -1,7 +1,6 @@
 package io.opengood.gradle.config
 
 import io.opengood.gradle.constant.Releases
-import io.opengood.gradle.enumeration.ScmProvider
 import io.opengood.gradle.property.GradleProperty
 import org.gradle.api.Project
 

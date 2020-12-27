@@ -4,7 +4,45 @@ import helper.createProject
 import io.kotest.core.spec.style.FunSpec
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
-import spec.*
+import spec.addKotestDependenciesTest
+import spec.addKotlinDependenciesTest
+import spec.addMockkDependenciesTest
+import spec.addRepositoriesTest
+import spec.addSpringDependenciesTest
+import spec.applyCommonPluginsTest
+import spec.applyJavaPluginTest
+import spec.applyKotlinPluginsTest
+import spec.applyKotlinSpringPluginsTest
+import spec.applyLibraryPluginTest
+import spec.applyPluginTest
+import spec.applySpringPluginsTest
+import spec.configureAfterReleaseBuildTaskTest
+import spec.configureBootJarTaskTest
+import spec.configureConventionsTest
+import spec.configureDependencyUpdatesTaskTest
+import spec.configureGradleWrapperTaskTest
+import spec.configureJarArtifactTest
+import spec.configureJarSigningTest
+import spec.configureJarTaskTest
+import spec.configureJavaCompileTaskTest
+import spec.configureJavadocJarArtifactTest
+import spec.configureJavadocJarSigningTest
+import spec.configureKotlinCompileTaskTest
+import spec.configurePublishingExtensionTest
+import spec.configureReleaseExtensionTest
+import spec.configureSigningExtensionTest
+import spec.configureSourcesJarArtifactTest
+import spec.configureSourcesJarSigningTest
+import spec.configureTestTaskTest
+import spec.configureUploadArchivesTaskTest
+import spec.createExtensionTest
+import spec.doNotAddAssertjDependenciesTest
+import spec.doNotAddGroovyDependenciesTest
+import spec.doNotAddJunitDependenciesTest
+import spec.doNotAddLombokDependenciesTest
+import spec.doNotAddMockitoDependenciesTest
+import spec.doNotApplyGroovyPluginTest
+import spec.doNotApplyLombokPluginTest
 
 class ConfigPluginKotlinLibTest : FunSpec({
 

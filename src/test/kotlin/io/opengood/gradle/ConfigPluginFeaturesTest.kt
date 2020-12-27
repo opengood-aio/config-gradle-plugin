@@ -4,7 +4,17 @@ import helper.Features
 import helper.createProject
 import io.kotest.core.spec.style.FunSpec
 import io.opengood.gradle.enumeration.LanguageType
-import spec.*
+import spec.doNotAddAssertjDependenciesTest
+import spec.doNotAddJunitDependenciesTest
+import spec.doNotAddKotestDependenciesTest
+import spec.doNotAddLombokDependenciesTest
+import spec.doNotAddMockitoDependenciesTest
+import spec.doNotAddMockkDependenciesTest
+import spec.doNotAddSpringDependenciesTest
+import spec.doNotConfigureAfterReleaseBuildTaskTest
+import spec.doNotConfigurePublishingExtensionTest
+import spec.doNotConfigureSigningExtensionTest
+import spec.doNotConfigureUploadArchivesTaskTest
 
 class ConfigPluginFeaturesTest : FunSpec({
 

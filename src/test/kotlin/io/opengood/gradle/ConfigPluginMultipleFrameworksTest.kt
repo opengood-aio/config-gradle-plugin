@@ -4,7 +4,11 @@ import helper.MultipleFrameworks
 import helper.createProject
 import io.kotest.core.spec.style.FunSpec
 import io.opengood.gradle.enumeration.LanguageType
-import spec.*
+import spec.addAssertjDependenciesTest
+import spec.addJunitDependenciesTest
+import spec.addKotestDependenciesTest
+import spec.addMockitoDependenciesTest
+import spec.addMockkDependenciesTest
 
 class ConfigPluginMultipleFrameworksTest : FunSpec({
 
