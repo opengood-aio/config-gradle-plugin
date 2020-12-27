@@ -468,7 +468,7 @@ fun configureJacocoTestReportTaskTest(project: Project) = funSpec {
 
         with(task) {
             shouldNotBeNull()
-            with (reports) {
+            with(reports) {
                 shouldNotBeNull()
                 xml.isEnabled.shouldBeTrue()
                 html.isEnabled.shouldBeFalse()
