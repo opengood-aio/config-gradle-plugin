@@ -21,7 +21,6 @@ import org.gradle.api.plugins.MavenRepositoryHandlerConvention
 import org.gradle.api.publication.maven.internal.deployer.DefaultGroovyMavenDeployer
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.tasks.TaskDependency
 import org.gradle.testfixtures.ProjectBuilder
 import java.nio.file.Files
 import java.nio.file.Path
