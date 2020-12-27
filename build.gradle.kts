@@ -189,6 +189,28 @@ with(tasks) {
         }
     }
 
+    create("setupPublishPlugins") {
+        doLast {
+            val publishKey = System.getenv("GRADLE_PUBLISH_KEY")
+            val publishSecret = System.getenv("GRADLE_PUBLISH_SECRET")
+
+            if (publishKey.isNotBlank() && publishSecret.isNotBlank()) {
+                println("Environment variables GRADLE_PUBLISH_KEY and GRADLE_PUBLISH_SECRET are set")
+                println("Using in-memory Gradle key and secret for plugin publishing")
+            } else {
+                println("Environment variables GRADLE_PUBLISH_KEY and GRADLE_PUBLISH_SECRET are not set")
+                println("Defaulting to global Gradle properties file for plugin publishing")
+            }
+
+            System.setProperty("gradle.publish.key", publishKey)
+            System.setProperty("gradle.publish.secret", publishSecret)
+        }
+    }
+
+    getByName("release") {
+        dependsOn("setupPublishPlugins")
+    }
+
     getByName("afterReleaseBuild") {
         dependsOn("publishPlugins")
     }

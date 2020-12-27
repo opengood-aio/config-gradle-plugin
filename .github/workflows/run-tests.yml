@@ -1,0 +1,30 @@
+name: Run Tests
+# description:
+# - Runs Gradle test executing all test cases
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '.gitignore'
+      - 'gradle.properties'
+      - 'LICENSE'
+      - 'README.md'
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'Create release')"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Run Tests
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: clean test
