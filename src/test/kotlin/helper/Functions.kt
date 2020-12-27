@@ -16,10 +16,12 @@ import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.internal.artifacts.dsl.DefaultRepositoryHandler
 import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.internal.project.ProjectInternal
+import org.gradle.api.internal.tasks.DefaultTaskDependency
 import org.gradle.api.plugins.MavenRepositoryHandlerConvention
 import org.gradle.api.publication.maven.internal.deployer.DefaultGroovyMavenDeployer
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.TaskDependency
 import org.gradle.testfixtures.ProjectBuilder
 import java.nio.file.Files
 import java.nio.file.Path
@@ -29,6 +31,9 @@ private fun <T : Any> T.accessField(fieldName: String): Any? =
         field.isAccessible = true
         return@let field.get(this)
     }
+
+internal fun containsTaskFinalizedByDependency(task: Task, name: String): Boolean =
+    (task.finalizedBy as DefaultTaskDependency).mutableValues.contains(name)
 
 internal fun createProject(
     languageType: LanguageType,

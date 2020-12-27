@@ -6,6 +6,7 @@ class Plugins {
         const val BASE = "base"
         const val GROOVY = "groovy"
         const val IDEA = "idea"
+        const val JACOCO = "jacoco"
         const val JAVA = "java"
         const val JAVA_LIBRARY = "java-library"
         const val KOTLIN_ALL_OPEN = "org.jetbrains.kotlin.plugin.allopen"

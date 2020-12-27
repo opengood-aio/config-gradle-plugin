@@ -21,6 +21,7 @@ import spec.configureBootJarTaskTest
 import spec.configureConventionsTest
 import spec.configureDependencyUpdatesTaskTest
 import spec.configureGradleWrapperTaskTest
+import spec.configureJacocoTestReportTaskTest
 import spec.configureJarArtifactTest
 import spec.configureJarSigningTest
 import spec.configureJarTaskTest
@@ -83,6 +84,7 @@ class ConfigPluginKotlinLibTest : FunSpec({
     include(configureJavaCompileTaskTest(project))
     include(configureDependencyUpdatesTaskTest(project))
     include(configureTestTaskTest(project))
+    include(configureJacocoTestReportTaskTest(project))
     include(configureJarTaskTest(project, isEnabled = true))
     include(configureBootJarTaskTest(project, isEnabled = false))
     include(configureAfterReleaseBuildTaskTest(project))

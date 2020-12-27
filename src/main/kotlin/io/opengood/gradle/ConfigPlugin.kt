@@ -40,6 +40,7 @@ import org.gradle.api.tasks.wrapper.Wrapper
 import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
 import org.gradle.language.jvm.tasks.ProcessResources
 import org.gradle.plugins.signing.SigningExtension
+import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.dsl.SpringBootExtension
 import org.springframework.boot.gradle.tasks.bundling.BootJar
@@ -100,6 +101,7 @@ class ConfigPlugin : Plugin<Project> {
 
                     apply(Plugins.BASE)
                     apply(Plugins.IDEA)
+                    apply(Plugins.JACOCO)
                     apply(Plugins.MAVEN)
                     apply(Plugins.MAVEN_PUBLISH)
                     apply(Plugins.RELEASE)
@@ -220,6 +222,7 @@ class ConfigPlugin : Plugin<Project> {
         configureProcessResourcesTask(project)
         configureDependencyUpdatesTask(project)
         configureTestTask(project)
+        configureJacocoTestReportTask(project)
         configureJarTask(project)
         configureBootJarTask(project)
     }
@@ -283,6 +286,7 @@ class ConfigPlugin : Plugin<Project> {
 
     private fun configureTestTask(project: Project) {
         project.tasks.withType(Test::class.java) {
+            it.finalizedBy("jacocoTestReport")
             it.useJUnitPlatform()
 
             it.testLogging { logging ->
@@ -341,6 +345,17 @@ class ConfigPlugin : Plugin<Project> {
                 println(colorize("***************************************************", CYAN_TEXT()))
                 println(colorize(" >> Tests FINISHED", CYAN_TEXT()))
                 println(colorize("***************************************************", CYAN_TEXT()))
+            }
+        }
+    }
+
+    private fun configureJacocoTestReportTask(project: Project) {
+        project.tasks.withType(JacocoReport::class.java).getByName("jacocoTestReport") {
+            it.reports { config ->
+                with(config) {
+                    xml.isEnabled = true
+                    html.isEnabled = false
+                }
             }
         }
     }
