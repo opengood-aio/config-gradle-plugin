@@ -1,6 +1,6 @@
-name: Run Tests
+name: Quality
 # description:
-# - Runs Gradle test executing all test cases
+# - Runs ktlint providing source code quality and review information
 on:
   push:
     branches:
@@ -12,19 +12,12 @@ on:
       - 'README.md'
 
 jobs:
-  main:
+  quality:
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, 'Create release')"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup Java
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-
-      - name: Run Tests
-        uses: eskatos/gradle-command-action@v1
-        with:
-          arguments: clean test
+      - name: ktlint
+        uses: vroy/gha-kotlin-linter@v1
