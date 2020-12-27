@@ -59,27 +59,38 @@ opengood {
 **Note:** Used for publishing `opengood-config` Gradle plugin to Gradle
 plugin repository
 
-* Using Gradle account with API key for publishing, add credentials to
-`~/.gradle/gradle.properties`:
+* For local, using Gradle account with API key for publishing, add
+credentials to `~/.gradle/gradle.properties`:
 
     ```properties
     gradle.publish.key=<gradle-api-key>
     gradle.publish.secret=<gradle-api-key-secret>
     ```
 
+* For CI, using Gradle account with API key for publishing, add
+environment variables to CI job:
+
+    ```
+    GRADLE_PUBLISH_KEY=<gradle-api-key>
+    GRADLE_PUBLISH_SECRET=<gradle-api-key-secret>
+    ```
+
 * Create release version and publish plugin to Gradle plugin repository:
 
     ```bash
-    ./gradlew clean assemble publishPlugins
+    ./gradlew clean release -Prelease.useAutomaticVersion=true
     ```
+
+    **Note:** `publishPlugins` task is configured with Gradle release
+    plugin to execute after release build
 
 #### Artifact
 
 **Note:** Used for publishing artifacts using `opengood-config` Gradle
 plugin to Maven OSS repository
 
-* Using Sonatype OSS account with GPG key for publishing, add credentials
-to `~/.gradle/gradle.properties`:
+* For local, using Sonatype OSS account with GPG key for publishing, add
+credentials to `~/.gradle/gradle.properties`:
 
     ```properties
     ossrhUsername=<sonatype-account-username>
@@ -90,8 +101,23 @@ to `~/.gradle/gradle.properties`:
     signing.secretKeyRingFile=<gpg-keys-file-path>
     ```
 
+* For CI, using Sonatype OSS account with GPG key for publishing, add
+environment variables to CI job:
+
+    ```
+    OSSRH_USERNAME=<sonatype-account-username>
+    OSSRH_PASSWORD=<sonatype-account-password>
+    GPG_SIGNING_PRIVATE_KEY=<gpg-key-private-key>
+    GPG_SIGNING_PASSWORD=<gpg-key-password>
+    ```
+
+    **Note:** `gpg-key-private-key` must be in ASCII armored format
+
 * Create release version and publish artifact to Maven OSS repository:
 
     ```bash
-    ./gradlew clean assemble uploadArchives
+    ./gradlew clean release -Prelease.useAutomaticVersion=true
     ```
+
+    **Note:** `uploadArchives` task is configured with Gradle release
+    plugin to execute after release build
