@@ -1,0 +1,30 @@
+name: Build
+# description:
+# - Runs Gradle build compiling source code and executing tests
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '.gitignore'
+      - 'gradle.properties'
+      - 'LICENSE'
+      - 'README.md'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'Create release')"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Build
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: clean build

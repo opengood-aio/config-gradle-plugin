@@ -3,8 +3,9 @@
 Gradle plugin providing centralized configuration of OpenGood Gradle
 projects
 
-![Run Tests](https://github.com/opengoodio/config-gradle-plugin/workflows/Run%20Tests/badge.svg)
-![Publish Release](https://github.com/opengoodio/config-gradle-plugin/workflows/Publish%20Release/badge.svg)
+![Build](https://github.com/opengoodio/config-gradle-plugin/workflows/Build/badge.svg)
+![Quality](https://github.com/opengoodio/config-gradle-plugin/workflows/Quality/badge.svg)
+![Release](https://github.com/opengoodio/config-gradle-plugin/workflows/Release/badge.svg)
 
 ## Usage
 
