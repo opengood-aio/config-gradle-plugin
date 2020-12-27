@@ -4,7 +4,42 @@ import helper.createProject
 import io.kotest.core.spec.style.FunSpec
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
-import spec.*
+import spec.addAssertjDependenciesTest
+import spec.addJunitDependenciesTest
+import spec.addLombokDependenciesTest
+import spec.addMockitoDependenciesTest
+import spec.addRepositoriesTest
+import spec.addSpringDependenciesTest
+import spec.applyCommonPluginsTest
+import spec.applyJavaPluginTest
+import spec.applyLombokPluginTest
+import spec.applyPluginTest
+import spec.applySpringPluginsTest
+import spec.configureAfterReleaseBuildTaskTest
+import spec.configureBootJarTaskTest
+import spec.configureConventionsTest
+import spec.configureDependencyUpdatesTaskTest
+import spec.configureGradleWrapperTaskTest
+import spec.configureJarArtifactTest
+import spec.configureJarSigningTest
+import spec.configureJarTaskTest
+import spec.configureJavaCompileTaskTest
+import spec.configureProcessResourcesTaskTest
+import spec.configurePublishingExtensionTest
+import spec.configureReleaseExtensionTest
+import spec.configureSigningExtensionTest
+import spec.configureSpringBootExtensionTest
+import spec.configureTestTaskTest
+import spec.configureUploadArchivesTaskTest
+import spec.createExtensionTest
+import spec.doNotAddGroovyDependenciesTest
+import spec.doNotAddKotestDependenciesTest
+import spec.doNotAddKotlinDependenciesTest
+import spec.doNotAddMockkDependenciesTest
+import spec.doNotApplyGroovyPluginTest
+import spec.doNotApplyKotlinPluginsTest
+import spec.doNotApplyKotlinSpringPluginsTest
+import spec.doNotApplyLibraryPluginTest
 
 class ConfigPluginJavaAppTest : FunSpec({
 

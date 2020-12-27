@@ -1,4 +1,4 @@
-name: Quality
+name: Lint
 # description:
 # - Runs ktlint providing source code quality and review information
 on:
@@ -12,7 +12,7 @@ on:
       - 'README.md'
 
 jobs:
-  quality:
+  lint:
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, 'Create release')"
     steps:

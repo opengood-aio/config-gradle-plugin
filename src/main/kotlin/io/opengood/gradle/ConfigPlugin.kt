@@ -1,10 +1,19 @@
 package io.opengood.gradle
 
 import com.diogonunes.jcolor.Ansi.colorize
-import com.diogonunes.jcolor.Attribute.*
+import com.diogonunes.jcolor.Attribute.CYAN_TEXT
+import com.diogonunes.jcolor.Attribute.GREEN_TEXT
+import com.diogonunes.jcolor.Attribute.RED_TEXT
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import io.opengood.gradle.builder.groovy.withGroovyBuilder
-import io.opengood.gradle.constant.*
+import io.opengood.gradle.constant.Dependencies
+import io.opengood.gradle.constant.KotlinOptions
+import io.opengood.gradle.constant.Plugins
+import io.opengood.gradle.constant.Releases
+import io.opengood.gradle.constant.Repositories
+import io.opengood.gradle.constant.Resources
+import io.opengood.gradle.constant.Tests
+import io.opengood.gradle.constant.Versions
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
 import io.opengood.gradle.extension.OpenGoodExtension

@@ -1,7 +1,17 @@
 package spec
 
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
-import helper.*
+import helper.getArtifact
+import helper.getConvention
+import helper.getDependency
+import helper.getMavenDeployer
+import helper.getMavenPublication
+import helper.getMavenRepository
+import helper.getPlugin
+import helper.getRepository
+import helper.getTaskByName
+import helper.getTaskByType
+import helper.getTaskByTypeAndName
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.funSpec
 import io.kotest.matchers.booleans.shouldBeFalse
@@ -16,7 +26,15 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.opengood.gradle.ConfigPlugin
 import io.opengood.gradle.closure.KotlinClosure2
-import io.opengood.gradle.constant.*
+import io.opengood.gradle.constant.Artifacts
+import io.opengood.gradle.constant.Dependencies
+import io.opengood.gradle.constant.GitHub
+import io.opengood.gradle.constant.KotlinOptions
+import io.opengood.gradle.constant.Plugins
+import io.opengood.gradle.constant.Releases
+import io.opengood.gradle.constant.Repositories
+import io.opengood.gradle.constant.Tests
+import io.opengood.gradle.constant.Versions
 import io.opengood.gradle.enumeration.PackagingType
 import io.opengood.gradle.enumeration.ProjectType
 import io.opengood.gradle.enumeration.ScmProvider
