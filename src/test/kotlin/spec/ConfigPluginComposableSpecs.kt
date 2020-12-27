@@ -1,6 +1,7 @@
 package spec
 
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import helper.containsTaskFinalizedByDependency
 import helper.getArtifact
 import helper.getConvention
 import helper.getDependency
@@ -60,6 +61,7 @@ import org.gradle.internal.impldep.org.apache.maven.model.Model
 import org.gradle.language.jvm.tasks.ProcessResources
 import org.gradle.plugins.signing.Signature
 import org.gradle.plugins.signing.SigningExtension
+import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.dsl.SpringBootExtension
 import org.springframework.boot.gradle.tasks.bundling.BootJar
@@ -156,6 +158,7 @@ fun applyCommonPluginsTest(project: Project) = funSpec {
     test("Applies common plugins") {
         getPlugin(project, Plugins.BASE).shouldNotBeNull()
         getPlugin(project, Plugins.IDEA).shouldNotBeNull()
+        getPlugin(project, Plugins.JACOCO).shouldNotBeNull()
         getPlugin(project, Plugins.MAVEN).shouldNotBeNull()
         getPlugin(project, Plugins.MAVEN_PUBLISH).shouldNotBeNull()
         getPlugin(project, Plugins.RELEASE).shouldNotBeNull()
@@ -445,6 +448,7 @@ fun configureTestTaskTest(project: Project) = funSpec {
 
         with(task) {
             shouldNotBeNull()
+            containsTaskFinalizedByDependency(task, "jacocoTestReport").shouldBeTrue()
             with(testLogging) {
                 events shouldBe Tests.LOGGING_EVENTS
                 exceptionFormat shouldBe Tests.EXCEPTION_FORMAT
@@ -454,6 +458,21 @@ fun configureTestTaskTest(project: Project) = funSpec {
             }
             maxParallelForks shouldBe Tests.MAX_PARALLEL_FORKS
             systemProperties[Tests.INSTANCE_LIFECYCLE_SYS_PROP_NAME] shouldBe Tests.INSTANCE_LIFECYCLE_SYS_PROP_VALUE
+        }
+    }
+}
+
+fun configureJacocoTestReportTaskTest(project: Project) = funSpec {
+    test("Configures Jacoco Test Report task") {
+        val task = getTaskByTypeAndName<JacocoReport>(project, "jacocoTestReport")
+
+        with(task) {
+            shouldNotBeNull()
+            with (reports) {
+                shouldNotBeNull()
+                xml.isEnabled.shouldBeTrue()
+                html.isEnabled.shouldBeFalse()
+            }
         }
     }
 }

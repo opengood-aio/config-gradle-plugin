@@ -20,6 +20,7 @@ import spec.configureBootJarTaskTest
 import spec.configureConventionsTest
 import spec.configureDependencyUpdatesTaskTest
 import spec.configureGradleWrapperTaskTest
+import spec.configureJacocoTestReportTaskTest
 import spec.configureJarArtifactTest
 import spec.configureJarSigningTest
 import spec.configureJarTaskTest
@@ -80,6 +81,7 @@ class ConfigPluginJavaAppTest : FunSpec({
     include(configureProcessResourcesTaskTest(project))
     include(configureDependencyUpdatesTaskTest(project))
     include(configureTestTaskTest(project))
+    include(configureJacocoTestReportTaskTest(project))
     include(configureJarTaskTest(project, isEnabled = false))
     include(configureBootJarTaskTest(project, isEnabled = true))
     include(configureAfterReleaseBuildTaskTest(project))
