@@ -19,5 +19,5 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: ktlint
+      - name: Lint
         uses: fabiocapasso93/gha-kotlin-linter@v1.0
