@@ -3,6 +3,9 @@
 Gradle plugin providing centralized configuration of OpenGood Gradle
 projects
 
+![Run Tests](https://github.com/opengoodio/config-gradle-plugin/workflows/Run%20Tests/badge.svg)
+![Publish Release](https://github.com/opengoodio/config-gradle-plugin/workflows/Publish%20Release/badge.svg)
+
 ## Usage
 
 Add `opengood-config` Gradle plugin to `build.gradle.kts`:
