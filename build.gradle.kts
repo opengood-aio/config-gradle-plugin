@@ -15,6 +15,7 @@ import java.util.regex.Matcher
 plugins {
     kotlin("jvm") version "1.4.21"
     id("java-gradle-plugin")
+    id("jacoco")
     id("maven")
     id("maven-publish")
     id("com.github.ben-manes.versions") version "0.36.0"
@@ -35,7 +36,7 @@ gradlePlugin {
     }
 }
 
-val kotlinVersion =  plugins.getPlugin(KotlinPluginWrapper::class.java).kotlinPluginVersion
+val kotlinVersion = plugins.getPlugin(KotlinPluginWrapper::class.java).kotlinPluginVersion
 val javaVersion = JavaVersion.VERSION_11
 val jvmTargetVersion = "11"
 
@@ -129,6 +130,7 @@ with(tasks) {
     }
 
     withType<Test> {
+        finalizedBy("jacocoTestReport")
         useJUnitPlatform()
 
         testLogging {
@@ -143,7 +145,7 @@ with(tasks) {
         systemProperty("junit.jupiter.testinstance.lifecycle.default", "per_class")
 
         doFirst {
-            with(out.style(Style.Header)) {
+            with(out.style(Style.ProgressStatus)) {
                 println("***************************************************")
                 println(" >> Running Tests")
                 println("***************************************************")
@@ -181,11 +183,18 @@ with(tasks) {
         })
 
         doLast {
-            with(out.style(Style.Header)) {
+            with(out.style(Style.ProgressStatus)) {
                 println("***************************************************")
                 println(" >> Tests FINISHED")
                 println("***************************************************")
             }
+        }
+    }
+
+    jacocoTestReport {
+        reports {
+            xml.isEnabled = true
+            html.isEnabled = false
         }
     }
 
