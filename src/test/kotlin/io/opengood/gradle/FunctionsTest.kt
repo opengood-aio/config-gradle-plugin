@@ -34,14 +34,14 @@ class FunctionsTest : FunSpec({
         project.buildGradleType shouldBe BuildGradleType.KOTLIN
     }
 
-    test("getEnvVar returns environment variable value when variable exists") {
+    test("getEnv returns environment variable value when variable exists") {
         withEnvironment("NAME", "test") {
-            getEnvVar("NAME", "none") shouldBe "test"
+            getEnv("NAME", "none") shouldBe "test"
         }
     }
 
-    test("getEnvVar returns default value when variable does not exist") {
-        getEnvVar("NONE", "none") shouldBe "none"
+    test("getEnv returns default value when variable does not exist") {
+        getEnv("NONE", "none") shouldBe "none"
     }
 
     test("getExtension returns Gradle extension given name") {

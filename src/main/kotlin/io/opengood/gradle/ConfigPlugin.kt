@@ -4,7 +4,6 @@ import com.diogonunes.jcolor.Ansi.colorize
 import com.diogonunes.jcolor.Attribute.*
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import io.opengood.gradle.builder.groovy.withGroovyBuilder
-import io.opengood.gradle.closure.KotlinClosure2
 import io.opengood.gradle.constant.*
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
@@ -35,7 +34,6 @@ import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.dsl.SpringBootExtension
 import org.springframework.boot.gradle.tasks.bundling.BootJar
-import java.util.regex.Matcher
 
 class ConfigPlugin : Plugin<Project> {
 
@@ -370,8 +368,11 @@ class ConfigPlugin : Plugin<Project> {
 
     private fun configureUploadArchivesTask(project: Project) {
         project.tasks.withType(Upload::class.java) {
-            val ossrhUsername = project.getProperty("ossrhUsername", getEnvVar("OSSRH_USERNAME", ""))
-            val ossrhPassword = project.getProperty("ossrhPassword", getEnvVar("OSSRH_USERNAME", ""))
+            val ossrhUsername = project.getProperty("ossrhUsername", getEnv("OSSRH_USERNAME", ""))
+            val ossrhPassword = project.getProperty("ossrhPassword", getEnv("OSSRH_PASSWORD", ""))
+
+            if (ossrhUsername.isBlank()) println("WARN: ossrhUsername property or OSSRH_USERNAME environment variable is not set")
+            if (ossrhPassword.isBlank()) println("WARN: ossrhPassword property or OSSRH_PASSWORD environment variable is not set")
 
             val mavenConvention =
                 DslObject(it.repositories).convention.getPlugin(MavenRepositoryHandlerConvention::class.java)
@@ -541,6 +542,18 @@ class ConfigPlugin : Plugin<Project> {
         with(project) {
             pluginManager.withPlugin(Plugins.SIGNING) {
                 extensions.configure(SigningExtension::class.java) {
+                    val signingKey = getEnv("GPG_SIGNING_PRIVATE_KEY", "")
+                    val signingPassword = getEnv("GPG_SIGNING_PASSWORD", "")
+
+                    if (signingKey.isNotBlank() && signingPassword.isNotBlank()) {
+                        println("Environment variables GPG_SIGNING_PRIVATE_KEY and GPG_SIGNING_PASSWORD are set")
+                        println("Using in-memory GPG key for signing")
+                        it.useInMemoryPgpKeys(signingKey, signingPassword)
+                    } else {
+                        println("Environment variables GPG_SIGNING_PRIVATE_KEY and GPG_SIGNING_PASSWORD are not set")
+                        println("Defaulting to global Gradle properties file for GPG key for signing")
+                    }
+
                     it.sign(configurations.getByName("archives"))
                 }
             }
