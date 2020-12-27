@@ -6,6 +6,7 @@ import io.opengood.gradle.enumeration.LanguageType
 import net.researchgate.release.GitAdapter
 import net.researchgate.release.ReleaseExtension
 import org.gradle.api.Project
+import java.lang.System.getenv
 import java.nio.file.Path
 
 internal val Project.buildGradleType: BuildGradleType
@@ -15,12 +16,8 @@ internal val Project.buildGradleType: BuildGradleType
             else -> BuildGradleType.GROOVY
         }
 
-internal inline fun <reified V : Any> getEnvVar(name: String, default: V): V =
-    try {
-        System.getenv(name) as V
-    } catch (ignored: Exception) {
-        default
-    }
+internal inline fun <reified V : Any> getEnv(name: String, default: V): V =
+    if (getenv().containsKey(name)) getenv(name) as V else default
 
 internal inline fun <reified T : Any> Project.getExtension(): T =
     extensions.getByType(T::class.java)
@@ -29,11 +26,7 @@ internal inline fun <reified T : Any> Project.getExtension(name: String): T =
     extensions.getByName(name) as T
 
 internal inline fun <reified V : Any> Project.getProperty(name: String, default: V): V =
-    try {
-        property(name) as V
-    } catch (ignored: Exception) {
-        default
-    }
+    if (hasProperty(name)) property(name) as V else default
 
 internal fun ReleaseExtension.git(config: GitAdapter.GitConfig.() -> Unit) =
     (propertyMissing("git") as GitAdapter.GitConfig).config()
