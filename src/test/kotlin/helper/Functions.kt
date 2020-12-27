@@ -117,5 +117,5 @@ internal fun getTaskByName(project: Project, name: String): Task =
 internal inline fun <reified T : Task> getTaskByType(project: Project): T =
     project.tasks.withType(T::class.java).first()
 
- internal inline fun <reified T : Task> getTaskByTypeAndName(project: Project, name: String): T =
+internal inline fun <reified T : Task> getTaskByTypeAndName(project: Project, name: String): T =
     project.tasks.withType(T::class.java).getByName(name)

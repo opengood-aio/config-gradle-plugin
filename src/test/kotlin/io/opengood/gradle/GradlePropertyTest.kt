@@ -22,7 +22,7 @@ class GradlePropertyTest : WordSpec({
             Greeting("Hello World!").message shouldBe "Hello World!"
         }
 
-        "Throw exception if not set"  {
+        "Throw exception if not set" {
             shouldThrow<IllegalStateException> { Greeting().message }
         }
     }

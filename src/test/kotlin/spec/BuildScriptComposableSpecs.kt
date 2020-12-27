@@ -13,7 +13,8 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
         "Lead to successful build " {
             val projectDir = createProjectDir(languageType)
             val buildScript = projectDir.resolve(getBuildGradleFile(languageType)).toFile()
-            buildScript.writeText("""
+            buildScript.writeText(
+                """
                 import io.opengood.gradle.enumeration.PackagingType
                 import io.opengood.gradle.enumeration.ProjectType
                 import io.opengood.gradle.enumeration.ScmProvider
@@ -72,7 +73,8 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
                         }
                     }
                 }
-              """.trimIndent())
+                """.trimIndent()
+            )
 
             val result = GradleRunner.create()
                 .withProjectDir(projectDir.toFile())

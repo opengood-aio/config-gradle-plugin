@@ -25,7 +25,6 @@ import io.kotest.matchers.string.shouldBeEmpty
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.opengood.gradle.ConfigPlugin
-import io.opengood.gradle.closure.KotlinClosure2
 import io.opengood.gradle.constant.Artifacts
 import io.opengood.gradle.constant.Dependencies
 import io.opengood.gradle.constant.GitHub
@@ -64,7 +63,6 @@ import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.dsl.SpringBootExtension
 import org.springframework.boot.gradle.tasks.bundling.BootJar
-import java.util.regex.Matcher
 
 fun applyPluginTest(project: Project) = funSpec {
     test("Applies plugin") {

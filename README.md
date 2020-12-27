@@ -1,11 +1,12 @@
 # OpenGood Config Gradle Plugin
 
-Gradle plugin providing centralized configuration of OpenGood Gradle
-projects
-
 ![Build](https://github.com/opengoodio/config-gradle-plugin/workflows/Build/badge.svg)
 ![Lint](https://github.com/opengoodio/config-gradle-plugin/workflows/Lint/badge.svg)
 ![Release](https://github.com/opengoodio/config-gradle-plugin/workflows/Release/badge.svg)
+
+Gradle plugin providing centralized configuration of OpenGood Gradle
+projects
+
 
 ## Usage
 
