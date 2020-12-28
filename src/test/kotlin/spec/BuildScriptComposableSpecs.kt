@@ -44,6 +44,7 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
                         }
                     }
                     release {
+                        afterReleaseBuildTasks = ${if (languageType == LanguageType.KOTLIN) "arrayOf<Any>(\"publishPlugins\")" else "[\"publishPlugins\"]"}
                         requireBranch = "main"
                         pushToRemote = "origin"
                     }

@@ -103,6 +103,7 @@ fun createExtensionTest(
                 }
             }
             with(release) {
+                afterReleaseBuildTasks shouldBe Releases.AFTER_RELEASE_BUILD_TASKS
                 requireBranch shouldBe Releases.REQUIRE_BRANCH
                 pushToRemote shouldBe Releases.PUSH_TO_REMOTE
             }
@@ -505,7 +506,7 @@ fun configureAfterReleaseBuildTaskTest(project: Project) = funSpec {
 
         with(task) {
             shouldNotBeNull()
-            dependsOn.contains("uploadArchives").shouldBeTrue()
+            dependsOn.contains(Releases.AFTER_RELEASE_BUILD_TASKS).shouldBeTrue()
         }
     }
 }
