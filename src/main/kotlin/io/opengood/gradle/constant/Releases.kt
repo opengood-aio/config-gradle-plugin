@@ -12,6 +12,7 @@ class Releases {
         const val PUSH_TO_REMOTE = "origin"
         const val REQUIRE_BRANCH = ""
 
+        val AFTER_RELEASE_BUILD_TASKS = arrayOf<Any>("uploadArchives")
         val VERSION_PATTERNS = mapOf(
             """[.]*\.(\d+)\.(\d+)[.]*""" to KotlinClosure2<Matcher, Project, String>({ matcher, project ->
                 matcher.replaceAll(".${(matcher.group(0)[1]) + 1}.0")

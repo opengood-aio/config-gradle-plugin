@@ -385,8 +385,10 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     private fun configureAfterReleaseBuildTask(project: Project) {
-        project.tasks.getByName("afterReleaseBuild") {
-            it.dependsOn("uploadArchives")
+        with(extension.release) {
+            project.tasks.getByName("afterReleaseBuild") {
+                it.dependsOn(afterReleaseBuildTasks)
+            }
         }
     }
 
