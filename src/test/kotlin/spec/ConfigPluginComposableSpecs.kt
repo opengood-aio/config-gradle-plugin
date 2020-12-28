@@ -572,7 +572,7 @@ fun doNotConfigureAfterReleaseBuildTaskTest(project: Project) = funSpec {
 
         with(task) {
             shouldNotBeNull()
-            dependsOn.contains("uploadArchives").shouldBeFalse()
+            dependsOn.contains(Releases.AFTER_RELEASE_BUILD_TASKS).shouldBeFalse()
         }
     }
 }
