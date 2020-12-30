@@ -180,7 +180,7 @@ class ConfigPlugin : Plugin<Project> {
 
                             with(test) {
                                 if (languageType != LanguageType.KOTLIN ||
-                                    (languageType == LanguageType.KOTLIN && multipleFrameworks.kotlin)
+                                    (languageType == LanguageType.KOTLIN && testFrameworks.java)
                                 ) {
                                     if (junit) {
                                         testImplementation.dependencies.add(create(Dependencies.JUNIT_JUPITER))

@@ -1,6 +1,7 @@
 package spec
 
 import helper.createProjectDir
+import helper.createProjectSrcDir
 import helper.getBuildGradleFile
 import io.kotest.core.spec.style.wordSpec
 import io.kotest.matchers.string.shouldContain
@@ -11,7 +12,9 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
 
     "Gradle ${languageType.toString().toLowerCase().capitalize()} DSL build script with configured plugin" should {
         "Lead to successful build " {
-            val projectDir = createProjectDir(languageType)
+            val projectDir = createProjectDir()
+            createProjectSrcDir(languageType, projectDir)
+
             val buildScript = projectDir.resolve(getBuildGradleFile(languageType)).toFile()
             buildScript.writeText(
                 """
@@ -39,8 +42,8 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
                     }
                     test {
                         maxParallelForks = 1
-                        multipleFrameworks {
-                            kotlin = true
+                        testFrameworks {
+                            java = true
                         }
                     }
                     release {

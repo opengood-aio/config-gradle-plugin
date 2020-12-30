@@ -41,17 +41,19 @@ internal val Project.isGroovy: Boolean
 
 internal val Project.isJava: Boolean
     get() =
-        Path.of(projectDir.absolutePath, Directories.JAVA_SRC).toFile().exists()
+        Path.of(projectDir.absolutePath, Directories.JAVA_SRC).toFile().exists() ||
+            Path.of(projectDir.absolutePath, BuildGradleType.GROOVY.toString()).toFile().exists()
 
 internal val Project.isKotlin: Boolean
     get() =
-        Path.of(projectDir.absolutePath, Directories.KOTLIN_SRC).toFile().exists()
+        Path.of(projectDir.absolutePath, Directories.KOTLIN_SRC).toFile().exists() ||
+            Path.of(projectDir.absolutePath, BuildGradleType.KOTLIN.toString()).toFile().exists()
 
 internal val Project.languageType: LanguageType
     get() =
         when {
+            isKotlin -> LanguageType.KOTLIN
             isGroovy -> LanguageType.GROOVY
             isJava -> LanguageType.JAVA
-            isKotlin -> LanguageType.KOTLIN
             else -> throw IllegalStateException("Unable to detect LanguageType from Gradle project")
         }

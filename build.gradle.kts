@@ -41,12 +41,10 @@ val javaVersion = JavaVersion.VERSION_11
 val jvmTargetVersion = "11"
 
 object Versions {
-    const val ASSERTJ = "3.18.1"
+    const val APACHE_COMMONS = "3.11"
     const val JCOLOR = "5.0.1"
-    const val JUNIT_JUPITER = "5.7.0"
     const val KOTEST = "4.3.2"
     const val LOMBOK_PLUGIN = "4.0.0"
-    const val MOCKITO = "3.6.28"
     const val MOCKK = "1.10.3"
     const val RELEASE_PLUGIN = "2.8.1"
     const val SPRING_BOOT_PLUGIN = "2.4.1"
@@ -86,14 +84,8 @@ dependencies {
 
     testImplementation("io.kotest:kotest-runner-junit5:${Versions.KOTEST}")
     testImplementation("io.kotest:kotest-extensions-junit5:${Versions.KOTEST}")
-    testImplementation("io.kotest:kotest-extensions-spring:${Versions.KOTEST}")
-    testImplementation("io.kotest:kotest-extensions-koin:${Versions.KOTEST}")
     testImplementation("io.mockk:mockk:${Versions.MOCKK}")
-
-    testImplementation("org.junit.jupiter:junit-jupiter:${Versions.JUNIT_JUPITER}")
-    testImplementation("org.assertj:assertj-core:${Versions.ASSERTJ}")
-    testImplementation("org.mockito:mockito-core:${Versions.MOCKITO}")
-    testImplementation("org.mockito:mockito-junit-jupiter:${Versions.MOCKITO}")
+    testImplementation("org.apache.commons:commons-lang3:${Versions.APACHE_COMMONS}")
 }
 
 val out: StyledTextOutput = project.serviceOf<StyledTextOutputFactory>().create("colored-output")

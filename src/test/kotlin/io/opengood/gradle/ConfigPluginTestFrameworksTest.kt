@@ -1,6 +1,7 @@
 package io.opengood.gradle
 
-import helper.MultipleFrameworks
+import helper.ProjectConfig
+import helper.TestFrameworks
 import helper.createProject
 import io.kotest.core.spec.style.FunSpec
 import io.opengood.gradle.enumeration.LanguageType
@@ -10,11 +11,13 @@ import spec.addKotestDependenciesTest
 import spec.addMockitoDependenciesTest
 import spec.addMockkDependenciesTest
 
-class ConfigPluginMultipleFrameworksTest : FunSpec({
+class ConfigPluginTestFrameworksTest : FunSpec({
 
     val project = createProject(
-        languageType = LanguageType.KOTLIN,
-        multipleFrameworks = MultipleFrameworks.KOTLIN.flag
+        ProjectConfig(
+            languageType = LanguageType.KOTLIN,
+            testFrameworks = TestFrameworks.JAVA.flag
+        )
     )
 
     include(addJunitDependenciesTest(project))

@@ -3,8 +3,8 @@ package io.opengood.gradle.config
 import io.opengood.gradle.property.GradleProperty
 import org.gradle.api.Project
 
-open class MultipleFrameworkConfiguration(
+open class TestFrameworkConfiguration(
     project: Project
 ) {
-    var kotlin by GradleProperty(project, Boolean::class.java, false)
+    var java by GradleProperty(project, Boolean::class.java, false)
 }
