@@ -1,5 +1,6 @@
 package io.opengood.gradle
 
+import helper.ProjectConfig
 import helper.createProject
 import io.kotest.core.spec.style.FunSpec
 import io.opengood.gradle.enumeration.LanguageType
@@ -47,8 +48,10 @@ import spec.doNotApplyKotlinSpringPluginsTest
 class ConfigPluginJavaLibTest : FunSpec({
 
     val project = createProject(
-        languageType = LanguageType.JAVA,
-        projectType = ProjectType.LIB
+        ProjectConfig(
+            languageType = LanguageType.JAVA,
+            projectType = ProjectType.LIB
+        )
     )
 
     include(applyPluginTest(project))

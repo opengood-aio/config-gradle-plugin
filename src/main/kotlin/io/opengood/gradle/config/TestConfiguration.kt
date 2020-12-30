@@ -11,11 +11,11 @@ open class TestConfiguration(
     project: Project
 ) {
     var maxParallelForks by GradleProperty(project, Int::class.java, Tests.MAX_PARALLEL_FORKS)
-    var multipleFrameworks = MultipleFrameworkConfiguration(project)
+    var testFrameworks = TestFrameworkConfiguration(project)
 
-    open fun multipleFrameworks(action: Action<in MultipleFrameworkConfiguration>) =
-        action.execute(multipleFrameworks)
+    open fun testFrameworks(action: Action<in TestFrameworkConfiguration>) =
+        action.execute(testFrameworks)
 
-    open fun multipleFrameworks(closure: Closure<Unit>) =
-        ConfigureUtil.configure(closure, multipleFrameworks)
+    open fun testFrameworks(closure: Closure<Unit>) =
+        ConfigureUtil.configure(closure, testFrameworks)
 }

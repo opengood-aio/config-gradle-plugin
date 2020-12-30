@@ -1,7 +1,7 @@
 package spec
 
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
-import helper.containsTaskFinalizedByDependency
+import helper.hasTaskFinalizedByDependency
 import helper.getArtifact
 import helper.getConvention
 import helper.getDependency
@@ -98,8 +98,8 @@ fun createExtensionTest(
             }
             with(test) {
                 maxParallelForks shouldBe Tests.MAX_PARALLEL_FORKS
-                with(multipleFrameworks) {
-                    kotlin.shouldBeFalse()
+                with(testFrameworks) {
+                    java.shouldBeFalse()
                 }
             }
             with(release) {
@@ -449,7 +449,7 @@ fun configureTestTaskTest(project: Project) = funSpec {
 
         with(task) {
             shouldNotBeNull()
-            containsTaskFinalizedByDependency(task, "jacocoTestReport").shouldBeTrue()
+            hasTaskFinalizedByDependency(task, "jacocoTestReport").shouldBeTrue()
             with(testLogging) {
                 events shouldBe Tests.LOGGING_EVENTS
                 exceptionFormat shouldBe Tests.EXCEPTION_FORMAT
