@@ -1,7 +1,6 @@
 package spec
 
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
-import helper.hasTaskFinalizedByDependency
 import helper.getArtifact
 import helper.getConvention
 import helper.getDependency
@@ -13,6 +12,7 @@ import helper.getRepository
 import helper.getTaskByName
 import helper.getTaskByType
 import helper.getTaskByTypeAndName
+import helper.hasTaskFinalizedByDependency
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.funSpec
 import io.kotest.matchers.booleans.shouldBeFalse
