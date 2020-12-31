@@ -11,12 +11,12 @@ class Releases {
         const val PRE_TAG_COMMIT_MESSAGE = "[Gradle Release] - pre tag commit: "
         const val PUSH_TO_REMOTE = "origin"
         const val REQUIRE_BRANCH = ""
+        const val VERSION_PATTERN = """[.]*\.(\d+)\.(\d+)[.]*"""
 
         val AFTER_RELEASE_BUILD_TASKS = arrayOf<Any>("uploadArchives")
-        val VERSION_PATTERNS = mapOf(
-            """[.]*\.(\d+)\.(\d+)[.]*""" to KotlinClosure2<Matcher, Project, String>({ matcher, project ->
-                matcher.replaceAll(".${(matcher.group(0)[1]) + 1}.0")
-            })
-        )
+        val VERSION_PATTERN_CLOSURE = KotlinClosure2<Matcher, Project, String>({ matcher, project ->
+            matcher.replaceAll(".${(matcher.group(1)).toString().toInt() + 1}.0")
+        })
+        val VERSION_PATTERNS = mapOf(VERSION_PATTERN to VERSION_PATTERN_CLOSURE)
     }
 }
