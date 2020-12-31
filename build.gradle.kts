@@ -225,7 +225,7 @@ release {
     newVersionCommitMessage = "[Gradle Release] - new version commit: "
     versionPatterns = mapOf(
         """[.]*\.(\d+)\.(\d+)[.]*""" to KotlinClosure2<Matcher, Project, String>({ matcher, project ->
-            matcher.replaceAll(".${(matcher.group(0)[1]) + 1}.0")
+            matcher.replaceAll(".${(matcher.group(1)).toString().toInt() + 1}.0")
         })
     )
     git {
