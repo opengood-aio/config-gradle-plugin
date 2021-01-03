@@ -65,20 +65,14 @@ opengood {
 **Note:** Used for publishing `opengood-config` Gradle plugin to Gradle
 plugin repository
 
-* For local, using Gradle account with API key for publishing, add
-credentials to `~/.gradle/gradle.properties`:
+##### Local
+
+* Using Gradle account with API key for publishing, add credentials to
+`~/.gradle/gradle.properties`:
 
     ```properties
     gradle.publish.key=<gradle-api-key>
     gradle.publish.secret=<gradle-api-key-secret>
-    ```
-
-* For CI, using Gradle account with API key for publishing, add
-environment variables to CI job:
-
-    ```
-    GRADLE_PUBLISH_KEY=<gradle-api-key>
-    GRADLE_PUBLISH_SECRET=<gradle-api-key-secret>
     ```
 
 * Create release version and publish plugin to Gradle plugin repository:
@@ -90,12 +84,30 @@ environment variables to CI job:
     **Note:** `publishPlugins` task is configured with Gradle release
     plugin to execute after release build
 
+##### CI/CD
+
+* Using Gradle account with API key for publishing, add environment
+variables to CI job:
+
+    ```
+    GRADLE_PUBLISH_KEY=<gradle-api-key>
+    GRADLE_PUBLISH_SECRET=<gradle-api-key-secret>
+    ```
+
+* Create release version and publish plugin to Gradle plugin repository:
+
+    ```bash
+    git commit --allow-empty -m "Create release"; git push
+    ```
+
 #### Artifact
 
 **Note:** Used for publishing artifacts using `opengood-config` Gradle
 plugin to Maven OSS repository
 
-* For local, using Sonatype OSS account with GPG key for publishing, add
+##### Local
+
+* Using Sonatype OSS account with GPG key for publishing, add
 credentials to `~/.gradle/gradle.properties`:
 
     ```properties
@@ -107,7 +119,18 @@ credentials to `~/.gradle/gradle.properties`:
     signing.secretKeyRingFile=<gpg-keys-file-path>
     ```
 
-* For CI, using Sonatype OSS account with GPG key for publishing, add
+* Create release version and publish artifact to Maven OSS repository:
+
+    ```bash
+    ./gradlew clean release -Prelease.useAutomaticVersion=true
+    ```
+
+    **Note:** `uploadArchives` task is configured with Gradle release
+    plugin to execute after release build
+
+##### CI/CD
+
+* Using Sonatype OSS account with GPG key for publishing, add
 environment variables to CI job:
 
     ```
@@ -122,8 +145,5 @@ environment variables to CI job:
 * Create release version and publish artifact to Maven OSS repository:
 
     ```bash
-    ./gradlew clean release -Prelease.useAutomaticVersion=true
+    git commit --allow-empty -m "Create release"; git push
     ```
-
-    **Note:** `uploadArchives` task is configured with Gradle release
-    plugin to execute after release build
