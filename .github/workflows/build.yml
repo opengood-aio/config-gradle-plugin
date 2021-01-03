@@ -44,7 +44,7 @@ jobs:
       - name: Build
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: clean build --no-daemon
+          arguments: clean build -x signArchives --no-daemon
 
       - name: Codestyle
         uses: fabiocapasso93/gha-kotlin-linter@v1.0
