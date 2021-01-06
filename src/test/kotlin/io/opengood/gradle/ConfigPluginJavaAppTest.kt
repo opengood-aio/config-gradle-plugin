@@ -38,6 +38,7 @@ import spec.doNotAddGroovyDependenciesTest
 import spec.doNotAddKotestDependenciesTest
 import spec.doNotAddKotlinDependenciesTest
 import spec.doNotAddMockkDependenciesTest
+import spec.doNotAddSpringMockkDependenciesTest
 import spec.doNotApplyGroovyPluginTest
 import spec.doNotApplyKotlinPluginsTest
 import spec.doNotApplyKotlinSpringPluginsTest
@@ -78,6 +79,7 @@ class ConfigPluginJavaAppTest : FunSpec({
     include(doNotAddKotlinDependenciesTest(project))
     include(doNotAddKotestDependenciesTest(project))
     include(doNotAddMockkDependenciesTest(project))
+    include(doNotAddSpringMockkDependenciesTest(project))
 
     include(configureGradleWrapperTaskTest(project))
     include(configureJavaCompileTaskTest(project))

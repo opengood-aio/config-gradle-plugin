@@ -19,5 +19,6 @@ class Dependencies {
         const val SPRING_BOOT_CONFIG_PROCESSOR = "org.springframework.boot:spring-boot-configuration-processor:${Versions.SPRING_BOOT}"
         const val SPRING_BOOT_STARTER = "org.springframework.boot:spring-boot-starter:${Versions.SPRING_BOOT}"
         const val SPRING_BOOT_STARTER_TEST = "org.springframework.boot:spring-boot-starter-test:${Versions.SPRING_BOOT}"
+        const val SPRING_MOCKK = "com.ninja-squad:springmockk:${Versions.SPRING_MOCKK}"
     }
 }

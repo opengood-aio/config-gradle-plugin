@@ -10,6 +10,7 @@ import spec.addKotlinDependenciesTest
 import spec.addMockkDependenciesTest
 import spec.addRepositoriesTest
 import spec.addSpringDependenciesTest
+import spec.addSpringMockkDependenciesTest
 import spec.applyCommonPluginsTest
 import spec.applyJavaPluginTest
 import spec.applyKotlinPluginsTest
@@ -79,6 +80,7 @@ class ConfigPluginKotlinAppTest : FunSpec({
     include(doNotAddJunitDependenciesTest(project))
     include(doNotAddAssertjDependenciesTest(project))
     include(doNotAddMockitoDependenciesTest(project))
+    include(addSpringMockkDependenciesTest(project))
 
     include(configureGradleWrapperTaskTest(project))
     include(configureKotlinCompileTaskTest(project))

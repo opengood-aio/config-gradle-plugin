@@ -10,6 +10,7 @@ import spec.addJunitDependenciesTest
 import spec.addKotestDependenciesTest
 import spec.addMockitoDependenciesTest
 import spec.addMockkDependenciesTest
+import spec.addSpringMockkDependenciesTest
 
 class ConfigPluginTestFrameworksTest : FunSpec({
 
@@ -25,4 +26,5 @@ class ConfigPluginTestFrameworksTest : FunSpec({
     include(addMockitoDependenciesTest(project))
     include(addKotestDependenciesTest(project))
     include(addMockkDependenciesTest(project))
+    include(addSpringMockkDependenciesTest(project))
 })

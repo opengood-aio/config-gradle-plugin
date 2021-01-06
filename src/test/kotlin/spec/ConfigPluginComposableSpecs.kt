@@ -323,6 +323,12 @@ fun addMockkDependenciesTest(project: Project) = funSpec {
     }
 }
 
+fun addSpringMockkDependenciesTest(project: Project) = funSpec {
+    test("Adds Spring MockK dependencies") {
+        getDependency(project, "testImplementation", Dependencies.SPRING_MOCKK).shouldNotBeNull()
+    }
+}
+
 fun doNotAddGroovyDependenciesTest(project: Project) = funSpec {
     test("Does not add Groovy dependencies") {
         getDependency(project, "implementation", Dependencies.GROOVY).shouldBeNull()
@@ -384,6 +390,12 @@ fun doNotAddKotestDependenciesTest(project: Project) = funSpec {
 fun doNotAddMockkDependenciesTest(project: Project) = funSpec {
     test("Does not add MockK dependencies") {
         getDependency(project, "testImplementation", Dependencies.MOCKK).shouldBeNull()
+    }
+}
+
+fun doNotAddSpringMockkDependenciesTest(project: Project) = funSpec {
+    test("Does not add Spring MockK dependencies") {
+        getDependency(project, "testImplementation", Dependencies.SPRING_MOCKK).shouldBeNull()
     }
 }
 

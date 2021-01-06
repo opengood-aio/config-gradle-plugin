@@ -168,6 +168,10 @@ class ConfigPlugin : Plugin<Project> {
                                     }
                                     if (mockk) {
                                         testImplementation.dependencies.add(create(Dependencies.MOCKK))
+
+                                        if (spring) {
+                                            testImplementation.dependencies.add(create(Dependencies.SPRING_MOCKK))
+                                        }
                                     }
                                 }
                             }

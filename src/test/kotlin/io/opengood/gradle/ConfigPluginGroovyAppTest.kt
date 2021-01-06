@@ -38,6 +38,7 @@ import spec.doNotAddKotestDependenciesTest
 import spec.doNotAddKotlinDependenciesTest
 import spec.doNotAddLombokDependenciesTest
 import spec.doNotAddMockkDependenciesTest
+import spec.doNotAddSpringMockkDependenciesTest
 import spec.doNotApplyKotlinPluginsTest
 import spec.doNotApplyKotlinSpringPluginsTest
 import spec.doNotApplyLibraryPluginTest
@@ -78,6 +79,7 @@ class ConfigPluginGroovyAppTest : FunSpec({
     include(doNotAddLombokDependenciesTest(project))
     include(doNotAddKotestDependenciesTest(project))
     include(doNotAddMockkDependenciesTest(project))
+    include(doNotAddSpringMockkDependenciesTest(project))
 
     include(configureGradleWrapperTaskTest(project))
     include(configureProcessResourcesTaskTest(project))

@@ -12,6 +12,7 @@ import spec.doNotAddLombokDependenciesTest
 import spec.doNotAddMockitoDependenciesTest
 import spec.doNotAddMockkDependenciesTest
 import spec.doNotAddSpringDependenciesTest
+import spec.doNotAddSpringMockkDependenciesTest
 import spec.doNotConfigureAfterReleaseBuildTaskTest
 import spec.doNotConfigurePublishingExtensionTest
 import spec.doNotConfigureSigningExtensionTest
@@ -33,6 +34,7 @@ class ConfigPluginFeaturesTest : FunSpec({
     include(doNotAddMockitoDependenciesTest(project))
     include(doNotAddKotestDependenciesTest(project))
     include(doNotAddMockkDependenciesTest(project))
+    include(doNotAddSpringMockkDependenciesTest(project))
 
     include(doNotConfigureAfterReleaseBuildTaskTest(project))
     include(doNotConfigureUploadArchivesTaskTest(project))

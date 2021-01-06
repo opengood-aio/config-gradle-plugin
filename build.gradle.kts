@@ -13,7 +13,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.regex.Matcher
 
 plugins {
-    kotlin("jvm") version "1.4.21"
+    kotlin("jvm") version "1.4.21-2"
     id("java-gradle-plugin")
     id("jacoco")
     id("maven")
@@ -45,7 +45,7 @@ object Versions {
     const val JCOLOR = "5.0.1"
     const val KOTEST = "4.3.2"
     const val LOMBOK_PLUGIN = "4.0.0"
-    const val MOCKK = "1.10.3"
+    const val MOCKK = "1.10.4"
     const val RELEASE_PLUGIN = "2.8.1"
     const val SPRING_BOOT_PLUGIN = "2.4.1"
     const val SPRING_DEPENDENCY_MANAGEMENT_PLUGIN = "1.0.10.RELEASE"
