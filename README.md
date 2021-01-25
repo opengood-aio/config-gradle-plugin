@@ -1,9 +1,11 @@
 # OpenGood Config Gradle Plugin
 
-[![Build](https://github.com/opengoodio/config-gradle-plugin/workflows/Build/badge.svg)](https://github.com/opengoodio/config-gradle-plugin/actions?query=workflow%3ABuild)
-[![Release](https://github.com/opengoodio/config-gradle-plugin/workflows/Release/badge.svg)](https://github.com/opengoodio/config-gradle-plugin/actions?query=workflow%3ARelease)
-[![codecov](https://codecov.io/gh/opengoodio/config-gradle-plugin/branch/main/graph/badge.svg?token=AEEYTGK87F)](https://codecov.io/gh/opengoodio/config-gradle-plugin)
-[![FOSSA Status](https://app.fossa.com/api/projects/custom%2B22161%2Fgithub.com%2Fopengoodio%2Fconfig-gradle-plugin.svg?type=small)](https://app.fossa.com/projects/custom%2B22161%2Fgithub.com%2Fopengoodio%2Fconfig-gradle-plugin?ref=badge_small)
+[![Build](https://github.com/opengoodio/config-gradle-plugin/workflows/build/badge.svg)](https://github.com/opengoodio/config-gradle-plugin/actions?query=workflow%3Abuild)
+[![Release](https://github.com/opengoodio/config-gradle-plugin/workflows/release/badge.svg)](https://github.com/opengoodio/config-gradle-plugin/actions?query=workflow%3Arelease)
+[![Codecov](https://codecov.io/gh/opengoodio/config-gradle-plugin/branch/main/graph/badge.svg?token=AEEYTGK87F)](https://codecov.io/gh/opengoodio/config-gradle-plugin)
+[![Release Version](https://img.shields.io/github/release/opengoodio/config-gradle-plugin.svg)](https://github.com/opengoodio/config-gradle-plugin/releases/latest)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/opengoodio/config-gradle-plugin/master/LICENSE)
+[![FOSSA](https://app.fossa.com/api/projects/custom%2B22161%2Fgithub.com%2Fopengoodio%2Fconfig-gradle-plugin.svg?type=small)](https://app.fossa.com/projects/custom%2B22161%2Fgithub.com%2Fopengoodio%2Fconfig-gradle-plugin?ref=badge_small)
 
 Gradle plugin providing centralized configuration of OpenGood Gradle
 projects
@@ -18,6 +20,8 @@ plugins {
     id("io.opengood.gradle.config") version "VERSION"
 }
 ```
+
+**Note:** See *Release* version badge above for latest version.
 
 ### Customize
 

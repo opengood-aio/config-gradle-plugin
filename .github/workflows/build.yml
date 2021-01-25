@@ -1,4 +1,4 @@
-name: Build
+name: build
 # description:
 # - Runs Gradle build compiling source code and executing tests
 on:

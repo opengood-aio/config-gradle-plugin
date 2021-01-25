@@ -1,4 +1,4 @@
-name: Release
+name: release
 # description:
 # - Creates release version in gradle.properties
 # - Runs Gradle build creating release jar package
