@@ -12,6 +12,7 @@ class Dependencies {
         const val KOTEST_SPRING_EXTENSIONS = "io.kotest:kotest-extensions-spring:${Versions.KOTEST}"
         const val KOTLIN_REFLECT = "org.jetbrains.kotlin:kotlin-reflect:${Versions.KOTLIN}"
         const val KOTLIN_STD_LIB = "org.jetbrains.kotlin:kotlin-stdlib:${Versions.KOTLIN}"
+        const val KOTLIN_TEST = "org.jetbrains.kotlin:kotlin-test:${Versions.KOTLIN}"
         const val LOMBOK = "org.projectlombok:lombok:${Versions.LOMBOK}"
         const val MOCKITO = "org.mockito:mockito-core:${Versions.MOCKITO}"
         const val MOCKITO_JUNIT_JUPITER = "org.mockito:mockito-junit-jupiter:${Versions.MOCKITO}"

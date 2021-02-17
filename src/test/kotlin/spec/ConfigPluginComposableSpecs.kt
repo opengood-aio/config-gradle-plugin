@@ -269,6 +269,7 @@ fun addKotlinDependenciesTest(project: Project) = funSpec {
     test("Adds Kotlin dependencies") {
         getDependency(project, "implementation", Dependencies.KOTLIN_STD_LIB).shouldNotBeNull()
         getDependency(project, "implementation", Dependencies.KOTLIN_REFLECT).shouldNotBeNull()
+        getDependency(project, "testImplementation", Dependencies.KOTLIN_TEST).shouldNotBeNull()
     }
 }
 
@@ -339,6 +340,7 @@ fun doNotAddKotlinDependenciesTest(project: Project) = funSpec {
     test("Does not add Kotlin dependencies") {
         getDependency(project, "implementation", Dependencies.KOTLIN_STD_LIB).shouldBeNull()
         getDependency(project, "implementation", Dependencies.KOTLIN_REFLECT).shouldBeNull()
+        getDependency(project, "testImplementation", Dependencies.KOTLIN_TEST).shouldBeNull()
     }
 }
 

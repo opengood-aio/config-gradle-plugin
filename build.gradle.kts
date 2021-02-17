@@ -13,7 +13,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.regex.Matcher
 
 plugins {
-    kotlin("jvm") version "1.4.21-2"
+    kotlin("jvm") version "1.4.30"
     id("java-gradle-plugin")
     id("jacoco")
     id("maven")
@@ -43,12 +43,12 @@ val jvmTargetVersion = "11"
 object Versions {
     const val APACHE_COMMONS = "3.11"
     const val JCOLOR = "5.0.1"
-    const val KOTEST = "4.3.2"
+    const val KOTEST = "4.4.1"
     const val LOMBOK_PLUGIN = "4.0.0"
-    const val MOCKK = "1.10.4"
+    const val MOCKK = "1.10.6"
     const val RELEASE_PLUGIN = "2.8.1"
-    const val SPRING_BOOT_PLUGIN = "2.4.1"
-    const val SPRING_DEPENDENCY_MANAGEMENT_PLUGIN = "1.0.10.RELEASE"
+    const val SPRING_BOOT_PLUGIN = "2.4.2"
+    const val SPRING_DEPENDENCY_MANAGEMENT_PLUGIN = "1.0.11.RELEASE"
     const val VERSIONS_PLUGIN = "0.36.0"
 }
 
@@ -81,10 +81,10 @@ dependencies {
     implementation("com.diogonunes:JColor:${Versions.JCOLOR}")
 
     testImplementation(kotlin("test"))
-
     testImplementation("io.kotest:kotest-runner-junit5:${Versions.KOTEST}")
     testImplementation("io.kotest:kotest-extensions-junit5:${Versions.KOTEST}")
     testImplementation("io.mockk:mockk:${Versions.MOCKK}")
+
     testImplementation("org.apache.commons:commons-lang3:${Versions.APACHE_COMMONS}")
 }
 
