@@ -32,7 +32,7 @@ jobs:
           gradle-version: wrapper
 
       - name: Codestyle
-        uses: fabiocapasso93/gha-kotlin-linter@v1
+        uses: fabiocapasso93/gha-kotlin-linter@v1.0
 
       - name: Coverage
         uses: codecov/codecov-action@v1
