@@ -24,6 +24,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
+
       - name: Setup Git
         run: |
           git config user.name ${GIT_USER}
@@ -40,7 +43,7 @@ jobs:
       - name: Run Release and Publish
         uses: burrunan/gradle-cache-action@v1
         with:
-          arguments: clean release -Prelease.useAutomaticVersion=true --no-daemon
+          arguments: clean release -Prelease.useAutomaticVersion=true
           gradle-version: wrapper
         env:
           GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}

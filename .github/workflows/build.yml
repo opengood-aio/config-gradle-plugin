@@ -20,6 +20,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
+
       - name: Setup Java
         uses: actions/setup-java@v1
         with:
@@ -28,7 +31,7 @@ jobs:
       - name: Build
         uses: burrunan/gradle-cache-action@v1
         with:
-          arguments: clean build --no-daemon
+          arguments: clean build
           gradle-version: wrapper
 
       - name: Codestyle
