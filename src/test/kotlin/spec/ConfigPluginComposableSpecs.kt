@@ -639,8 +639,10 @@ fun configurePublishingExtensionTest(project: Project) = funSpec {
 
             val ossRepoName = (project.isSnapshotVersion) then { Repositories.OSS_SNAPSHOTS_REPO_NAME }
                 ?: Repositories.OSS_STAGING_REPO_NAME
-            val ossRepoUri = URI((project.isSnapshotVersion) then { Repositories.OSS_SNAPSHOTS_REPO_URI }
-                ?: Repositories.OSS_STAGING_REPO_URI)
+            val ossRepoUri = URI(
+                (project.isSnapshotVersion) then { Repositories.OSS_SNAPSHOTS_REPO_URI }
+                    ?: Repositories.OSS_STAGING_REPO_URI
+            )
 
             val ossRepo = getMavenRepository(extension, ossRepoName)
             with(ossRepo) {
