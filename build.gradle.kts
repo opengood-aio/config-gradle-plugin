@@ -48,7 +48,7 @@ object Versions {
     const val LOMBOK_PLUGIN = "3.3.0"
     const val MOCKK = "1.10.6"
     const val RELEASE_PLUGIN = "2.8.1"
-    const val SPRING_BOOT_PLUGIN = "2.4.2"
+    const val SPRING_BOOT_PLUGIN = "2.4.3"
     const val SPRING_DEPENDENCY_MANAGEMENT_PLUGIN = "1.0.11.RELEASE"
     const val VERSIONS_PLUGIN = "0.36.0"
 }
