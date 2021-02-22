@@ -1,10 +1,8 @@
 package spec
 
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
-import helper.getArtifact
 import helper.getConvention
 import helper.getDependency
-import helper.getMavenDeployer
 import helper.getMavenPublication
 import helper.getMavenRepository
 import helper.getPlugin
@@ -13,12 +11,13 @@ import helper.getTaskByName
 import helper.getTaskByType
 import helper.getTaskByTypeAndName
 import helper.hasTaskFinalizedByDependency
+import helper.then
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.funSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldContain
-import io.kotest.matchers.ints.shouldBeGreaterThan
+import io.kotest.matchers.collections.shouldContainAnyOf
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -31,6 +30,7 @@ import io.opengood.gradle.constant.Dependencies
 import io.opengood.gradle.constant.GitHub
 import io.opengood.gradle.constant.KotlinOptions
 import io.opengood.gradle.constant.Plugins
+import io.opengood.gradle.constant.Publications
 import io.opengood.gradle.constant.Releases
 import io.opengood.gradle.constant.Repositories
 import io.opengood.gradle.constant.Tests
@@ -41,30 +41,32 @@ import io.opengood.gradle.enumeration.ScmProvider
 import io.opengood.gradle.extension.opengood
 import io.opengood.gradle.getExtension
 import io.opengood.gradle.git
+import io.opengood.gradle.isSnapshotVersion
 import io.opengood.gradle.languageType
 import net.researchgate.release.GitAdapter
 import net.researchgate.release.ReleaseExtension
 import org.gradle.api.Project
 import org.gradle.api.UnknownDomainObjectException
+import org.gradle.api.UnknownTaskException
 import org.gradle.api.artifacts.UnknownRepositoryException
-import org.gradle.api.internal.artifacts.publish.ArchivePublishArtifact
 import org.gradle.api.plugins.BasePluginConvention
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.plugins.UnknownPluginException
 import org.gradle.api.publish.PublishingExtension
-import org.gradle.api.tasks.Upload
+import org.gradle.api.publish.maven.internal.publication.DefaultMavenPom
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.wrapper.Wrapper
 import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
-import org.gradle.internal.impldep.org.apache.maven.model.Model
 import org.gradle.language.jvm.tasks.ProcessResources
-import org.gradle.plugins.signing.Signature
+import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.dsl.SpringBootExtension
 import org.springframework.boot.gradle.tasks.bundling.BootJar
+import java.net.URI
 
 fun applyPluginTest(project: Project) = funSpec {
     test("Applies plugin") {
@@ -160,7 +162,6 @@ fun applyCommonPluginsTest(project: Project) = funSpec {
         getPlugin(project, Plugins.BASE).shouldNotBeNull()
         getPlugin(project, Plugins.IDEA).shouldNotBeNull()
         getPlugin(project, Plugins.JACOCO).shouldNotBeNull()
-        getPlugin(project, Plugins.MAVEN).shouldNotBeNull()
         getPlugin(project, Plugins.MAVEN_PUBLISH).shouldNotBeNull()
         getPlugin(project, Plugins.RELEASE).shouldNotBeNull()
         getPlugin(project, Plugins.SIGNING).shouldNotBeNull()
@@ -234,6 +235,22 @@ fun doNotApplyKotlinSpringPluginsTest(project: Project) = funSpec {
 fun doNotApplyLombokPluginTest(project: Project) = funSpec {
     test("Does not apply Lombok plugin") {
         shouldThrow<UnknownPluginException> { getPlugin(project, Plugins.LOMBOK) }
+    }
+}
+
+fun configureDependencyResolutionStrategyTest(project: Project) = funSpec {
+    test("Configures dependency resolution strategy") {
+        project.configurations.all { configuration ->
+            with(configuration) {
+                resolutionStrategy.eachDependency { resolver ->
+                    with(resolver) {
+                        if (requested.group == "org.jetbrains.kotlin") {
+                            requested.version shouldBe Versions.KOTLIN
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -525,61 +542,6 @@ fun configureAfterReleaseBuildTaskTest(project: Project) = funSpec {
     }
 }
 
-fun configureUploadArchivesTaskTest(project: Project) = funSpec {
-    test("Configures Upload Archives task") {
-        val task = getTaskByType<Upload>(project)
-
-        with(task) {
-            shouldNotBeNull()
-
-            val mavenDeployer = getMavenDeployer(repositories)
-            with(mavenDeployer) {
-                shouldNotBeNull()
-
-                with(snapshotRepository) {
-                    url shouldBe Repositories.OSS_SNAPSHOTS_REPO_URI
-                    with(authentication) {
-                        userName.shouldBeEmpty()
-                        password.shouldBeEmpty()
-                    }
-                }
-                with(repository) {
-                    url shouldBe Repositories.OSS_STAGING_REPO_URI
-                    with(authentication) {
-                        userName.shouldBeEmpty()
-                        password.shouldBeEmpty()
-                    }
-                }
-
-                val pom = pom.effectivePom.model as Model
-                with(pom) {
-                    groupId shouldBe project.group
-                    artifactId shouldBe project.name
-                    version shouldBe project.version
-                    name shouldBe project.name
-                    packaging shouldBe PackagingType.JAR.toString()
-                    description.shouldBeEmpty()
-                    url shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}"
-                    with(scm) {
-                        connection shouldBe "${ScmProvider.PROTOCOL}:${ScmProvider.GIT}:${GitHub.OPENGOOD_ORG_URI}/${project.name}"
-                        developerConnection shouldBe "${ScmProvider.PROTOCOL}:${ScmProvider.GIT}:${GitHub.OPENGOOD_ORG_URI}/${project.name}"
-                        url shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}"
-                    }
-                    with(licenses.first()) {
-                        name shouldBe Artifacts.LICENSE_NAME
-                        url shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}/${GitHub.BLOB_ENDPOINT}/${GitHub.BRANCH}/${Artifacts.LICENSE_RESOURCE}"
-                    }
-                    with(developers.first()) {
-                        id shouldBe Artifacts.DEVELOPER_ID
-                        name shouldBe Artifacts.DEVELOPER_NAME
-                        email shouldBe Artifacts.DEVELOPER_EMAIL
-                    }
-                }
-            }
-        }
-    }
-}
-
 fun doNotConfigureAfterReleaseBuildTaskTest(project: Project) = funSpec {
     test("Does not configure After Release Build task") {
         val task = getTaskByName(project, "afterReleaseBuild")
@@ -591,46 +553,14 @@ fun doNotConfigureAfterReleaseBuildTaskTest(project: Project) = funSpec {
     }
 }
 
-fun doNotConfigureUploadArchivesTaskTest(project: Project) = funSpec {
-    test("Does not configure Upload Archives task") {
-        val task = getTaskByType<Upload>(project)
+fun configureJavaExtensionTest(project: Project) = funSpec {
+    test("Configures Java extension") {
+        val extension = project.getExtension<JavaPluginExtension>()
 
-        with(task) {
+        with(extension) {
             shouldNotBeNull()
-            shouldThrow<UnknownRepositoryException> { getMavenDeployer(repositories) }
-        }
-    }
-}
-
-fun configureSourcesJarArtifactTest(project: Project) = funSpec {
-    test("Configures sources jar artifacts") {
-        val sourcesJar = getArtifact<ArchivePublishArtifact>(project, "archives", "sources", "jar", "jar")
-
-        with(sourcesJar) {
-            shouldNotBeNull()
-            archiveTask.name shouldBe "sourcesJar"
-        }
-    }
-}
-
-fun configureJavadocJarArtifactTest(project: Project) = funSpec {
-    test("Configures Javadoc jar artifacts") {
-        val javadocJar = getArtifact<ArchivePublishArtifact>(project, "archives", "javadoc", "jar", "jar")
-
-        with(javadocJar) {
-            shouldNotBeNull()
-            archiveTask.name shouldBe "javadocJar"
-        }
-    }
-}
-
-fun configureJarArtifactTest(project: Project) = funSpec {
-    test("Configures jar artifacts") {
-        val jar = getArtifact<ArchivePublishArtifact>(project, "archives", "", "jar", "jar")
-
-        with(jar) {
-            shouldNotBeNull()
-            archiveTask.name shouldBe "jar"
+            getTaskByName(project, "javadocJar").shouldNotBeNull()
+            getTaskByName(project, "sourcesJar").shouldNotBeNull()
         }
     }
 }
@@ -670,10 +600,34 @@ fun configurePublishingExtensionTest(project: Project) = funSpec {
         with(extension) {
             shouldNotBeNull()
 
-            val mavenJavaPublication = getMavenPublication(extension, "mavenJava")
-            with(mavenJavaPublication) {
+            val publication = getMavenPublication(extension, Publications.OSS_PUB_NAME)
+            with(publication) {
                 shouldNotBeNull()
                 artifacts.shouldNotBeNull()
+
+                with(pom as DefaultMavenPom) {
+                    groupId shouldBe project.group
+                    artifactId shouldBe project.name
+                    version shouldBe project.version
+                    name.get() shouldBe project.name
+                    packaging shouldBe PackagingType.JAR.toString()
+                    description.get() shouldBe ""
+                    url.get() shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}"
+                    with(scm) {
+                        connection.get() shouldBe "${ScmProvider.PROTOCOL}:${ScmProvider.GIT}:${GitHub.OPENGOOD_ORG_URI}/${project.name}"
+                        developerConnection.get() shouldBe "${ScmProvider.PROTOCOL}:${ScmProvider.GIT}:${GitHub.OPENGOOD_ORG_URI}/${project.name}"
+                        url.get() shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}"
+                    }
+                    with(licenses.first()) {
+                        name.get() shouldBe Artifacts.LICENSE_NAME
+                        url.get() shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}/${GitHub.BLOB_ENDPOINT}/${GitHub.BRANCH}/${Artifacts.LICENSE_RESOURCE}"
+                    }
+                    with(developers.first()) {
+                        id.get() shouldBe Artifacts.DEVELOPER_ID
+                        name.get() shouldBe Artifacts.DEVELOPER_NAME
+                        email.get() shouldBe Artifacts.DEVELOPER_EMAIL
+                    }
+                }
             }
 
             val mavenLocalRepo = getMavenRepository(extension, Repositories.LOCAL_REPO_NAME)
@@ -682,6 +636,27 @@ fun configurePublishingExtensionTest(project: Project) = funSpec {
                 name shouldBe Repositories.LOCAL_REPO_NAME
                 url shouldBe project.repositories.mavenLocal().url
             }
+
+            val ossRepoName = (project.isSnapshotVersion) then { Repositories.OSS_SNAPSHOTS_REPO_NAME }
+                ?: Repositories.OSS_STAGING_REPO_NAME
+            val ossRepoUri = URI((project.isSnapshotVersion) then { Repositories.OSS_SNAPSHOTS_REPO_URI }
+                ?: Repositories.OSS_STAGING_REPO_URI)
+
+            val ossRepo = getMavenRepository(extension, ossRepoName)
+            with(ossRepo) {
+                shouldNotBeNull()
+                name shouldBe ossRepoName
+                url shouldBe ossRepoUri
+                with(credentials) {
+                    username.shouldBeEmpty()
+                    password.shouldBeEmpty()
+                }
+            }
+
+            getTaskByName(
+                project,
+                "publish${Publications.OSS_PUB_NAME}PublicationTo${ossRepoName}Repository"
+            ).shouldNotBeNull()
         }
     }
 }
@@ -692,7 +667,19 @@ fun configureSigningExtensionTest(project: Project) = funSpec {
 
         with(extension) {
             shouldNotBeNull()
-            extension.configuration.artifacts.size shouldBeGreaterThan 0
+
+            val task = getTaskByTypeAndName<Sign>(project, "sign${Publications.OSS_PUB_NAME}Publication")
+            with(task) {
+                shouldNotBeNull()
+                signatures.map { it.toString() }.shouldContainAnyOf(
+                    "Signature pom-default.xml.asc:xml.asc:asc:null",
+                    "Signature ${project.name}-${project.version}.jar.asc:jar.asc:asc:asc:null",
+                    "Signature ${project.name}-${project.version}-javadoc.jar.asc:jar.asc:asc:asc:null",
+                    "Signature ${project.name}-${project.version}-sources.jar.asc:jar.asc:asc:asc:null"
+                )
+            }
+
+            getTaskByName(project, "sign${Publications.OSS_PUB_NAME}Publication").shouldNotBeNull()
         }
     }
 }
@@ -703,8 +690,20 @@ fun doNotConfigurePublishingExtensionTest(project: Project) = funSpec {
 
         with(extension) {
             shouldNotBeNull()
-            shouldThrow<UnknownDomainObjectException> { getMavenPublication(extension, "mavenJava") }
+            shouldThrow<UnknownDomainObjectException> { getMavenPublication(extension, Publications.OSS_PUB_NAME) }
             shouldThrow<UnknownRepositoryException> { getMavenRepository(extension, Repositories.LOCAL_REPO_NAME) }
+            shouldThrow<UnknownRepositoryException> {
+                getMavenRepository(
+                    extension,
+                    Repositories.OSS_SNAPSHOTS_REPO_NAME
+                )
+            }
+            shouldThrow<UnknownRepositoryException> {
+                getMavenRepository(
+                    extension,
+                    Repositories.OSS_STAGING_REPO_NAME
+                )
+            }
         }
     }
 }
@@ -715,40 +714,13 @@ fun doNotConfigureSigningExtensionTest(project: Project) = funSpec {
 
         with(extension) {
             shouldNotBeNull()
-            extension.configuration.artifacts.size shouldBe 0
-        }
-    }
-}
 
-fun configureSourcesJarSigningTest(project: Project) = funSpec {
-    test("Configures sources jar signing") {
-        val sourcesJar = getArtifact<Signature>(project, "archives", "sources", "jar.asc", "asc")
-
-        with(sourcesJar) {
-            shouldNotBeNull()
-            signatureSpec.toString().shouldContain("signArchives")
-        }
-    }
-}
-
-fun configureJavadocJarSigningTest(project: Project) = funSpec {
-    test("Configures Javadoc jar signing") {
-        val javadocJar = getArtifact<Signature>(project, "archives", "javadoc", "jar.asc", "asc")
-
-        with(javadocJar) {
-            shouldNotBeNull()
-            signatureSpec.toString().shouldContain("signArchives")
-        }
-    }
-}
-
-fun configureJarSigningTest(project: Project) = funSpec {
-    test("Configures jar signing") {
-        val jar = getArtifact<Signature>(project, "archives", "", "jar.asc", "asc")
-
-        with(jar) {
-            shouldNotBeNull()
-            signatureSpec.toString().shouldContain("signArchives")
+            shouldThrow<UnknownTaskException> {
+                getTaskByTypeAndName<Sign>(
+                    project,
+                    "sign${Publications.OSS_PUB_NAME}Publication"
+                )
+            }
         }
     }
 }

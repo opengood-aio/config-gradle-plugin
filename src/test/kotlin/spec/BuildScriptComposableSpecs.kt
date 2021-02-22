@@ -11,7 +11,7 @@ import org.gradle.testkit.runner.GradleRunner
 fun buildScriptTest(languageType: LanguageType) = wordSpec {
 
     "Gradle ${languageType.toString().toLowerCase().capitalize()} DSL build script with configured plugin" should {
-        "Lead to successful build " {
+        "Lead to successful build" {
             val projectDir = createProjectDir()
             createProjectSrcDir(languageType, projectDir)
 

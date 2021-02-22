@@ -12,6 +12,7 @@ class Versions {
         const val LOMBOK = "1.18.18"
         const val MOCKITO = "3.7.7"
         const val MOCKK = "1.10.6"
+        const val SNAPSHOT = "-SNAPSHOT"
         const val SPRING_BOOT = "2.4.2"
         const val SPRING_MOCKK = "3.0.1"
     }

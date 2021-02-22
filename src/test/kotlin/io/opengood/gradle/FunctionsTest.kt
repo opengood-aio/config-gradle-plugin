@@ -9,6 +9,7 @@ import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.opengood.gradle.constant.Versions
 import io.opengood.gradle.enumeration.BuildGradleType
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.extension.OpenGoodExtension
@@ -131,6 +132,18 @@ class FunctionsTest : FunSpec({
         val project = createProject(ProjectConfig(languageType = LanguageType.JAVA))
 
         project.isKotlin.shouldBeFalse()
+    }
+
+    test("isSnapshotVersion returns true when project version property contains ${Versions.SNAPSHOT}") {
+        val project = createProject(ProjectConfig(languageType = LanguageType.KOTLIN))
+
+        project.isSnapshotVersion.shouldBeTrue()
+    }
+
+    test("isSnapshotVersion returns false when project version property does not contain ${Versions.SNAPSHOT}") {
+        val project = createProject(ProjectConfig(languageType = LanguageType.KOTLIN, version = "1.0.0"))
+
+        project.isSnapshotVersion.shouldBeFalse()
     }
 
     test("languageType returns Groovy for Groovy Gradle project when Groovy source directory and build Gradle file exist") {

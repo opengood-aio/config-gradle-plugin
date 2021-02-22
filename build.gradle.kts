@@ -2,7 +2,10 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import net.researchgate.release.GitAdapter.GitConfig
 import net.researchgate.release.ReleaseExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.api.tasks.testing.logging.TestLogEvent.*
+import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
+import org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
+import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
+import org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_ERROR
 import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
 import org.gradle.internal.logging.text.StyledTextOutput
 import org.gradle.internal.logging.text.StyledTextOutput.Style
@@ -16,7 +19,6 @@ plugins {
     kotlin("jvm") version "1.4.30"
     id("java-gradle-plugin")
     id("jacoco")
-    id("maven")
     id("maven-publish")
     id("com.github.ben-manes.versions") version "0.36.0"
     id("net.researchgate.release") version "2.8.1"
@@ -41,10 +43,9 @@ val javaVersion = JavaVersion.VERSION_11
 val jvmTargetVersion = "11"
 
 object Versions {
-    const val APACHE_COMMONS = "3.11"
     const val JCOLOR = "5.0.1"
     const val KOTEST = "4.4.1"
-    const val LOMBOK_PLUGIN = "4.0.0"
+    const val LOMBOK_PLUGIN = "3.3.0"
     const val MOCKK = "1.10.6"
     const val RELEASE_PLUGIN = "2.8.1"
     const val SPRING_BOOT_PLUGIN = "2.4.2"
@@ -55,6 +56,15 @@ object Versions {
 java.apply {
     sourceCompatibility = javaVersion
     targetCompatibility = javaVersion
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.jetbrains.kotlin") {
+            useVersion(kotlinVersion)
+            because("Incompatibilities with older Kotlin versions")
+        }
+    }
 }
 
 repositories {
@@ -84,8 +94,6 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:${Versions.KOTEST}")
     testImplementation("io.kotest:kotest-extensions-junit5:${Versions.KOTEST}")
     testImplementation("io.mockk:mockk:${Versions.MOCKK}")
-
-    testImplementation("org.apache.commons:commons-lang3:${Versions.APACHE_COMMONS}")
 }
 
 val out: StyledTextOutput = project.serviceOf<StyledTextOutputFactory>().create("colored-output")

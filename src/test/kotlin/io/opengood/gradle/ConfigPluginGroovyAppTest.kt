@@ -19,20 +19,19 @@ import spec.applySpringPluginsTest
 import spec.configureAfterReleaseBuildTaskTest
 import spec.configureBootJarTaskTest
 import spec.configureConventionsTest
+import spec.configureDependencyResolutionStrategyTest
 import spec.configureDependencyUpdatesTaskTest
 import spec.configureGradleWrapperTaskTest
 import spec.configureJacocoTestReportTaskTest
-import spec.configureJarArtifactTest
-import spec.configureJarSigningTest
 import spec.configureJarTaskTest
 import spec.configureJavaCompileTaskTest
+import spec.configureJavaExtensionTest
 import spec.configureProcessResourcesTaskTest
 import spec.configurePublishingExtensionTest
 import spec.configureReleaseExtensionTest
 import spec.configureSigningExtensionTest
 import spec.configureSpringBootExtensionTest
 import spec.configureTestTaskTest
-import spec.configureUploadArchivesTaskTest
 import spec.createExtensionTest
 import spec.doNotAddKotestDependenciesTest
 import spec.doNotAddKotlinDependenciesTest
@@ -66,6 +65,8 @@ class ConfigPluginGroovyAppTest : FunSpec({
     include(doNotApplyKotlinSpringPluginsTest(project))
     include(doNotApplyLombokPluginTest(project))
 
+    include(configureDependencyResolutionStrategyTest(project))
+
     include(configureConventionsTest(project))
 
     include(addRepositoriesTest(project))
@@ -90,14 +91,10 @@ class ConfigPluginGroovyAppTest : FunSpec({
     include(configureJarTaskTest(project, isEnabled = false))
     include(configureBootJarTaskTest(project, isEnabled = true))
     include(configureAfterReleaseBuildTaskTest(project))
-    include(configureUploadArchivesTaskTest(project))
 
-    include(configureJarArtifactTest(project))
-
+    include(configureJavaExtensionTest(project))
     include(configureSpringBootExtensionTest(project))
     include(configureReleaseExtensionTest(project))
     include(configurePublishingExtensionTest(project))
     include(configureSigningExtensionTest(project))
-
-    include(configureJarSigningTest(project))
 })

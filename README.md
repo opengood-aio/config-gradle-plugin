@@ -10,7 +10,6 @@
 Gradle plugin providing centralized configuration of OpenGood Gradle
 projects
 
-
 ## Usage
 
 Add `opengood-config` Gradle plugin to `build.gradle.kts`:
@@ -129,8 +128,8 @@ credentials to `~/.gradle/gradle.properties`:
     ./gradlew clean release -Prelease.useAutomaticVersion=true
     ```
 
-    **Note:** `uploadArchives` task is configured with Gradle release
-    plugin to execute after release build
+    **Note:** `publishOssPublicationToOssStagingRepository` tasks are
+    configured with Gradle release plugin to execute after release build
 
 ##### CI/CD
 

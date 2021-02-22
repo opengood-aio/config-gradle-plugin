@@ -20,22 +20,17 @@ import spec.applySpringPluginsTest
 import spec.configureAfterReleaseBuildTaskTest
 import spec.configureBootJarTaskTest
 import spec.configureConventionsTest
+import spec.configureDependencyResolutionStrategyTest
 import spec.configureDependencyUpdatesTaskTest
 import spec.configureGradleWrapperTaskTest
 import spec.configureJacocoTestReportTaskTest
-import spec.configureJarArtifactTest
-import spec.configureJarSigningTest
 import spec.configureJarTaskTest
 import spec.configureJavaCompileTaskTest
-import spec.configureJavadocJarArtifactTest
-import spec.configureJavadocJarSigningTest
+import spec.configureJavaExtensionTest
 import spec.configurePublishingExtensionTest
 import spec.configureReleaseExtensionTest
 import spec.configureSigningExtensionTest
-import spec.configureSourcesJarArtifactTest
-import spec.configureSourcesJarSigningTest
 import spec.configureTestTaskTest
-import spec.configureUploadArchivesTaskTest
 import spec.createExtensionTest
 import spec.doNotAddGroovyDependenciesTest
 import spec.doNotAddKotestDependenciesTest
@@ -68,6 +63,8 @@ class ConfigPluginJavaLibTest : FunSpec({
     include(doNotApplyKotlinPluginsTest(project))
     include(doNotApplyKotlinSpringPluginsTest(project))
 
+    include(configureDependencyResolutionStrategyTest(project))
+
     include(configureConventionsTest(project))
 
     include(addRepositoriesTest(project))
@@ -91,17 +88,9 @@ class ConfigPluginJavaLibTest : FunSpec({
     include(configureJarTaskTest(project, isEnabled = true))
     include(configureBootJarTaskTest(project, isEnabled = false))
     include(configureAfterReleaseBuildTaskTest(project))
-    include(configureUploadArchivesTaskTest(project))
 
-    include(configureSourcesJarArtifactTest(project))
-    include(configureJavadocJarArtifactTest(project))
-    include(configureJarArtifactTest(project))
-
+    include(configureJavaExtensionTest(project))
     include(configureReleaseExtensionTest(project))
     include(configurePublishingExtensionTest(project))
     include(configureSigningExtensionTest(project))
-
-    include(configureSourcesJarSigningTest(project))
-    include(configureJavadocJarSigningTest(project))
-    include(configureJarSigningTest(project))
 })

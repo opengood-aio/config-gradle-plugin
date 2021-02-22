@@ -1,6 +1,7 @@
 package io.opengood.gradle
 
 import io.opengood.gradle.constant.Directories
+import io.opengood.gradle.constant.Versions
 import io.opengood.gradle.enumeration.BuildGradleType
 import io.opengood.gradle.enumeration.LanguageType
 import net.researchgate.release.GitAdapter
@@ -48,6 +49,10 @@ internal val Project.isKotlin: Boolean
     get() =
         Path.of(projectDir.absolutePath, Directories.KOTLIN_SRC).toFile().exists() ||
             Path.of(projectDir.absolutePath, BuildGradleType.KOTLIN.toString()).toFile().exists()
+
+internal val Project.isSnapshotVersion: Boolean
+    get() =
+        version.toString().endsWith(Versions.SNAPSHOT)
 
 internal val Project.languageType: LanguageType
     get() =

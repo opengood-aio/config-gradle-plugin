@@ -5,20 +5,14 @@ import io.opengood.gradle.constant.Directories
 import io.opengood.gradle.enumeration.BuildGradleType
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.extension.OpenGoodExtension
-import org.apache.commons.lang3.reflect.FieldUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Dependency
-import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.ArtifactRepository
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
-import org.gradle.api.internal.artifacts.dsl.DefaultRepositoryHandler
-import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.api.internal.tasks.DefaultTaskDependency
-import org.gradle.api.plugins.MavenRepositoryHandlerConvention
-import org.gradle.api.publication.maven.internal.deployer.DefaultGroovyMavenDeployer
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.testfixtures.ProjectBuilder
@@ -63,17 +57,6 @@ internal fun createProjectSrcDir(languageType: LanguageType, projectDir: Path) =
         LanguageType.KOTLIN -> projectDir.resolve(Directories.KOTLIN_SRC).toFile().mkdirs()
     }
 
-internal inline fun <reified T : Any> getArtifact(
-    project: Project,
-    configuration: String,
-    name: String,
-    vararg parts: String
-): T =
-    project.configurations.getByName(configuration).artifacts
-        .filter { it is T }
-        .first { it.toString().endsWith("${project.name}:${parts.joinToString(":")}:$name") }
-        .let { it as T }
-
 internal fun getBuildGradleFile(languageType: LanguageType): String =
     when (languageType) {
         LanguageType.KOTLIN -> BuildGradleType.KOTLIN.toString()
@@ -86,11 +69,6 @@ internal inline fun <reified T : Any> getConvention(project: Project): T =
 internal fun getDependency(project: Project, configuration: String, name: String): Dependency? =
     project.configurations.getByName(configuration).dependencies
         .firstOrNull { it == project.dependencies.create(name) }
-
-internal fun getMavenDeployer(repositories: RepositoryHandler): DefaultGroovyMavenDeployer =
-    DslObject(repositories).convention.getPlugin(MavenRepositoryHandlerConvention::class.java)
-        .let { FieldUtils.readDeclaredField(it, "container", true) as DefaultRepositoryHandler }
-        .let { it.getByName("mavenDeployer") as DefaultGroovyMavenDeployer }
 
 internal fun getMavenPublication(extension: PublishingExtension, name: String): MavenPublication =
     extension.publications.getByName(name) as MavenPublication

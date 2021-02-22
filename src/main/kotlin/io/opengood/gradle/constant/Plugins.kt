@@ -13,7 +13,6 @@ class Plugins {
         const val KOTLIN_JVM = "org.jetbrains.kotlin.jvm"
         const val KOTLIN_SPRING = "org.jetbrains.kotlin.plugin.spring"
         const val LOMBOK = "io.franzbecker.gradle-lombok"
-        const val MAVEN = "maven"
         const val MAVEN_PUBLISH = "maven-publish"
         const val RELEASE = "net.researchgate.release"
         const val SIGNING = "signing"

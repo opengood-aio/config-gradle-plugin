@@ -16,7 +16,6 @@ import spec.doNotAddSpringMockkDependenciesTest
 import spec.doNotConfigureAfterReleaseBuildTaskTest
 import spec.doNotConfigurePublishingExtensionTest
 import spec.doNotConfigureSigningExtensionTest
-import spec.doNotConfigureUploadArchivesTaskTest
 
 class ConfigPluginFeaturesTest : FunSpec({
 
@@ -37,7 +36,6 @@ class ConfigPluginFeaturesTest : FunSpec({
     include(doNotAddSpringMockkDependenciesTest(project))
 
     include(doNotConfigureAfterReleaseBuildTaskTest(project))
-    include(doNotConfigureUploadArchivesTaskTest(project))
 
     include(doNotConfigurePublishingExtensionTest(project))
     include(doNotConfigureSigningExtensionTest(project))

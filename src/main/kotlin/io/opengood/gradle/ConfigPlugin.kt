@@ -5,10 +5,10 @@ import com.diogonunes.jcolor.Attribute.CYAN_TEXT
 import com.diogonunes.jcolor.Attribute.GREEN_TEXT
 import com.diogonunes.jcolor.Attribute.RED_TEXT
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
-import io.opengood.gradle.builder.groovy.withGroovyBuilder
 import io.opengood.gradle.constant.Dependencies
 import io.opengood.gradle.constant.KotlinOptions
 import io.opengood.gradle.constant.Plugins
+import io.opengood.gradle.constant.Publications
 import io.opengood.gradle.constant.Releases
 import io.opengood.gradle.constant.Repositories
 import io.opengood.gradle.constant.Resources
@@ -22,16 +22,12 @@ import net.researchgate.release.GitAdapter
 import net.researchgate.release.ReleaseExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.plugins.BasePluginConvention
-import org.gradle.api.plugins.MavenRepositoryHandlerConvention
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.tasks.SourceSetContainer
-import org.gradle.api.tasks.Upload
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
-import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.TestDescriptor
 import org.gradle.api.tasks.testing.TestListener
@@ -44,6 +40,7 @@ import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.dsl.SpringBootExtension
 import org.springframework.boot.gradle.tasks.bundling.BootJar
+import java.net.URI
 
 class ConfigPlugin : Plugin<Project> {
 
@@ -52,6 +49,7 @@ class ConfigPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         createExtension(project)
         configurePlugins(project)
+        configureDependencyResolutionStrategy(project)
         configureRepositories(project)
 
         project.afterEvaluate {
@@ -59,7 +57,6 @@ class ConfigPlugin : Plugin<Project> {
             configureConventions(project)
             configureDependencies(project)
             configureTasks(project)
-            configureArtifacts(project)
             configureExtensions(project)
         }
     }
@@ -102,7 +99,6 @@ class ConfigPlugin : Plugin<Project> {
                     apply(Plugins.BASE)
                     apply(Plugins.IDEA)
                     apply(Plugins.JACOCO)
-                    apply(Plugins.MAVEN)
                     apply(Plugins.MAVEN_PUBLISH)
                     apply(Plugins.RELEASE)
                     apply(Plugins.SIGNING)
@@ -120,6 +116,21 @@ class ConfigPlugin : Plugin<Project> {
                 val basePluginConvention = convention.getPlugin(BasePluginConvention::class.java)
                 with(basePluginConvention) {
                     archivesBaseName = artifact.name
+                }
+            }
+        }
+    }
+
+    private fun configureDependencyResolutionStrategy(project: Project) {
+        project.configurations.all { configuration ->
+            with(configuration) {
+                resolutionStrategy.eachDependency { resolver ->
+                    with(resolver) {
+                        if (requested.group == "org.jetbrains.kotlin") {
+                            useVersion(Versions.KOTLIN)
+                            because("Incompatibilities with older Kotlin versions")
+                        }
+                    }
                 }
             }
         }
@@ -218,7 +229,6 @@ class ConfigPlugin : Plugin<Project> {
             with(features) {
                 if (publishing) {
                     configureAfterReleaseBuildTask(project)
-                    configureUploadArchivesTask(project)
                 }
             }
         }
@@ -233,33 +243,41 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     private fun configureGradleWrapperTask(project: Project) {
-        project.tasks.withType(Wrapper::class.java) {
-            it.distributionType = DistributionType.ALL
+        project.tasks.withType(Wrapper::class.java) { task ->
+            with(task) {
+                distributionType = DistributionType.ALL
+            }
         }
     }
 
     private fun configureKotlinCompileTask(project: Project) {
-        project.tasks.withType(KotlinCompile::class.java) {
-            it.kotlinOptions {
-                freeCompilerArgs = KotlinOptions.FREE_COMPILER_ARGS
-                jvmTarget = Versions.JAVA
+        project.tasks.withType(KotlinCompile::class.java) { task ->
+            with(task) {
+                kotlinOptions {
+                    freeCompilerArgs = KotlinOptions.FREE_COMPILER_ARGS
+                    jvmTarget = Versions.JAVA
+                }
             }
         }
     }
 
     private fun configureJavaCompileTask(project: Project) {
-        project.tasks.withType(JavaCompile::class.java) {
-            it.sourceCompatibility = Versions.JAVA
-            it.targetCompatibility = Versions.JAVA
+        project.tasks.withType(JavaCompile::class.java) { task ->
+            with(task) {
+                sourceCompatibility = Versions.JAVA
+                targetCompatibility = Versions.JAVA
+            }
         }
     }
 
     private fun configureProcessResourcesTask(project: Project) {
         with(extension.main) {
             if (projectType == ProjectType.APP) {
-                project.tasks.withType(ProcessResources::class.java) {
-                    it.filesMatching(Resources.APPLICATION_PROPERTIES) { file ->
-                        file.expand(project.properties)
+                project.tasks.withType(ProcessResources::class.java) { task ->
+                    with(task) {
+                        filesMatching(Resources.APPLICATION_PROPERTIES) { file ->
+                            file.expand(project.properties)
+                        }
                     }
                 }
             }
@@ -274,14 +292,20 @@ class ConfigPlugin : Plugin<Project> {
             return isStable.not()
         }
 
-        project.tasks.withType(DependencyUpdatesTask::class.java) { it ->
-            it.resolutionStrategy { strategy ->
-                strategy.componentSelection { component ->
-                    component.all {
-                        if (isDependencyVersionNotStable(it.candidate.version) &&
-                            !isDependencyVersionNotStable(it.currentVersion)
-                        ) {
-                            it.reject("Release candidate")
+        project.tasks.withType(DependencyUpdatesTask::class.java) { task ->
+            with(task) {
+                resolutionStrategy { strategy ->
+                    with(strategy) {
+                        componentSelection { component ->
+                            component.all { selection ->
+                                with(selection) {
+                                    if (isDependencyVersionNotStable(candidate.version) &&
+                                        !isDependencyVersionNotStable(currentVersion)
+                                    ) {
+                                        reject("Release candidate")
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -290,76 +314,80 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     private fun configureTestTask(project: Project) {
-        project.tasks.withType(Test::class.java) {
-            it.finalizedBy("jacocoTestReport")
-            it.useJUnitPlatform()
+        project.tasks.withType(Test::class.java) { task ->
+            with(task) {
+                finalizedBy("jacocoTestReport")
+                useJUnitPlatform()
 
-            it.testLogging { logging ->
-                logging.apply {
-                    events = Tests.LOGGING_EVENTS
-                    exceptionFormat = Tests.EXCEPTION_FORMAT
-                    showCauses = Tests.SHOW_CAUSES
-                    showExceptions = Tests.SHOW_EXCEPTIONS
-                    showStackTraces = Tests.SHOW_STACK_TRACES
+                testLogging { logging ->
+                    logging.apply {
+                        events = Tests.LOGGING_EVENTS
+                        exceptionFormat = Tests.EXCEPTION_FORMAT
+                        showCauses = Tests.SHOW_CAUSES
+                        showExceptions = Tests.SHOW_EXCEPTIONS
+                        showStackTraces = Tests.SHOW_STACK_TRACES
+                    }
                 }
-            }
 
-            it.maxParallelForks = extension.test.maxParallelForks
-            it.systemProperty(Tests.INSTANCE_LIFECYCLE_SYS_PROP_NAME, Tests.INSTANCE_LIFECYCLE_SYS_PROP_VALUE)
+                maxParallelForks = extension.test.maxParallelForks
+                systemProperty(Tests.INSTANCE_LIFECYCLE_SYS_PROP_NAME, Tests.INSTANCE_LIFECYCLE_SYS_PROP_VALUE)
 
-            it.doFirst {
-                println(colorize("***************************************************", CYAN_TEXT()))
-                println(colorize(" >> Running Tests", CYAN_TEXT()))
-                println(colorize("***************************************************", CYAN_TEXT()))
-            }
+                doFirst {
+                    println(colorize("***************************************************", CYAN_TEXT()))
+                    println(colorize(" >> Running Tests", CYAN_TEXT()))
+                    println(colorize("***************************************************", CYAN_TEXT()))
+                }
 
-            it.addTestListener(object : TestListener {
-                override fun beforeSuite(suite: TestDescriptor) {}
-                override fun beforeTest(testDescriptor: TestDescriptor) {}
-                override fun afterTest(testDescriptor: TestDescriptor, result: TestResult) {}
-                override fun afterSuite(suite: TestDescriptor, result: TestResult) {
-                    if (suite.parent == null) {
-                        val output =
-                            "Results: ${result.resultType} " +
-                                "(" +
-                                "${result.testCount} tests, " +
-                                "${result.successfulTestCount} successes, " +
-                                "${result.failedTestCount} failures, " +
-                                "${result.skippedTestCount} skipped" +
-                                ")"
-                        val startItem = "| "
-                        val endItem = " |"
-                        val repeatLength = startItem.length + output.length + endItem.length
-                        println(
-                            colorize(
-                                """
+                addTestListener(object : TestListener {
+                    override fun beforeSuite(suite: TestDescriptor) {}
+                    override fun beforeTest(testDescriptor: TestDescriptor) {}
+                    override fun afterTest(testDescriptor: TestDescriptor, result: TestResult) {}
+                    override fun afterSuite(suite: TestDescriptor, result: TestResult) {
+                        if (suite.parent == null) {
+                            val output =
+                                "Results: ${result.resultType} " +
+                                    "(" +
+                                    "${result.testCount} tests, " +
+                                    "${result.successfulTestCount} successes, " +
+                                    "${result.failedTestCount} failures, " +
+                                    "${result.skippedTestCount} skipped" +
+                                    ")"
+                            val startItem = "| "
+                            val endItem = " |"
+                            val repeatLength = startItem.length + output.length + endItem.length
+                            println(
+                                colorize(
+                                    """
                             |
                             |${"-".repeat(repeatLength)}
                             |$startItem$output$endItem
                             |${"-".repeat(repeatLength)}
                             |
                             """.trimMargin(),
-                                if (result.failedTestCount == 0L) GREEN_TEXT() else RED_TEXT()
+                                    if (result.failedTestCount == 0L) GREEN_TEXT() else RED_TEXT()
+                                )
                             )
-                        )
+                        }
                     }
-                }
-            })
+                })
 
-            it.doLast {
-                println(colorize("***************************************************", CYAN_TEXT()))
-                println(colorize(" >> Tests FINISHED", CYAN_TEXT()))
-                println(colorize("***************************************************", CYAN_TEXT()))
+                doLast {
+                    println(colorize("***************************************************", CYAN_TEXT()))
+                    println(colorize(" >> Tests FINISHED", CYAN_TEXT()))
+                    println(colorize("***************************************************", CYAN_TEXT()))
+                }
             }
         }
     }
 
     private fun configureJacocoTestReportTask(project: Project) {
-        project.tasks.withType(JacocoReport::class.java).getByName("jacocoTestReport") {
-            it.reports { config ->
-                with(config) {
-                    xml.isEnabled = true
-                    html.isEnabled = false
+        project.tasks.withType(JacocoReport::class.java).getByName("jacocoTestReport") { task ->
+            with(task) {
+                reports { config ->
+                    with(config) {
+                        xml.isEnabled = true
+                        html.isEnabled = false
+                    }
                 }
             }
         }
@@ -368,8 +396,10 @@ class ConfigPlugin : Plugin<Project> {
     private fun configureJarTask(project: Project) {
         with(extension.main) {
             if (projectType == ProjectType.LIB) {
-                project.tasks.withType(Jar::class.java).getByName("jar") {
-                    it.enabled = true
+                project.tasks.withType(Jar::class.java).getByName("jar") { task ->
+                    with(task) {
+                        enabled = true
+                    }
                 }
             }
         }
@@ -380,8 +410,10 @@ class ConfigPlugin : Plugin<Project> {
             with(main) {
                 with(features) {
                     if (!spring || projectType == ProjectType.LIB) {
-                        project.tasks.withType(BootJar::class.java).getByName("bootJar") {
-                            it.enabled = false
+                        project.tasks.withType(BootJar::class.java).getByName("bootJar") { task ->
+                            with(task) {
+                                enabled = false
+                            }
                         }
                     }
                 }
@@ -391,119 +423,16 @@ class ConfigPlugin : Plugin<Project> {
 
     private fun configureAfterReleaseBuildTask(project: Project) {
         with(extension.release) {
-            project.tasks.getByName("afterReleaseBuild") {
-                it.dependsOn(afterReleaseBuildTasks)
-            }
-        }
-    }
-
-    private fun configureUploadArchivesTask(project: Project) {
-        project.tasks.withType(Upload::class.java) {
-            val ossrhUsername = project.getProperty("ossrhUsername", getEnv("OSSRH_USERNAME", ""))
-            val ossrhPassword = project.getProperty("ossrhPassword", getEnv("OSSRH_PASSWORD", ""))
-
-            if (ossrhUsername.isBlank()) println("WARN: ossrhUsername property or OSSRH_USERNAME environment variable is not set")
-            if (ossrhPassword.isBlank()) println("WARN: ossrhPassword property or OSSRH_PASSWORD environment variable is not set")
-
-            val mavenConvention =
-                DslObject(it.repositories).convention.getPlugin(MavenRepositoryHandlerConvention::class.java)
-
-            mavenConvention.mavenDeployer { mavenDeployer ->
-                with(mavenDeployer) {
-                    beforeDeployment { deployment ->
-                        val signing = project.getExtension<SigningExtension>()
-                        signing.signPom(deployment)
-                    }
-
-                    with(extension.artifact) {
-                        with(repo) {
-                            mavenDeployer.withGroovyBuilder {
-                                "repository"("url" to stagingRepoUri) {
-                                    "authentication"(
-                                        "userName" to ossrhUsername,
-                                        "password" to ossrhPassword
-                                    )
-                                }
-                                "snapshotRepository"("url" to snapshotsRepoUri) {
-                                    "authentication"(
-                                        "userName" to ossrhUsername,
-                                        "password" to ossrhPassword
-                                    )
-                                }
-                            }
-                        }
-
-                        pom.project { pom ->
-                            with(pom) {
-                                withGroovyBuilder {
-                                    "groupId"(project.group)
-                                    "artifactId"(project.name)
-                                    "version"(project.version)
-                                    "name"(name)
-                                    "packaging"(packaging)
-                                    "description"(description)
-                                    "url"(uri)
-                                    "scm" {
-                                        with(scm) {
-                                            "connection"(connection)
-                                            "developerConnection"(developerConnection)
-                                            "url"(uri)
-                                        }
-                                    }
-                                    "licenses" {
-                                        "license" {
-                                            with(license) {
-                                                "name"(name)
-                                                "url"(uri)
-                                            }
-                                        }
-                                    }
-                                    "developers" {
-                                        "developer" {
-                                            with(developer) {
-                                                "id"(id)
-                                                "name"(name)
-                                                "email"(email)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+            project.tasks.getByName("afterReleaseBuild") { task ->
+                with(task) {
+                    dependsOn(afterReleaseBuildTasks)
                 }
             }
-        }
-    }
-
-    private fun configureArtifacts(project: Project) {
-        with(project) {
-            with(extension.main) {
-                if (projectType == ProjectType.LIB) {
-                    val sourcesJar = tasks.create("sourcesJar", Jar::class.java) {
-                        val sourceSets = project.getExtension<SourceSetContainer>("sourceSets")
-                        it.dependsOn("classes")
-                        it.from(sourceSets.getByName("main").allSource)
-                        it.archiveClassifier.set("sources")
-                    }
-                    artifacts.add("archives", sourcesJar)
-
-                    val javadocJar = tasks.create("javadocJar", Jar::class.java) {
-                        val javadoc = tasks.getByName("javadoc") as Javadoc
-                        it.dependsOn.add(javadoc)
-                        it.from(javadoc)
-                        it.archiveClassifier.set("javadoc")
-                    }
-                    artifacts.add("archives", javadocJar)
-                }
-            }
-
-            val jar = tasks.getByName("jar") as Jar
-            artifacts.add("archives", jar)
         }
     }
 
     private fun configureExtensions(project: Project) {
+        configureJavaExtension(project)
         configureSpringBootExtension(project)
         configureReleaseExtension(project)
 
@@ -515,13 +444,28 @@ class ConfigPlugin : Plugin<Project> {
         }
     }
 
+    private fun configureJavaExtension(project: Project) {
+        with(project) {
+            pluginManager.withPlugin(Plugins.JAVA) {
+                extensions.configure(JavaPluginExtension::class.java) { ext ->
+                    with(ext) {
+                        withJavadocJar()
+                        withSourcesJar()
+                    }
+                }
+            }
+        }
+    }
+
     private fun configureSpringBootExtension(project: Project) {
         with(extension.main) {
             if (projectType == ProjectType.APP) {
                 with(project) {
                     pluginManager.withPlugin(Plugins.SPRING_BOOT) {
-                        extensions.configure(SpringBootExtension::class.java) {
-                            it.buildInfo()
+                        extensions.configure(SpringBootExtension::class.java) { ext ->
+                            with(ext) {
+                                buildInfo()
+                            }
                         }
                     }
                 }
@@ -532,15 +476,15 @@ class ConfigPlugin : Plugin<Project> {
     private fun configureReleaseExtension(project: Project) {
         with(project) {
             pluginManager.withPlugin(Plugins.RELEASE) {
-                extensions.configure(ReleaseExtension::class.java) {
-                    it.scmAdapters = mutableListOf<Class<out BaseScmAdapter>>(GitAdapter::class.java)
-                    it.preTagCommitMessage = Releases.PRE_TAG_COMMIT_MESSAGE
-                    it.newVersionCommitMessage = Releases.NEW_VERSION_COMMIT_MESSAGE
-                    it.versionPatterns = Releases.VERSION_PATTERNS
-                    it.git {
-                        with(extension) {
-                            requireBranch = release.requireBranch
-                            pushToRemote = release.pushToRemote
+                extensions.configure(ReleaseExtension::class.java) { ext ->
+                    with(ext) {
+                        scmAdapters = mutableListOf<Class<out BaseScmAdapter>>(GitAdapter::class.java)
+                        preTagCommitMessage = Releases.PRE_TAG_COMMIT_MESSAGE
+                        newVersionCommitMessage = Releases.NEW_VERSION_COMMIT_MESSAGE
+                        versionPatterns = Releases.VERSION_PATTERNS
+                        git {
+                            requireBranch = extension.release.requireBranch
+                            pushToRemote = extension.release.pushToRemote
                         }
                     }
                 }
@@ -551,17 +495,83 @@ class ConfigPlugin : Plugin<Project> {
     private fun configurePublishingExtension(project: Project) {
         with(project) {
             pluginManager.withPlugin(Plugins.MAVEN_PUBLISH) {
-                extensions.configure(PublishingExtension::class.java) {
-                    it.publications { publications ->
-                        publications.register("mavenJava", MavenPublication::class.java) { publication ->
-                            publication.from(components.getByName("java"))
+                extensions.configure(PublishingExtension::class.java) { ext ->
+                    with(ext) {
+                        publications { publications ->
+                            publications.register(
+                                Publications.OSS_PUB_NAME,
+                                MavenPublication::class.java
+                            ) { publication ->
+                                with(publication) {
+                                    with(extension) {
+                                        from(components.getByName("java"))
+                                        pom { pom ->
+                                            with(pom) {
+                                                name.set(artifact.name)
+                                                packaging = artifact.packaging.toString()
+                                                description.set(artifact.description)
+                                                url.set(artifact.uri)
+                                                scm { scm ->
+                                                    with(scm) {
+                                                        connection.set(artifact.scm.connection)
+                                                        developerConnection.set(artifact.scm.developerConnection)
+                                                        url.set(artifact.scm.uri)
+                                                    }
+                                                }
+                                                licenses {
+                                                    it.license { license ->
+                                                        with(license) {
+                                                            name.set(artifact.license.name)
+                                                            url.set(artifact.license.uri)
+                                                        }
+                                                    }
+                                                }
+                                                developers {
+                                                    it.developer { developer ->
+                                                        with(developer) {
+                                                            id.set(artifact.developer.id)
+                                                            name.set(artifact.developer.name)
+                                                            email.set(artifact.developer.email)
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
-                    }
 
-                    it.repositories { repos ->
-                        repos.maven { repo ->
-                            repo.name = Repositories.LOCAL_REPO_NAME
-                            repo.url = repositories.mavenLocal().url
+                        repositories { repos ->
+                            repos.maven { repo ->
+                                with(repo) {
+                                    name = Repositories.LOCAL_REPO_NAME
+                                    url = repositories.mavenLocal().url
+                                }
+                            }
+
+                            val ossrhUsername = project.getProperty("ossrhUsername", getEnv("OSSRH_USERNAME", ""))
+                            val ossrhPassword = project.getProperty("ossrhPassword", getEnv("OSSRH_PASSWORD", ""))
+
+                            if (ossrhUsername.isBlank()) println("WARN: ossrhUsername property or OSSRH_USERNAME environment variable is not set")
+                            if (ossrhPassword.isBlank()) println("WARN: ossrhPassword property or OSSRH_PASSWORD environment variable is not set")
+
+                            with(extension) {
+                                repos.maven { repo ->
+                                    with(repo) {
+                                        name =
+                                            if (isSnapshotVersion) Repositories.OSS_SNAPSHOTS_REPO_NAME else Repositories.OSS_STAGING_REPO_NAME
+                                        url =
+                                            URI(if (isSnapshotVersion) artifact.repo.snapshotsRepoUri else artifact.repo.stagingRepoUri)
+                                        credentials { credential ->
+                                            with(credential) {
+                                                username = ossrhUsername
+                                                password = ossrhPassword
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -572,20 +582,22 @@ class ConfigPlugin : Plugin<Project> {
     private fun configureSigningExtension(project: Project) {
         with(project) {
             pluginManager.withPlugin(Plugins.SIGNING) {
-                extensions.configure(SigningExtension::class.java) {
-                    val signingKey = getEnv("GPG_SIGNING_PRIVATE_KEY", "")
-                    val signingPassword = getEnv("GPG_SIGNING_PASSWORD", "")
+                extensions.configure(SigningExtension::class.java) { ext ->
+                    with(ext) {
+                        val signingKey = getEnv("GPG_SIGNING_PRIVATE_KEY", "")
+                        val signingPassword = getEnv("GPG_SIGNING_PASSWORD", "")
 
-                    if (signingKey.isNotBlank() && signingPassword.isNotBlank()) {
-                        println("Environment variables GPG_SIGNING_PRIVATE_KEY and GPG_SIGNING_PASSWORD are set")
-                        println("Using in-memory GPG key for signing")
-                        it.useInMemoryPgpKeys(signingKey, signingPassword)
-                    } else {
-                        println("Environment variables GPG_SIGNING_PRIVATE_KEY and GPG_SIGNING_PASSWORD are not set")
-                        println("Defaulting to global Gradle properties file for GPG key for signing")
+                        if (signingKey.isNotBlank() && signingPassword.isNotBlank()) {
+                            println("Environment variables GPG_SIGNING_PRIVATE_KEY and GPG_SIGNING_PASSWORD are set")
+                            println("Using in-memory GPG key for signing")
+                            useInMemoryPgpKeys(signingKey, signingPassword)
+                        } else {
+                            println("Environment variables GPG_SIGNING_PRIVATE_KEY and GPG_SIGNING_PASSWORD are not set")
+                            println("Defaulting to global Gradle properties file for GPG key for signing")
+                        }
+
+                        sign(getExtension<PublishingExtension>().publications.getByName(Publications.OSS_PUB_NAME))
                     }
-
-                    it.sign(configurations.getByName("archives"))
                 }
             }
         }
