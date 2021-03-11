@@ -5,6 +5,7 @@ import com.diogonunes.jcolor.Attribute.CYAN_TEXT
 import com.diogonunes.jcolor.Attribute.GREEN_TEXT
 import com.diogonunes.jcolor.Attribute.RED_TEXT
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import io.opengood.gradle.constant.Boms
 import io.opengood.gradle.constant.Dependencies
 import io.opengood.gradle.constant.KotlinOptions
 import io.opengood.gradle.constant.Plugins
@@ -17,6 +18,7 @@ import io.opengood.gradle.constant.Versions
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
 import io.opengood.gradle.extension.OpenGoodExtension
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import net.researchgate.release.BaseScmAdapter
 import net.researchgate.release.GitAdapter
 import net.researchgate.release.ReleaseExtension
@@ -432,6 +434,12 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     private fun configureExtensions(project: Project) {
+        with(extension.features) {
+            if (spring) {
+                configureDependencyManagementExtension(project)
+            }
+        }
+
         configureJavaExtension(project)
         configureSpringBootExtension(project)
         configureReleaseExtension(project)
@@ -440,6 +448,22 @@ class ConfigPlugin : Plugin<Project> {
             if (publishing) {
                 configurePublishingExtension(project)
                 configureSigningExtension(project)
+            }
+        }
+    }
+
+    private fun configureDependencyManagementExtension(project: Project) {
+        with(project) {
+            pluginManager.withPlugin(Plugins.SPRING_DEPENDENCY_MANAGEMENT) {
+                extensions.configure(DependencyManagementExtension::class.java) { ext ->
+                    with(ext) {
+                        imports { imports ->
+                            with(imports) {
+                                mavenBom(Boms.KOTLIN)
+                            }
+                        }
+                    }
+                }
             }
         }
     }

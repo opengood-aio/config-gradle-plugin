@@ -3,6 +3,7 @@ package spec
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import helper.getConvention
 import helper.getDependency
+import helper.getMavenBom
 import helper.getMavenPublication
 import helper.getMavenRepository
 import helper.getPlugin
@@ -26,6 +27,7 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.opengood.gradle.ConfigPlugin
 import io.opengood.gradle.constant.Artifacts
+import io.opengood.gradle.constant.Boms
 import io.opengood.gradle.constant.Dependencies
 import io.opengood.gradle.constant.GitHub
 import io.opengood.gradle.constant.KotlinOptions
@@ -43,6 +45,7 @@ import io.opengood.gradle.getExtension
 import io.opengood.gradle.git
 import io.opengood.gradle.isSnapshotVersion
 import io.opengood.gradle.languageType
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import net.researchgate.release.GitAdapter
 import net.researchgate.release.ReleaseExtension
 import org.gradle.api.Project
@@ -553,6 +556,17 @@ fun doNotConfigureAfterReleaseBuildTaskTest(project: Project) = funSpec {
     }
 }
 
+fun configureDependencyManagementExtensionTest(project: Project) = funSpec {
+    test("Configures Dependency Management extension") {
+        val extension = project.getExtension<DependencyManagementExtension>()
+
+        with(extension) {
+            shouldNotBeNull()
+            getMavenBom(extension, Boms.KOTLIN).shouldNotBeNull()
+        }
+    }
+}
+
 fun configureJavaExtensionTest(project: Project) = funSpec {
     test("Configures Java extension") {
         val extension = project.getExtension<JavaPluginExtension>()
@@ -682,6 +696,17 @@ fun configureSigningExtensionTest(project: Project) = funSpec {
             }
 
             getTaskByName(project, "sign${Publications.OSS_PUB_NAME}Publication").shouldNotBeNull()
+        }
+    }
+}
+
+fun doNotConfigureDependencyManagementExtensionTest(project: Project) = funSpec {
+    test("Does not configure Dependency Management extension") {
+        val extension = project.getExtension<DependencyManagementExtension>()
+
+        with(extension) {
+            shouldNotBeNull()
+            getMavenBom(extension, Boms.KOTLIN).shouldBeNull()
         }
     }
 }

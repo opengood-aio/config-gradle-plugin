@@ -5,6 +5,9 @@ import io.opengood.gradle.constant.Directories
 import io.opengood.gradle.enumeration.BuildGradleType
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.extension.OpenGoodExtension
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer
+import io.spring.gradle.dependencymanagement.internal.pom.PomReference
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -18,6 +21,12 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.testfixtures.ProjectBuilder
 import java.nio.file.Files
 import java.nio.file.Path
+
+internal inline fun <reified T : Any> Any.accessField(name: String): T =
+    javaClass.getDeclaredField(name).let {
+        it.isAccessible = true
+        return@let it.get(this) as T
+    }
 
 internal fun createProject(config: ProjectConfig): Project {
     return with(config) {
@@ -72,6 +81,11 @@ internal fun getDependency(project: Project, configuration: String, name: String
 
 internal fun getMavenPublication(extension: PublishingExtension, name: String): MavenPublication =
     extension.publications.getByName(name) as MavenPublication
+
+internal fun getMavenBom(extension: DependencyManagementExtension, name: String) =
+    extension.accessField<DependencyManagementContainer>("dependencyManagementContainer")
+        .globalDependencyManagement.accessField<List<PomReference>>("importedBoms")
+        .find { "${it.coordinates.groupId}:${it.coordinates.artifactId}:${it.coordinates.version}" == name }
 
 internal fun getMavenRepository(extension: PublishingExtension, name: String): MavenArtifactRepository =
     extension.repositories.getByName(name) as MavenArtifactRepository
