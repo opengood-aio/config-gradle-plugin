@@ -173,6 +173,8 @@ class ConfigPlugin : Plugin<Project> {
                                 LanguageType.KOTLIN -> {
                                     implementation.dependencies.add(create(Dependencies.KOTLIN_STD_LIB))
                                     implementation.dependencies.add(create(Dependencies.KOTLIN_REFLECT))
+                                    implementation.dependencies.add(create(Dependencies.KOTLIN_COROUTINES))
+                                    implementation.dependencies.add(create(Dependencies.JACKSON_KOTLIN))
                                     testImplementation.dependencies.add(create(Dependencies.KOTLIN_TEST))
                                     if (kotest) {
                                         testImplementation.dependencies.add(create(Dependencies.KOTEST_JUNIT_RUNNER))
