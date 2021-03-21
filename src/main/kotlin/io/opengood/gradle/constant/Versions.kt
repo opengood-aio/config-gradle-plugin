@@ -13,9 +13,9 @@ class Versions {
         const val KOTLIN_COROUTINES = "1.4.3"
         const val LOMBOK = "1.18.18"
         const val MOCKITO = "3.8.0"
-        const val MOCKK = "1.10.6"
+        const val MOCKK = "1.11.0"
         const val SNAPSHOT = "-SNAPSHOT"
-        const val SPRING_BOOT = "2.4.3"
+        const val SPRING_BOOT = "2.4.4"
         const val SPRING_MOCKK = "3.0.1"
     }
 }
