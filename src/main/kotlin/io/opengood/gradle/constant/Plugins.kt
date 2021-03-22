@@ -11,6 +11,7 @@ class Plugins {
         const val JAVA_LIBRARY = "java-library"
         const val KOTLIN_ALL_OPEN = "org.jetbrains.kotlin.plugin.allopen"
         const val KOTLIN_JVM = "org.jetbrains.kotlin.jvm"
+        const val KOTLIN_NO_ARG = "org.jetbrains.kotlin.plugin.noarg"
         const val KOTLIN_SPRING = "org.jetbrains.kotlin.plugin.spring"
         const val LOMBOK = "io.franzbecker.gradle-lombok"
         const val MAVEN_PUBLISH = "maven-publish"

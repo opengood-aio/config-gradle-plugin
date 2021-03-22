@@ -94,6 +94,7 @@ class ConfigPlugin : Plugin<Project> {
                         LanguageType.KOTLIN -> {
                             apply(Plugins.KOTLIN_JVM)
                             apply(Plugins.KOTLIN_ALL_OPEN)
+                            apply(Plugins.KOTLIN_NO_ARG)
                             apply(Plugins.KOTLIN_SPRING)
                         }
                     }

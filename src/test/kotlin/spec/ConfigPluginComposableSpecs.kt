@@ -157,6 +157,7 @@ fun applyKotlinPluginsTest(project: Project) = funSpec {
     test("Applies Kotlin plugins") {
         getPlugin(project, Plugins.KOTLIN_JVM).shouldNotBeNull()
         getPlugin(project, Plugins.KOTLIN_ALL_OPEN).shouldNotBeNull()
+        getPlugin(project, Plugins.KOTLIN_NO_ARG).shouldNotBeNull()
     }
 }
 
@@ -213,6 +214,7 @@ fun doNotApplyKotlinPluginsTest(project: Project) = funSpec {
     test("Does not apply Kotlin plugins") {
         shouldThrow<UnknownPluginException> { getPlugin(project, Plugins.KOTLIN_JVM).shouldNotBeNull() }
         shouldThrow<UnknownPluginException> { getPlugin(project, Plugins.KOTLIN_ALL_OPEN).shouldNotBeNull() }
+        shouldThrow<UnknownPluginException> { getPlugin(project, Plugins.KOTLIN_NO_ARG).shouldNotBeNull() }
     }
 }
 
