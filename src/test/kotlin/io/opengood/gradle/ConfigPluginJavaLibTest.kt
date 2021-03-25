@@ -41,6 +41,7 @@ import spec.doNotAddSpringMockkDependenciesTest
 import spec.doNotApplyGroovyPluginTest
 import spec.doNotApplyKotlinPluginsTest
 import spec.doNotApplyKotlinSpringPluginsTest
+import spec.doNotConfigureBootJarResolutionTest
 
 class ConfigPluginJavaLibTest : FunSpec({
 
@@ -64,9 +65,10 @@ class ConfigPluginJavaLibTest : FunSpec({
     include(doNotApplyKotlinPluginsTest(project))
     include(doNotApplyKotlinSpringPluginsTest(project))
 
-    include(configureDependencyResolutionStrategyTest(project))
-
     include(configureConventionsTest(project))
+
+    include(configureDependencyResolutionStrategyTest(project))
+    include(doNotConfigureBootJarResolutionTest(project))
 
     include(addRepositoriesTest(project))
 

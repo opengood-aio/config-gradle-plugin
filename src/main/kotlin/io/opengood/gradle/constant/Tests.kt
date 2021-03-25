@@ -18,5 +18,6 @@ class Tests {
         const val SHOW_CAUSES = true
         const val SHOW_EXCEPTIONS = true
         const val SHOW_STACK_TRACES = true
+        const val SKIP_TESTS = "skipTests"
     }
 }

@@ -43,7 +43,7 @@ jobs:
       - name: Run Release and Publish
         uses: burrunan/gradle-cache-action@v1
         with:
-          arguments: clean release -Prelease.useAutomaticVersion=true
+          arguments: clean release -PskipTests=true -Prelease.useAutomaticVersion=true
           gradle-version: wrapper
         env:
           GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}

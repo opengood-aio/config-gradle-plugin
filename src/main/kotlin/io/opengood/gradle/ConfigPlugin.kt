@@ -57,6 +57,7 @@ class ConfigPlugin : Plugin<Project> {
         project.afterEvaluate {
             configurePlugins(project, afterEval = true)
             configureConventions(project)
+            configureBootJarResolution(project)
             configureDependencies(project)
             configureTasks(project)
             configureExtensions(project)
@@ -132,6 +133,37 @@ class ConfigPlugin : Plugin<Project> {
                         if (requested.group == "org.jetbrains.kotlin") {
                             useVersion(Versions.KOTLIN)
                             because("Incompatibilities with older Kotlin versions")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun configureBootJarResolution(project: Project) {
+        with(extension) {
+            with(features) {
+                with(main) {
+                    if (spring && projectType == ProjectType.APP) {
+                        with(project.configurations) {
+                            val apiElements = named("apiElements")
+                            val runtimeElements = named("runtimeElements")
+                            all {
+                                with(project.tasks) {
+                                    val jar = withType(Jar::class.java).getByName("jar")
+                                    val bootJar = withType(BootJar::class.java).getByName("bootJar")
+
+                                    val elements = listOf(apiElements, runtimeElements)
+                                    elements.forEach { element ->
+                                        with(element.get().outgoing) {
+                                            artifacts.removeIf {
+                                                it.buildDependencies.getDependencies(null).contains(jar)
+                                            }
+                                            artifact(bootJar)
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -322,6 +354,7 @@ class ConfigPlugin : Plugin<Project> {
         project.tasks.withType(Test::class.java) { task ->
             with(task) {
                 finalizedBy("jacocoTestReport")
+                setOnlyIf { !project.hasProperty(Tests.SKIP_TESTS) }
                 useJUnitPlatform()
 
                 testLogging { logging ->

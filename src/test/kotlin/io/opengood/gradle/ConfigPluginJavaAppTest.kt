@@ -17,6 +17,7 @@ import spec.applyLombokPluginTest
 import spec.applyPluginTest
 import spec.applySpringPluginsTest
 import spec.configureAfterReleaseBuildTaskTest
+import spec.configureBootJarResolutionTest
 import spec.configureBootJarTaskTest
 import spec.configureConventionsTest
 import spec.configureDependencyManagementExtensionTest
@@ -66,9 +67,10 @@ class ConfigPluginJavaAppTest : FunSpec({
     include(doNotApplyLibraryPluginTest(project))
     include(doNotApplyKotlinSpringPluginsTest(project))
 
-    include(configureDependencyResolutionStrategyTest(project))
-
     include(configureConventionsTest(project))
+
+    include(configureDependencyResolutionStrategyTest(project))
+    include(configureBootJarResolutionTest(project))
 
     include(addRepositoriesTest(project))
 

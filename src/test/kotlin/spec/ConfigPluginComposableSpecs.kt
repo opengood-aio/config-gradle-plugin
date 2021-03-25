@@ -1,6 +1,7 @@
 package spec
 
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import helper.accessField
 import helper.getConvention
 import helper.getDependency
 import helper.getMavenBom
@@ -22,6 +23,7 @@ import io.kotest.matchers.collections.shouldContainAnyOf
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldBeEmpty
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeTypeOf
@@ -52,6 +54,9 @@ import org.gradle.api.Project
 import org.gradle.api.UnknownDomainObjectException
 import org.gradle.api.UnknownTaskException
 import org.gradle.api.artifacts.UnknownRepositoryException
+import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact
+import org.gradle.api.internal.artifacts.publish.ArchivePublishArtifact
+import org.gradle.api.internal.provider.ProviderInternal
 import org.gradle.api.plugins.BasePluginConvention
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.plugins.UnknownPluginException
@@ -243,6 +248,17 @@ fun doNotApplyLombokPluginTest(project: Project) = funSpec {
     }
 }
 
+fun configureConventionsTest(project: Project) = funSpec {
+    test("Configures conventions") {
+        val basePluginConvention = getConvention<BasePluginConvention>(project)
+
+        with(basePluginConvention) {
+            shouldNotBeNull()
+            archivesBaseName shouldBe project.name
+        }
+    }
+}
+
 fun configureDependencyResolutionStrategyTest(project: Project) = funSpec {
     test("Configures dependency resolution strategy") {
         project.configurations.all { configuration ->
@@ -259,13 +275,53 @@ fun configureDependencyResolutionStrategyTest(project: Project) = funSpec {
     }
 }
 
-fun configureConventionsTest(project: Project) = funSpec {
-    test("Configures conventions") {
-        val basePluginConvention = getConvention<BasePluginConvention>(project)
+fun configureBootJarResolutionTest(project: Project) = funSpec {
+    test("Configures boot jar resolution") {
+        with(project.configurations) {
+            val apiElements = named("apiElements")
+            val runtimeElements = named("runtimeElements")
 
-        with(basePluginConvention) {
-            shouldNotBeNull()
-            archivesBaseName shouldBe project.name
+            val jar = getTaskByTypeAndName<Jar>(project, "jar")
+            val bootJar = getTaskByTypeAndName<BootJar>(project, "bootJar")
+
+            all {
+                val elements = listOf(apiElements, runtimeElements)
+                elements.forEach { element ->
+                    with(element.get().outgoing) {
+                        artifacts.forEach { artifact ->
+                            with(artifact as ArchivePublishArtifact) {
+                                archiveTask shouldNotBe jar
+                                archiveTask shouldBe bootJar
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fun doNotConfigureBootJarResolutionTest(project: Project) = funSpec {
+    test("Does not configure boot jar resolution") {
+        with(project.configurations) {
+            val apiElements = named("apiElements")
+            val runtimeElements = named("runtimeElements")
+
+            all {
+                val elements = listOf(apiElements, runtimeElements)
+                elements.forEach { element ->
+                    with(element.get().outgoing) {
+                        artifacts.forEach { artifact ->
+                            with(artifact as LazyPublishArtifact) {
+                                with(accessField<ProviderInternal<*>>("provider").toString()) {
+                                    contains("task 'jar'").shouldBeTrue()
+                                    contains("task 'bootJar'").shouldBeFalse()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -490,6 +546,7 @@ fun configureTestTaskTest(project: Project) = funSpec {
         with(task) {
             shouldNotBeNull()
             hasTaskFinalizedByDependency(task, "jacocoTestReport").shouldBeTrue()
+            onlyIf.shouldNotBeNull()
             with(testLogging) {
                 events shouldBe Tests.LOGGING_EVENTS
                 exceptionFormat shouldBe Tests.EXCEPTION_FORMAT
