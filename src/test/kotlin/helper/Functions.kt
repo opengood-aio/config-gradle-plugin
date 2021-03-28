@@ -75,6 +75,9 @@ internal fun getBuildGradleFile(languageType: LanguageType): String =
 internal inline fun <reified T : Any> getConvention(project: Project): T =
     project.convention.getPlugin(T::class.java)
 
+internal fun getDependencies(project: Project, configuration: String): List<Dependency> =
+    project.configurations.getByName(configuration).dependencies.toList()
+
 internal fun getDependency(project: Project, configuration: String, name: String): Dependency? =
     project.configurations.getByName(configuration).dependencies
         .firstOrNull { it == project.dependencies.create(name) }

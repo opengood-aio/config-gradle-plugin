@@ -3,6 +3,7 @@ package spec
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import helper.accessField
 import helper.getConvention
+import helper.getDependencies
 import helper.getDependency
 import helper.getMavenBom
 import helper.getMavenPublication
@@ -261,15 +262,11 @@ fun configureConventionsTest(project: Project) = funSpec {
 
 fun configureDependencyResolutionStrategyTest(project: Project) = funSpec {
     test("Configures dependency resolution strategy") {
-        project.configurations.all { configuration ->
-            with(configuration) {
-                resolutionStrategy.eachDependency { resolver ->
-                    with(resolver) {
-                        if (requested.group == "org.jetbrains.kotlin") {
-                            requested.version shouldBe Versions.KOTLIN
-                        }
-                    }
-                }
+        val implementationDependencies = getDependencies(project, "implementation")
+        val testImplementationDependencies = getDependencies(project, "testImplementation")
+        (implementationDependencies + testImplementationDependencies).forEach { dependency ->
+            if (dependency.group == "org.jetbrains.kotlin") {
+                dependency.version shouldBe Versions.KOTLIN
             }
         }
     }
