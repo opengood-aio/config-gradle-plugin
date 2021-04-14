@@ -327,7 +327,6 @@ fun addRepositoriesTest(project: Project) = funSpec {
     test("Adds repositories") {
         with(project.repositories) {
             getRepository(project, mavenCentral().name).shouldNotBeNull()
-            getRepository(project, jcenter().name).shouldNotBeNull()
             getRepository(project, gradlePluginPortal().name).shouldNotBeNull()
             getRepository(project, mavenLocal().name).shouldNotBeNull()
         }

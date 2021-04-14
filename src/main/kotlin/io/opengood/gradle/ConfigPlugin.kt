@@ -174,7 +174,6 @@ class ConfigPlugin : Plugin<Project> {
     private fun configureRepositories(project: Project) {
         with(project.repositories) {
             add(mavenCentral())
-            add(jcenter())
             add(gradlePluginPortal())
             add(mavenLocal())
         }

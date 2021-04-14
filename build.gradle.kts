@@ -16,13 +16,13 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.regex.Matcher
 
 plugins {
-    kotlin("jvm") version "1.4.31"
+    kotlin("jvm") version "1.4.32"
     id("java-gradle-plugin")
     id("jacoco")
     id("maven-publish")
     id("com.github.ben-manes.versions") version "0.38.0"
     id("net.researchgate.release") version "2.8.1"
-    id("com.gradle.plugin-publish") version "0.13.0"
+    id("com.gradle.plugin-publish") version "0.14.0"
 }
 
 group = "io.opengood.gradle"
@@ -45,7 +45,7 @@ val jvmTargetVersion = "11"
 object Versions {
     const val JCOLOR = "5.0.1"
     const val KOTEST = "4.4.3"
-    const val LOMBOK_PLUGIN = "3.3.0"
+    const val LOMBOK_PLUGIN = "4.0.0"
     const val MOCKK = "1.11.0"
     const val RELEASE_PLUGIN = "2.8.1"
     const val SPRING_BOOT_PLUGIN = "2.4.4"
@@ -232,7 +232,7 @@ release {
     preTagCommitMessage = "[Gradle Release] - pre tag commit: "
     newVersionCommitMessage = "[Gradle Release] - new version commit: "
     versionPatterns = mapOf(
-        """[.]*\.(\d+)\.(\d+)[.]*""" to KotlinClosure2<Matcher, Project, String>({ matcher, project ->
+        """[.]*\.(\d+)\.(\d+)[.]*""" to KotlinClosure2<Matcher, Project, String>({ matcher, _ ->
             matcher.replaceAll(".${(matcher.group(1)).toString().toInt() + 1}.0")
         })
     )
