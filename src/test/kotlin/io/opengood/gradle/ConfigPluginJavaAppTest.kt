@@ -6,16 +6,13 @@ import io.kotest.core.spec.style.FunSpec
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
 import spec.addAssertjDependenciesTest
-import spec.addGroovyDependenciesTest
 import spec.addJunitJupiterDependenciesTest
 import spec.addLombokDependenciesTest
 import spec.addMockitoDependenciesTest
 import spec.addRepositoriesTest
 import spec.addSpringDependenciesTest
 import spec.applyCommonPluginsTest
-import spec.applyGroovyPluginTest
 import spec.applyJavaPluginTest
-import spec.applyLibraryPluginTest
 import spec.applyLombokPluginTest
 import spec.applyPluginTest
 import spec.applySpringPluginsTest
@@ -43,14 +40,12 @@ import spec.doNotAddJacksonKotlinDependenciesTest
 import spec.doNotAddKotestDependenciesTest
 import spec.doNotAddKotestSpringDependenciesTest
 import spec.doNotAddKotlinDependenciesTest
-import spec.doNotAddLombokDependenciesTest
 import spec.doNotAddMockkDependenciesTest
 import spec.doNotAddSpringMockkDependenciesTest
 import spec.doNotApplyGroovyPluginTest
 import spec.doNotApplyKotlinPluginsTest
 import spec.doNotApplyKotlinSpringPluginsTest
 import spec.doNotApplyLibraryPluginTest
-import spec.doNotApplyLombokPluginTest
 
 class ConfigPluginJavaAppTest : FunSpec({
 

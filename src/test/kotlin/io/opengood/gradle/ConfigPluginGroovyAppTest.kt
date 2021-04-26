@@ -14,7 +14,6 @@ import spec.addSpringDependenciesTest
 import spec.applyCommonPluginsTest
 import spec.applyGroovyPluginTest
 import spec.applyJavaPluginTest
-import spec.applyLibraryPluginTest
 import spec.applyPluginTest
 import spec.applySpringPluginsTest
 import spec.configureAfterReleaseBuildTaskTest

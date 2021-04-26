@@ -20,16 +20,16 @@ internal enum class Features(val flag: Int) {
 
 internal val defaultFeatures =
     Features.PUBLISHING.flag or
-            Features.ASSERTJ.flag or
-            Features.JACKSON_KOTLIN.flag or
-            Features.JUNIT_JUPITER.flag or
-            Features.KOTEST.flag or
-            Features.KOTEST_SPRING.flag or
-            Features.LOMBOK.flag or
-            Features.MOCKITO.flag or
-            Features.MOCKK.flag or
-            Features.SPRING.flag or
-            Features.SPRING_MOCKK.flag
+        Features.ASSERTJ.flag or
+        Features.JACKSON_KOTLIN.flag or
+        Features.JUNIT_JUPITER.flag or
+        Features.KOTEST.flag or
+        Features.KOTEST_SPRING.flag or
+        Features.LOMBOK.flag or
+        Features.MOCKITO.flag or
+        Features.MOCKK.flag or
+        Features.SPRING.flag or
+        Features.SPRING_MOCKK.flag
 
 internal fun getFeatures(project: Project, flags: Int): FeatureConfiguration {
     val features = FeatureConfiguration(project)

@@ -43,7 +43,6 @@ import spec.doNotAddSpringMockkDependenciesTest
 import spec.doNotApplyGroovyPluginTest
 import spec.doNotApplyKotlinPluginsTest
 import spec.doNotApplyKotlinSpringPluginsTest
-import spec.doNotApplyLibraryPluginTest
 import spec.doNotConfigureBootJarResolutionTest
 
 class ConfigPluginJavaLibTest : FunSpec({
