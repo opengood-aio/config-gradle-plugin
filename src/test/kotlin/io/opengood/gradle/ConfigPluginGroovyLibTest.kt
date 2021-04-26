@@ -7,7 +7,7 @@ import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
 import spec.addAssertjDependenciesTest
 import spec.addGroovyDependenciesTest
-import spec.addJunitDependenciesTest
+import spec.addJunitJupiterDependenciesTest
 import spec.addMockitoDependenciesTest
 import spec.addRepositoriesTest
 import spec.addSpringDependenciesTest
@@ -33,7 +33,9 @@ import spec.configureReleaseExtensionTest
 import spec.configureSigningExtensionTest
 import spec.configureTestTaskTest
 import spec.createExtensionTest
+import spec.doNotAddJacksonKotlinDependenciesTest
 import spec.doNotAddKotestDependenciesTest
+import spec.doNotAddKotestSpringDependenciesTest
 import spec.doNotAddKotlinDependenciesTest
 import spec.doNotAddLombokDependenciesTest
 import spec.doNotAddMockkDependenciesTest
@@ -58,12 +60,12 @@ class ConfigPluginGroovyLibTest : FunSpec({
 
     include(applyGroovyPluginTest(project))
     include(applyJavaPluginTest(project))
-    include(applyCommonPluginsTest(project))
-    include(applyLibraryPluginTest(project))
-    include(applySpringPluginsTest(project))
+    include(doNotApplyLombokPluginTest(project))
     include(doNotApplyKotlinPluginsTest(project))
     include(doNotApplyKotlinSpringPluginsTest(project))
-    include(doNotApplyLombokPluginTest(project))
+    include(applyCommonPluginsTest(project))
+    include(applySpringPluginsTest(project))
+    include(applyLibraryPluginTest(project))
 
     include(configureConventionsTest(project))
 
@@ -73,14 +75,16 @@ class ConfigPluginGroovyLibTest : FunSpec({
     include(addRepositoriesTest(project))
 
     include(addGroovyDependenciesTest(project))
-    include(addSpringDependenciesTest(project))
-    include(addJunitDependenciesTest(project))
-    include(addAssertjDependenciesTest(project))
-    include(addMockitoDependenciesTest(project))
     include(doNotAddKotlinDependenciesTest(project))
-    include(doNotAddLombokDependenciesTest(project))
+    include(addAssertjDependenciesTest(project))
+    include(doNotAddJacksonKotlinDependenciesTest(project))
+    include(addJunitJupiterDependenciesTest(project))
     include(doNotAddKotestDependenciesTest(project))
+    include(doNotAddKotestSpringDependenciesTest(project))
+    include(doNotAddLombokDependenciesTest(project))
+    include(addMockitoDependenciesTest(project))
     include(doNotAddMockkDependenciesTest(project))
+    include(addSpringDependenciesTest(project))
     include(doNotAddSpringMockkDependenciesTest(project))
 
     include(configureGradleWrapperTaskTest(project))

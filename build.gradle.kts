@@ -45,10 +45,11 @@ val jvmTargetVersion = "11"
 object Versions {
     const val JCOLOR = "5.0.1"
     const val KOTEST = "4.4.3"
+    const val KOTLIN_COROUTINES = "1.4.3"
     const val LOMBOK_PLUGIN = "4.0.0"
     const val MOCKK = "1.11.0"
     const val RELEASE_PLUGIN = "2.8.1"
-    const val SPRING_BOOT_PLUGIN = "2.4.4"
+    const val SPRING_BOOT_PLUGIN = "2.4.5"
     const val SPRING_DEPENDENCY_MANAGEMENT_PLUGIN = "1.0.11.RELEASE"
     const val VERSIONS_PLUGIN = "0.38.0"
 }
@@ -69,7 +70,6 @@ configurations.all {
 
 repositories {
     mavenCentral()
-    jcenter()
     gradlePluginPortal()
     mavenLocal()
 }
@@ -88,11 +88,13 @@ dependencies {
     implementation("net.researchgate:gradle-release:${Versions.RELEASE_PLUGIN}")
     implementation("com.github.ben-manes:gradle-versions-plugin:${Versions.VERSIONS_PLUGIN}")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.KOTLIN_COROUTINES}")
     implementation("com.diogonunes:JColor:${Versions.JCOLOR}")
 
     testImplementation(kotlin("test"))
+    testImplementation("io.kotest:kotest-framework-engine:${Versions.KOTEST}")
+    testImplementation("io.kotest:kotest-assertions-core:${Versions.KOTEST}")
     testImplementation("io.kotest:kotest-runner-junit5:${Versions.KOTEST}")
-    testImplementation("io.kotest:kotest-extensions-junit5:${Versions.KOTEST}")
     testImplementation("io.mockk:mockk:${Versions.MOCKK}")
 }
 

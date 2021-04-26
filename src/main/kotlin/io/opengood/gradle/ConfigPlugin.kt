@@ -203,23 +203,26 @@ class ConfigPlugin : Plugin<Project> {
                                     }
                                 }
                                 LanguageType.KOTLIN -> {
-                                    implementation.dependencies.add(create(Dependencies.KOTLIN_STD_LIB))
-                                    implementation.dependencies.add(create(Dependencies.KOTLIN_REFLECT))
                                     implementation.dependencies.add(create(Dependencies.KOTLIN_COROUTINES))
-                                    implementation.dependencies.add(create(Dependencies.JACKSON_KOTLIN))
+                                    implementation.dependencies.add(create(Dependencies.KOTLIN_REFLECT))
+                                    implementation.dependencies.add(create(Dependencies.KOTLIN_STD_LIB))
                                     testImplementation.dependencies.add(create(Dependencies.KOTLIN_TEST))
+
+                                    if (jacksonKotlin) {
+                                        implementation.dependencies.add(create(Dependencies.JACKSON_KOTLIN))
+                                    }
                                     if (kotest) {
-                                        testImplementation.dependencies.add(create(Dependencies.KOTEST_JUNIT_RUNNER))
-                                        testImplementation.dependencies.add(create(Dependencies.KOTEST_JUNIT_EXTENSIONS))
-                                        testImplementation.dependencies.add(create(Dependencies.KOTEST_SPRING_EXTENSIONS))
-                                        testImplementation.dependencies.add(create(Dependencies.KOTEST_KOIN_EXTENSIONS))
+                                        testImplementation.dependencies.add(create(Dependencies.KOTEST))
+                                        testImplementation.dependencies.add(create(Dependencies.KOTEST_ASSERTIONS))
+                                    }
+                                    if (kotestSpring) {
+                                        testImplementation.dependencies.add(create(Dependencies.KOTEST_SPRING))
                                     }
                                     if (mockk) {
                                         testImplementation.dependencies.add(create(Dependencies.MOCKK))
-
-                                        if (spring) {
-                                            testImplementation.dependencies.add(create(Dependencies.SPRING_MOCKK))
-                                        }
+                                    }
+                                    if (springMockk) {
+                                        testImplementation.dependencies.add(create(Dependencies.SPRING_MOCKK))
                                     }
                                 }
                             }
@@ -234,11 +237,11 @@ class ConfigPlugin : Plugin<Project> {
                                 if (languageType != LanguageType.KOTLIN ||
                                     (languageType == LanguageType.KOTLIN && testFrameworks.java)
                                 ) {
-                                    if (junit) {
-                                        testImplementation.dependencies.add(create(Dependencies.JUNIT_JUPITER))
-                                    }
                                     if (assertj) {
                                         testImplementation.dependencies.add(create(Dependencies.ASSERTJ))
+                                    }
+                                    if (junitJupiter) {
+                                        testImplementation.dependencies.add(create(Dependencies.JUNIT_JUPITER))
                                     }
                                     if (mockito) {
                                         testImplementation.dependencies.add(create(Dependencies.MOCKITO))
