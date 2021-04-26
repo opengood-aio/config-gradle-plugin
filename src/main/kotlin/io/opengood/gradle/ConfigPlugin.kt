@@ -213,7 +213,7 @@ class ConfigPlugin : Plugin<Project> {
                                     }
                                     if (kotest) {
                                         testImplementation.dependencies.add(create(Dependencies.KOTEST))
-                                        testImplementation.dependencies.add(create(Dependencies.KOTEST_ASSERTIONS))
+                                        testImplementation.dependencies.add(create(Dependencies.KOTEST_EXTENSIONS))
                                     }
                                     if (kotestSpring) {
                                         testImplementation.dependencies.add(create(Dependencies.KOTEST_SPRING))

@@ -359,7 +359,7 @@ fun addJunitJupiterDependenciesTest(project: Project) = funSpec {
 fun addKotestDependenciesTest(project: Project) = funSpec {
     test("Adds Kotest dependencies") {
         getDependency(project, "testImplementation", Dependencies.KOTEST).shouldNotBeNull()
-        getDependency(project, "testImplementation", Dependencies.KOTEST_ASSERTIONS).shouldNotBeNull()
+        getDependency(project, "testImplementation", Dependencies.KOTEST_EXTENSIONS).shouldNotBeNull()
     }
 }
 
@@ -441,7 +441,7 @@ fun doNotAddJunitJupiterDependenciesTest(project: Project) = funSpec {
 fun doNotAddKotestDependenciesTest(project: Project) = funSpec {
     test("Does not add Kotest dependencies") {
         getDependency(project, "testImplementation", Dependencies.KOTEST).shouldBeNull()
-        getDependency(project, "testImplementation", Dependencies.KOTEST_ASSERTIONS).shouldBeNull()
+        getDependency(project, "testImplementation", Dependencies.KOTEST_EXTENSIONS).shouldBeNull()
     }
 }
 

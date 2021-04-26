@@ -92,9 +92,8 @@ dependencies {
     implementation("com.diogonunes:JColor:${Versions.JCOLOR}")
 
     testImplementation(kotlin("test"))
-    testImplementation("io.kotest:kotest-framework-engine:${Versions.KOTEST}")
-    testImplementation("io.kotest:kotest-assertions-core:${Versions.KOTEST}")
     testImplementation("io.kotest:kotest-runner-junit5:${Versions.KOTEST}")
+    testImplementation("io.kotest:kotest-extensions-junit5:${Versions.KOTEST}")
     testImplementation("io.mockk:mockk:${Versions.MOCKK}")
 }
 
