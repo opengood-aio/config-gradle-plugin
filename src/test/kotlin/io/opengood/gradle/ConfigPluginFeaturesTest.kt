@@ -10,6 +10,7 @@ import spec.doNotAddJacksonKotlinDependenciesTest
 import spec.doNotAddJunitJupiterDependenciesTest
 import spec.doNotAddKotestDependenciesTest
 import spec.doNotAddKotestSpringDependenciesTest
+import spec.doNotAddKotlinCoroutinesDependenciesTest
 import spec.doNotAddLombokDependenciesTest
 import spec.doNotAddMockitoDependenciesTest
 import spec.doNotAddMockkDependenciesTest
@@ -34,6 +35,7 @@ class ConfigPluginFeaturesTest : FunSpec({
     include(doNotAddJunitJupiterDependenciesTest(project))
     include(doNotAddKotestDependenciesTest(project))
     include(doNotAddKotestSpringDependenciesTest(project))
+    include(doNotAddKotlinCoroutinesDependenciesTest(project))
     include(doNotAddLombokDependenciesTest(project))
     include(doNotAddMockitoDependenciesTest(project))
     include(doNotAddMockkDependenciesTest(project))

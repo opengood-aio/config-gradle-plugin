@@ -104,6 +104,7 @@ fun createExtensionTest(
                 junitJupiter.shouldBeTrue()
                 kotest.shouldBeTrue()
                 kotestSpring.shouldBeTrue()
+                kotlinCoroutines.shouldBeTrue()
                 lombok.shouldBeTrue()
                 mockito.shouldBeTrue()
                 mockk.shouldBeTrue()
@@ -331,7 +332,6 @@ fun addGroovyDependenciesTest(project: Project) = funSpec {
 
 fun addKotlinDependenciesTest(project: Project) = funSpec {
     test("Adds Kotlin dependencies") {
-        getDependency(project, "implementation", Dependencies.KOTLIN_COROUTINES).shouldNotBeNull()
         getDependency(project, "implementation", Dependencies.KOTLIN_REFLECT).shouldNotBeNull()
         getDependency(project, "implementation", Dependencies.KOTLIN_STD_LIB).shouldNotBeNull()
         getDependency(project, "testImplementation", Dependencies.KOTLIN_TEST).shouldNotBeNull()
@@ -366,6 +366,12 @@ fun addKotestDependenciesTest(project: Project) = funSpec {
 fun addKotestSpringDependenciesTest(project: Project) = funSpec {
     test("Adds Kotest Spring dependencies") {
         getDependency(project, "testImplementation", Dependencies.KOTEST_SPRING).shouldNotBeNull()
+    }
+}
+
+fun addKotlinCoroutinesDependenciesTest(project: Project) = funSpec {
+    test("Adds Kotlin Coroutines dependencies") {
+        getDependency(project, "implementation", Dependencies.KOTLIN_COROUTINES).shouldNotBeNull()
     }
 }
 
@@ -413,7 +419,6 @@ fun doNotAddGroovyDependenciesTest(project: Project) = funSpec {
 
 fun doNotAddKotlinDependenciesTest(project: Project) = funSpec {
     test("Does not add Kotlin dependencies") {
-        getDependency(project, "implementation", Dependencies.KOTLIN_COROUTINES).shouldBeNull()
         getDependency(project, "implementation", Dependencies.KOTLIN_REFLECT).shouldBeNull()
         getDependency(project, "implementation", Dependencies.KOTLIN_STD_LIB).shouldBeNull()
         getDependency(project, "testImplementation", Dependencies.KOTLIN_TEST).shouldBeNull()
@@ -448,6 +453,12 @@ fun doNotAddKotestDependenciesTest(project: Project) = funSpec {
 fun doNotAddKotestSpringDependenciesTest(project: Project) = funSpec {
     test("Does not add Kotest Spring dependencies") {
         getDependency(project, "testImplementation", Dependencies.KOTEST_SPRING).shouldBeNull()
+    }
+}
+
+fun doNotAddKotlinCoroutinesDependenciesTest(project: Project) = funSpec {
+    test("Does not add Kotlin Coroutines dependencies") {
+        getDependency(project, "implementation", Dependencies.KOTLIN_COROUTINES).shouldBeNull()
     }
 }
 

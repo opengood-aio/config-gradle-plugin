@@ -203,11 +203,13 @@ class ConfigPlugin : Plugin<Project> {
                                     }
                                 }
                                 LanguageType.KOTLIN -> {
-                                    implementation.dependencies.add(create(Dependencies.KOTLIN_COROUTINES))
                                     implementation.dependencies.add(create(Dependencies.KOTLIN_REFLECT))
                                     implementation.dependencies.add(create(Dependencies.KOTLIN_STD_LIB))
                                     testImplementation.dependencies.add(create(Dependencies.KOTLIN_TEST))
 
+                                    if (kotlinCoroutines) {
+                                        implementation.dependencies.add(create(Dependencies.KOTLIN_COROUTINES))
+                                    }
                                     if (jacksonKotlin) {
                                         implementation.dependencies.add(create(Dependencies.JACKSON_KOTLIN))
                                     }

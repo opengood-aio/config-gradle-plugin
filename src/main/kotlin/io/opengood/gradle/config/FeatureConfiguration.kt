@@ -12,6 +12,7 @@ open class FeatureConfiguration(
     var junitJupiter by GradleProperty(project, Boolean::class.java, true)
     var kotest by GradleProperty(project, Boolean::class.java, true)
     var kotestSpring by GradleProperty(project, Boolean::class.java, true)
+    var kotlinCoroutines by GradleProperty(project, Boolean::class.java, true)
     var lombok by GradleProperty(project, Boolean::class.java, true)
     var mockito by GradleProperty(project, Boolean::class.java, true)
     var mockk by GradleProperty(project, Boolean::class.java, true)

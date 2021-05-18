@@ -9,6 +9,7 @@ import spec.addAssertjDependenciesTest
 import spec.addJunitJupiterDependenciesTest
 import spec.addKotestDependenciesTest
 import spec.addKotestSpringDependenciesTest
+import spec.addKotlinCoroutinesDependenciesTest
 import spec.addMockitoDependenciesTest
 import spec.addMockkDependenciesTest
 import spec.addSpringMockkDependenciesTest
@@ -26,6 +27,7 @@ class ConfigPluginTestFrameworksTest : FunSpec({
     include(addJunitJupiterDependenciesTest(project))
     include(addKotestDependenciesTest(project))
     include(addKotestSpringDependenciesTest(project))
+    include(addKotlinCoroutinesDependenciesTest(project))
     include(addMockitoDependenciesTest(project))
     include(addMockkDependenciesTest(project))
     include(addSpringMockkDependenciesTest(project))

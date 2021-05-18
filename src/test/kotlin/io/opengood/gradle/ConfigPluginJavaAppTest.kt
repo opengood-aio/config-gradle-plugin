@@ -39,6 +39,7 @@ import spec.doNotAddGroovyDependenciesTest
 import spec.doNotAddJacksonKotlinDependenciesTest
 import spec.doNotAddKotestDependenciesTest
 import spec.doNotAddKotestSpringDependenciesTest
+import spec.doNotAddKotlinCoroutinesDependenciesTest
 import spec.doNotAddKotlinDependenciesTest
 import spec.doNotAddMockkDependenciesTest
 import spec.doNotAddSpringMockkDependenciesTest
@@ -82,6 +83,7 @@ class ConfigPluginJavaAppTest : FunSpec({
     include(addJunitJupiterDependenciesTest(project))
     include(doNotAddKotestDependenciesTest(project))
     include(doNotAddKotestSpringDependenciesTest(project))
+    include(doNotAddKotlinCoroutinesDependenciesTest(project))
     include(addLombokDependenciesTest(project))
     include(addMockitoDependenciesTest(project))
     include(doNotAddMockkDependenciesTest(project))

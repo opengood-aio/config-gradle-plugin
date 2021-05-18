@@ -37,6 +37,7 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
                         junitJupiter = false
                         kotest = false
                         kotestSpring = false
+                        kotlinCoroutines = false
                         lombok = false
                         mockito = false
                         mockk = false

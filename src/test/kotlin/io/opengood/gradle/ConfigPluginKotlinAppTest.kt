@@ -8,6 +8,7 @@ import io.opengood.gradle.enumeration.ProjectType
 import spec.addJacksonKotlinDependenciesTest
 import spec.addKotestDependenciesTest
 import spec.addKotestSpringDependenciesTest
+import spec.addKotlinCoroutinesDependenciesTest
 import spec.addKotlinDependenciesTest
 import spec.addMockkDependenciesTest
 import spec.addRepositoriesTest
@@ -84,6 +85,7 @@ class ConfigPluginKotlinAppTest : FunSpec({
     include(doNotAddJunitJupiterDependenciesTest(project))
     include(addKotestDependenciesTest(project))
     include(addKotestSpringDependenciesTest(project))
+    include(addKotlinCoroutinesDependenciesTest(project))
     include(doNotAddLombokDependenciesTest(project))
     include(doNotAddMockitoDependenciesTest(project))
     include(addMockkDependenciesTest(project))
