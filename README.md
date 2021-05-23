@@ -32,18 +32,88 @@ The plugin supports customized properties:
 
 | Property | Description | Default |
 |---|---|---|
-| projectType | Type of project. Supported (`APP`, `LIB`) | `APP` |
+| `projectType` | Type of project. Supported (`APP`, `LIB`) | `APP` |
+
+#### Features
+
+| Property | Description | Default |
+|---|---|---|
+| `publishing` | Value indicating if artifact publishing is enabled | `true` |
+| `assertj` | Value indicating if AssertJ dependency is enabled | `true` |
+| `jacksonKotlin` | Value indicating if Jackson Kotlin dependency is enabled | `true` |
+| `junitJupiter` | Value indicating if JUnit Jupiter dependency is enabled | `true` |
+| `kotest` | Value indicating if Kotest dependencies are enabled | `true` |
+| `kotestSpring` | Value indicating if Kotest Spring dependency is enabled | `true` |
+| `kotlinCoroutines` | Value indicating if Kotlin Coroutines dependency is enabled | `true` |
+| `lombok` | Value indicating if Lombok dependency is enabled | `true` |
+| `mockito` | Value indicating if Mockito dependency is enabled | `true` |
+| `mockk` | Value indicating if MockK dependency is enabled | `true` |
+| `spring` | Value indicating if Spring dependencies are enabled | `true` |
+| `springMockk` | Value indicating if Spring MockK dependency is enabled | `true` |
 
 #### Test
 
 | Property | Description | Default |
 |---|---|---|
-| maxParallelForks | Number of concurrent test classes to execute | `Available Processors / 2 + 1` |
+| `maxParallelForks` | Number of concurrent test classes to execute | `Available Processors / 2 + 1` |
+| `testFrameworks` | Available test frameworks to enable | see *[Test Frameworks](#test-frameworks)* |
+
+#### Test Frameworks
+
+| Property | Description | Default |
+|---|---|---|
+| `java` | Value indicating if Java test frameworks are enabled | `false` |
+
+#### Artifact
+
+| Property | Description | Default |
+|---|---|---|
+| `name` | Name of artifact | `Gradle project.name` |
+| `packaging` | Type of packaging. Supported (`JAR`) | `JAR` |
+| `description` | Description of artifact |  |
+| `uri` | URI of artifact project repository | `GitHub Org URI + Gradle project.name` |
+| `repo` | Artifact repository details | see *[Artifact Repository](#artifact-repository)* |
+| `scm` | SCM details | see *[SCM](#scm)* |
+| `licenses` | License details | see *[License](#license)* |
+| `developer` | Developer details | see *[Developer](#developer)* |
+
+#### Artifact Repository
+
+| Property | Description | Default |
+|---|---|---|
+| `snapshotsRepoUri` | URI of artifact snapshots repository | `https://oss.sonatype.org/content/repositories/snapshots` |
+| `stagingRepoUri` | URI of artifact staging repository | `https://oss.sonatype.org/service/local/staging/deploy/maven2` |
+
+#### SCM
+
+| Property | Description | Default |
+|---|---|---|
+| `provider` | SCM provider. Supported (`GIT`) | `GIT` |
+| `connection` | Connection URI to SCM repository | `scm:git: + GitHub Org URI + Gradle project.name` |
+| `developerConnection` | Developer connection URI to SCM repository | `scm:git: + GitHub Org URI + Gradle project.name` |
+| `uri` | URI of SCM repository | `GitHub Org URI + Gradle project.name` |
+
+#### License
+
+| Property | Description | Default |
+|---|---|---|
+| `provider` | Type of license | `MIT` |
+| `uri` | URI of license | `GitHub Org URI + Gradle project.name + LICENSE` |
+
+#### Developer
+
+| Property | Description | Default |
+|---|---|---|
+| `id` | Identifier of developer | `opengood` |
+| `name` | Name of developer | `OpenGood` |
+| `email` | Email address of developer | `dev@opengood.io` |
 
 #### Example
 
 ```kotlin
+import io.opengood.gradle.enumeration.PackagingType
 import io.opengood.gradle.enumeration.ProjectType
+import io.opengood.gradle.enumeration.ScmProvider
 
 plugins {
     id("io.opengood.gradle.config") version "VERSION"
@@ -53,8 +123,50 @@ opengood {
     main {
         projectType = ProjectType.APP
     }
+    features {
+        publishing = false
+        assertj = false
+        jacksonKotlin = false
+        junitJupiter = false
+        kotest = false
+        kotestSpring = false
+        kotlinCoroutines = false
+        lombok = false
+        mockito = false
+        mockk = false
+        spring = false
+        springMockk = false
+    }
     test {
         maxParallelForks = 1
+        testFrameworks {
+            java = true
+        }
+    }
+    artifact {
+        name = "test"
+        packaging = PackagingType.JAR
+        description = "description"
+        uri = "https://artifact.uri"
+        repo {
+            snapshotsRepoUri = "https://snapshots.uri"
+            stagingRepoUri = "https://staging.uri"
+        }
+        scm {
+            provider = ScmProvider.GIT
+            connection = "scm:git:https://repo.uri/project"
+            developerConnection = "scm:git:https://repo.uri/project"
+            uri = "https://repo.uri/project"
+        }
+        license {
+            name = "MIT"
+            uri = "https://repo.uri/project/LICENSE"
+        }
+        developer {
+            id = "developer"
+            name = "Developer"
+            email = "dev@example.org"
+        }
     }
 }
 ```
