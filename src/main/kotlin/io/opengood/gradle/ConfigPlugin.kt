@@ -437,11 +437,9 @@ class ConfigPlugin : Plugin<Project> {
 
     private fun configureJarTask(project: Project) {
         with(extension.main) {
-            if (projectType == ProjectType.LIB) {
-                project.tasks.withType(Jar::class.java).getByName("jar") { task ->
-                    with(task) {
-                        enabled = true
-                    }
+            project.tasks.withType(Jar::class.java).getByName("jar") { task ->
+                with(task) {
+                    enabled = projectType == ProjectType.LIB
                 }
             }
         }
