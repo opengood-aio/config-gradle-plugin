@@ -97,7 +97,7 @@ The plugin supports customized properties:
 
 | Property | Description | Default |
 |---|---|---|
-| `provider` | Type of license | `MIT` |
+| `name` | Name of license | `MIT` |
 | `uri` | URI of license | `GitHub Org URI + Gradle project.name + LICENSE` |
 
 #### Developer
