@@ -597,6 +597,7 @@ fun configureJarTaskTest(project: Project, isEnabled: Boolean) = funSpec {
         with(task) {
             shouldNotBeNull()
             enabled shouldBe isEnabled
+            archiveClassifier.get() shouldBe ""
         }
     }
 }

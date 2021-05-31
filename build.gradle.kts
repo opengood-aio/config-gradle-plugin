@@ -20,7 +20,7 @@ plugins {
     id("java-gradle-plugin")
     id("jacoco")
     id("maven-publish")
-    id("com.github.ben-manes.versions") version "0.38.0"
+    id("com.github.ben-manes.versions") version "0.39.0"
     id("net.researchgate.release") version "2.8.1"
     id("com.gradle.plugin-publish") version "0.15.0"
 }
@@ -47,7 +47,7 @@ object Versions {
     const val RELEASE_PLUGIN = "2.8.1"
     const val SPRING_BOOT_PLUGIN = "2.5.0"
     const val SPRING_DEPENDENCY_MANAGEMENT_PLUGIN = "1.0.11.RELEASE"
-    const val VERSIONS_PLUGIN = "0.38.0"
+    const val VERSIONS_PLUGIN = "0.39.0"
 
     const val ASSERTJ = "3.19.0"
     const val GROOVY = "3.0.8"

@@ -440,6 +440,7 @@ class ConfigPlugin : Plugin<Project> {
             project.tasks.withType(Jar::class.java).getByName("jar") { task ->
                 with(task) {
                     enabled = projectType == ProjectType.LIB
+                    archiveClassifier.set("")
                 }
             }
         }
