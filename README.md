@@ -56,7 +56,7 @@ The plugin supports customized properties:
 | Property | Description | Default |
 |---|---|---|
 | `maxParallelForks` | Number of concurrent test classes to execute | `Available Processors / 2 + 1` |
-| `testFrameworks` | Available test frameworks to enable | see *[Test Frameworks](#test-frameworks)* |
+| `frameworks` | Available test frameworks to enable | see *[Test Frameworks](#test-frameworks)* |
 
 #### Test Frameworks
 
@@ -139,7 +139,7 @@ opengood {
     }
     test {
         maxParallelForks = 1
-        testFrameworks {
+        frameworks {
             java = true
         }
     }
@@ -172,6 +172,28 @@ opengood {
 ```
 
 ## Development
+
+### Gradle
+
+To update Gradle wrapper to the latest version, run:
+
+```bash
+./gradlew wrapper --gradle-version VERSION
+```
+
+### Versions
+
+To check for dependency and plugin version updates, run:
+
+```bash
+./gradlew dependencyUpdates
+```
+
+To update dependency and plugin versions, run:
+
+```bash
+./gradlew refreshVersions
+```
 
 ### Publish
 

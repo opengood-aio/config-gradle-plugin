@@ -105,7 +105,13 @@ class FunctionsTest : FunSpec({
     }
 
     test("isJava returns false for non-Java Gradle project when Groovy build Gradle file does not exist") {
-        val project = createProject(ProjectConfig(languageType = LanguageType.GROOVY, buildGradle = false))
+        val project = createProject(
+            ProjectConfig(
+                languageType = LanguageType.GROOVY,
+                buildGradle = false,
+                settingsGradle = false
+            )
+        )
 
         project.isJava.shouldBeFalse()
     }

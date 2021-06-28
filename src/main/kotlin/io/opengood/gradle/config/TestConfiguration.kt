@@ -5,17 +5,16 @@ import io.opengood.gradle.constant.Tests
 import io.opengood.gradle.property.GradleProperty
 import org.gradle.api.Action
 import org.gradle.api.Project
-import org.gradle.util.ConfigureUtil
 
 open class TestConfiguration(
-    project: Project
+    private val project: Project
 ) {
     var maxParallelForks by GradleProperty(project, Int::class.java, Tests.MAX_PARALLEL_FORKS)
-    var testFrameworks = TestFrameworkConfiguration(project)
+    var frameworks = TestFrameworkConfiguration(project)
 
-    open fun testFrameworks(action: Action<in TestFrameworkConfiguration>) =
-        action.execute(testFrameworks)
+    open fun frameworks(action: Action<in TestFrameworkConfiguration>) =
+        action.execute(frameworks)
 
-    open fun testFrameworks(closure: Closure<Unit>) =
-        ConfigureUtil.configure(closure, testFrameworks)
+    open fun frameworks(closure: Closure<Unit>) =
+        project.configure(frameworks, closure)
 }

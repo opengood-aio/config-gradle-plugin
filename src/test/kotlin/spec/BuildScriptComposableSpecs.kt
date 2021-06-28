@@ -3,9 +3,11 @@ package spec
 import helper.createProjectDir
 import helper.createProjectSrcDir
 import helper.getBuildGradleFile
+import helper.getSettingsGradleFile
 import io.kotest.core.spec.style.wordSpec
 import io.kotest.matchers.string.shouldContain
 import io.opengood.gradle.enumeration.LanguageType
+import io.opengood.gradle.extension.OpenGoodExtension
 import org.gradle.testkit.runner.GradleRunner
 
 fun buildScriptTest(languageType: LanguageType) = wordSpec {
@@ -15,8 +17,17 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
             val projectDir = createProjectDir()
             createProjectSrcDir(languageType, projectDir)
 
-            val buildScript = projectDir.resolve(getBuildGradleFile(languageType)).toFile()
-            buildScript.writeText(
+            val settingsGradleFile = projectDir.resolve(getSettingsGradleFile(languageType)).toFile()
+            settingsGradleFile.writeText(
+                """
+                plugins {
+                    id("io.opengood.gradle.config")
+                }
+                """.trimIndent()
+            )
+
+            val buildGradleFile = projectDir.resolve(getBuildGradleFile(languageType)).toFile()
+            buildGradleFile.writeText(
                 """
                 import io.opengood.gradle.enumeration.PackagingType
                 import io.opengood.gradle.enumeration.ProjectType
@@ -46,7 +57,7 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
                     }
                     test {
                         maxParallelForks = 1
-                        testFrameworks {
+                        frameworks {
                             java = true
                         }
                     }
@@ -90,6 +101,10 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
                 .withArguments("--info", "--stacktrace")
                 .build()
 
+            println(result.output)
+
+            result.output.shouldContain("Applying ${OpenGoodExtension.EXTENSION_NAME} settings...")
+            result.output.shouldContain("Applying ${OpenGoodExtension.EXTENSION_NAME} project configuration...")
             result.output.shouldContain("BUILD SUCCESSFUL")
         }
     }

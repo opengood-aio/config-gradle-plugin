@@ -6,10 +6,9 @@ import io.opengood.gradle.enumeration.PackagingType
 import io.opengood.gradle.property.GradleProperty
 import org.gradle.api.Action
 import org.gradle.api.Project
-import org.gradle.util.ConfigureUtil
 
 open class ArtifactConfiguration(
-    project: Project
+    private val project: Project
 ) {
     var name by GradleProperty(project, String::class.java, project.name)
     var packaging by GradleProperty(project, PackagingType::class.java, PackagingType.JAR)
@@ -24,23 +23,23 @@ open class ArtifactConfiguration(
         action.execute(repo)
 
     open fun repo(closure: Closure<Unit>) =
-        ConfigureUtil.configure(closure, repo)
+        project.configure(repo, closure)
 
     open fun scm(action: Action<in ScmConfiguration>) =
         action.execute(scm)
 
     open fun scm(closure: Closure<Unit>) =
-        ConfigureUtil.configure(closure, scm)
+        project.configure(scm, closure)
 
     open fun license(action: Action<in LicenseConfiguration>) =
         action.execute(license)
 
     open fun license(closure: Closure<Unit>) =
-        ConfigureUtil.configure(closure, license)
+        project.configure(license, closure)
 
     open fun developer(action: Action<in DeveloperConfiguration>) =
         action.execute(developer)
 
     open fun developer(closure: Closure<Unit>) =
-        ConfigureUtil.configure(closure, developer)
+        project.configure(developer, closure)
 }

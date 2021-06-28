@@ -1,9 +1,11 @@
 package helper
 
+import data.settingsGradleFile
 import io.opengood.gradle.ConfigPlugin
 import io.opengood.gradle.constant.Directories
 import io.opengood.gradle.enumeration.BuildGradleType
 import io.opengood.gradle.enumeration.LanguageType
+import io.opengood.gradle.enumeration.SettingsGradleType
 import io.opengood.gradle.extension.OpenGoodExtension
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer
@@ -40,12 +42,13 @@ internal fun createProject(config: ProjectConfig): Project {
                 with(project) {
                     srcDir then { createProjectSrcDir(languageType, projectDir) }
                     buildGradle then { createProjectBuildGradle(languageType, projectDir) }
+                    settingsGradle then { createProjectSettingsGradle(languageType, projectDir) }
 
                     pluginManager.apply(ConfigPlugin.PLUGIN_ID)
                     extensions.configure(OpenGoodExtension::class.java) { ext ->
                         ext.main.projectType = projectType
                         ext.features = getFeatures(project, features)
-                        ext.test.testFrameworks = getTestFrameworks(project, testFrameworks)
+                        ext.test.frameworks = getTestFrameworks(project, testFrameworks)
                     }
                 }
                 (project as ProjectInternal).evaluate()
@@ -59,6 +62,9 @@ internal fun createProjectBuildGradle(languageType: LanguageType, projectDir: Pa
 internal fun createProjectDir(): Path =
     Files.createTempDirectory("")
 
+internal fun createProjectSettingsGradle(languageType: LanguageType, projectDir: Path) =
+    projectDir.resolve(getBuildGradleFile(languageType)).toFile().writeText(settingsGradleFile)
+
 internal fun createProjectSrcDir(languageType: LanguageType, projectDir: Path) =
     when (languageType) {
         LanguageType.GROOVY -> projectDir.resolve(Directories.GROOVY_SRC).toFile().mkdirs()
@@ -71,9 +77,6 @@ internal fun getBuildGradleFile(languageType: LanguageType): String =
         LanguageType.KOTLIN -> BuildGradleType.KOTLIN.toString()
         else -> BuildGradleType.GROOVY.toString()
     }
-
-internal inline fun <reified T : Any> getConvention(project: Project): T =
-    project.convention.getPlugin(T::class.java)
 
 internal fun getDependencies(project: Project, configuration: String): List<Dependency> =
     project.configurations.getByName(configuration).dependencies.toList()
@@ -101,6 +104,12 @@ internal fun getPlugin(project: Project, id: String): Plugin<Any> =
 
 internal fun getRepository(project: Project, name: String): ArtifactRepository =
     project.repositories.getByName(name)
+
+internal fun getSettingsGradleFile(languageType: LanguageType): String =
+    when (languageType) {
+        LanguageType.KOTLIN -> SettingsGradleType.KOTLIN.toString()
+        else -> SettingsGradleType.GROOVY.toString()
+    }
 
 internal fun getTaskByName(project: Project, name: String): Task =
     project.tasks.getByName(name)

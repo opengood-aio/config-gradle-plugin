@@ -24,7 +24,8 @@ import net.researchgate.release.GitAdapter
 import net.researchgate.release.ReleaseExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.BasePluginConvention
+import org.gradle.api.initialization.Settings
+import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
@@ -44,11 +45,25 @@ import org.springframework.boot.gradle.dsl.SpringBootExtension
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 import java.net.URI
 
-class ConfigPlugin : Plugin<Project> {
+class ConfigPlugin : Plugin<Any> {
 
     private lateinit var extension: OpenGoodExtension
 
-    override fun apply(project: Project) {
+    override fun apply(target: Any) {
+        if (target is Settings) {
+            println("Applying ${OpenGoodExtension.EXTENSION_NAME} settings...")
+            applySettings(settings = target)
+        } else if (target is Project) {
+            println("Applying ${OpenGoodExtension.EXTENSION_NAME} project configuration...")
+            applyProject(project = target)
+        }
+    }
+
+    private fun applySettings(settings: Settings) {
+        configurePlugins(settings)
+    }
+
+    private fun applyProject(project: Project) {
         createExtension(project)
         configurePlugins(project)
         configureDependencyResolutionStrategy(project)
@@ -56,7 +71,6 @@ class ConfigPlugin : Plugin<Project> {
 
         project.afterEvaluate {
             configurePlugins(project, afterEval = true)
-            configureConventions(project)
             configureBootJarResolution(project)
             configureDependencies(project)
             configureTasks(project)
@@ -70,6 +84,14 @@ class ConfigPlugin : Plugin<Project> {
             OpenGoodExtension::class.java,
             project
         )
+    }
+
+    private fun configurePlugins(settings: Settings) {
+        with(settings) {
+            with(plugins) {
+                apply(Plugins.REFRESH_VERSIONS)
+            }
+        }
     }
 
     private fun configurePlugins(project: Project, afterEval: Boolean = false) {
@@ -93,8 +115,8 @@ class ConfigPlugin : Plugin<Project> {
                             apply(Plugins.LOMBOK)
                         }
                         LanguageType.KOTLIN -> {
-                            apply(Plugins.KOTLIN_JVM)
                             apply(Plugins.KOTLIN_ALL_OPEN)
+                            apply(Plugins.KOTLIN_JVM)
                             apply(Plugins.KOTLIN_NO_ARG)
                             apply(Plugins.KOTLIN_SPRING)
                         }
@@ -106,20 +128,9 @@ class ConfigPlugin : Plugin<Project> {
                     apply(Plugins.MAVEN_PUBLISH)
                     apply(Plugins.RELEASE)
                     apply(Plugins.SIGNING)
-                    apply(Plugins.VERSIONS)
                     apply(Plugins.SPRING_BOOT)
                     apply(Plugins.SPRING_DEPENDENCY_MANAGEMENT)
-                }
-            }
-        }
-    }
-
-    private fun configureConventions(project: Project) {
-        with(project) {
-            with(extension) {
-                val basePluginConvention = convention.getPlugin(BasePluginConvention::class.java)
-                with(basePluginConvention) {
-                    archivesBaseName = artifact.name
+                    apply(Plugins.VERSIONS)
                 }
             }
         }
@@ -230,14 +241,14 @@ class ConfigPlugin : Plugin<Project> {
                             }
 
                             if (spring) {
-                                implementation.dependencies.add(create(Dependencies.SPRING_BOOT_STARTER))
                                 annotationProcessor.dependencies.add(create(Dependencies.SPRING_BOOT_CONFIG_PROCESSOR))
+                                implementation.dependencies.add(create(Dependencies.SPRING_BOOT_STARTER))
                                 testImplementation.dependencies.add(create(Dependencies.SPRING_BOOT_STARTER_TEST))
                             }
 
                             with(test) {
                                 if (languageType != LanguageType.KOTLIN ||
-                                    (languageType == LanguageType.KOTLIN && testFrameworks.java)
+                                    (languageType == LanguageType.KOTLIN && frameworks.java)
                                 ) {
                                     if (assertj) {
                                         testImplementation.dependencies.add(create(Dependencies.ASSERTJ))
@@ -473,6 +484,8 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     private fun configureExtensions(project: Project) {
+        configureBasePluginExtension(project)
+
         with(extension.features) {
             if (spring) {
                 configureDependencyManagementExtension(project)
@@ -487,6 +500,20 @@ class ConfigPlugin : Plugin<Project> {
             if (publishing) {
                 configurePublishingExtension(project)
                 configureSigningExtension(project)
+            }
+        }
+    }
+
+    private fun configureBasePluginExtension(project: Project) {
+        with(project) {
+            with(extension) {
+                pluginManager.withPlugin(Plugins.BASE) {
+                    extensions.configure(BasePluginExtension::class.java) { ext ->
+                        with(ext) {
+                            archivesName.set(artifact.name)
+                        }
+                    }
+                }
             }
         }
     }

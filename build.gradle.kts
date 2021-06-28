@@ -11,18 +11,18 @@ import org.gradle.internal.logging.text.StyledTextOutput
 import org.gradle.internal.logging.text.StyledTextOutput.Style
 import org.gradle.internal.logging.text.StyledTextOutputFactory
 import org.gradle.kotlin.dsl.support.serviceOf
-import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.regex.Matcher
 
 plugins {
-    kotlin("jvm") version "1.4.32"
+    kotlin("jvm") version "1.5.20"
     id("java-gradle-plugin")
     id("jacoco")
     id("maven-publish")
-    id("com.github.ben-manes.versions") version "0.39.0"
-    id("net.researchgate.release") version "2.8.1"
-    id("com.gradle.plugin-publish") version "0.15.0"
+    id("com.github.ben-manes.versions")
+    id("net.researchgate.release")
+    id("com.gradle.plugin-publish")
 }
 
 group = "io.opengood.gradle"
@@ -38,33 +38,9 @@ gradlePlugin {
     }
 }
 
-val kotlinVersion = plugins.getPlugin(KotlinPluginWrapper::class.java).kotlinPluginVersion
+val kotlinVersion = getKotlinPluginVersion()
 val javaVersion = JavaVersion.VERSION_11
 val jvmTargetVersion = "11"
-
-object Versions {
-    const val LOMBOK_PLUGIN = "4.0.0"
-    const val RELEASE_PLUGIN = "2.8.1"
-    const val SPRING_BOOT_PLUGIN = "2.5.0"
-    const val SPRING_DEPENDENCY_MANAGEMENT_PLUGIN = "1.0.11.RELEASE"
-    const val VERSIONS_PLUGIN = "0.39.0"
-
-    const val ASSERTJ = "3.19.0"
-    const val GROOVY = "3.0.8"
-    const val JACKSON_KOTLIN = "2.12.3"
-    const val JAVA = "11"
-    const val JCOLOR = "5.0.1"
-    const val JUNIT_JUPITER = "5.7.2"
-    const val KOTEST = "4.6.0"
-    const val KOTEST_SPRING = "4.4.3"
-    const val KOTLIN = "1.4.32"
-    const val KOTLIN_COROUTINES = "1.5.0"
-    const val LOMBOK = "1.18.20"
-    const val MOCKITO = "3.10.0"
-    const val MOCKK = "1.11.0"
-    const val SPRING_BOOT = "2.5.0"
-    const val SPRING_MOCKK = "3.0.1"
-}
 
 java.apply {
     sourceCompatibility = javaVersion
@@ -88,38 +64,39 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation(kotlin("allopen:$kotlinVersion"))
-    implementation(kotlin("noarg:$kotlinVersion"))
-    implementation(kotlin("gradle-plugin:$kotlinVersion"))
+    implementation(kotlin("allopen:_"))
+    implementation(kotlin("noarg:_"))
+    implementation(kotlin("gradle-plugin:_"))
     implementation(gradleApi())
 
-    implementation("org.springframework.boot:spring-boot-gradle-plugin:${Versions.SPRING_BOOT_PLUGIN}")
-    implementation("io.spring.gradle:dependency-management-plugin:${Versions.SPRING_DEPENDENCY_MANAGEMENT_PLUGIN}")
-    implementation("io.franzbecker:gradle-lombok:${Versions.LOMBOK_PLUGIN}")
-    implementation("net.researchgate:gradle-release:${Versions.RELEASE_PLUGIN}")
-    implementation("com.github.ben-manes:gradle-versions-plugin:${Versions.VERSIONS_PLUGIN}")
+    implementation("org.springframework.boot:spring-boot-gradle-plugin:_")
+    implementation("io.spring.gradle:dependency-management-plugin:_")
+    implementation("com.github.ben-manes:gradle-versions-plugin:_")
+    implementation("de.fayard.refreshVersions:refreshVersions:_")
+    implementation("io.franzbecker:gradle-lombok:_")
+    implementation("net.researchgate:gradle-release:_")
 
-    implementation("com.diogonunes:JColor:${Versions.JCOLOR}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.KOTLIN_COROUTINES}")
+    implementation("com.diogonunes:JColor:_")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:_")
 
     testImplementation(kotlin("test"))
-    testImplementation("io.kotest:kotest-runner-junit5:${Versions.KOTEST}")
-    testImplementation("io.kotest:kotest-extensions-junit5:${Versions.KOTEST}")
-    testImplementation("io.mockk:mockk:${Versions.MOCKK}")
+    testImplementation("io.kotest:kotest-runner-junit5:_")
+    testImplementation("io.kotest:kotest-extensions-junit5:_")
+    testImplementation("io.mockk:mockk:_")
 
-//    runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.JACKSON_KOTLIN}")
-//    runtimeOnly("com.ninja-squad:springmockk:${Versions.SPRING_MOCKK}")
-//    runtimeOnly("io.kotest:kotest-extensions-spring:${Versions.KOTEST_SPRING}")
-//    runtimeOnly("io.mockk:mockk:${Versions.MOCKK}")
-//    runtimeOnly("org.assertj:assertj-core:${Versions.ASSERTJ}")
-//    runtimeOnly("org.codehaus.groovy:groovy-all:${Versions.GROOVY}")
-//    runtimeOnly("org.junit.jupiter:junit-jupiter:${Versions.JUNIT_JUPITER}")
-//    runtimeOnly("org.mockito:mockito-core:${Versions.MOCKITO}")
-//    runtimeOnly("org.mockito:mockito-junit-jupiter:${Versions.MOCKITO}")
-//    runtimeOnly("org.projectlombok:lombok:${Versions.LOMBOK}")
-//    runtimeOnly("org.springframework.boot:spring-boot-configuration-processor:${Versions.SPRING_BOOT}")
-//    runtimeOnly("org.springframework.boot:spring-boot-starter-test:${Versions.SPRING_BOOT}")
-//    runtimeOnly("org.springframework.boot:spring-boot-starter:${Versions.SPRING_BOOT}")
+//    annotationProcessor("org.projectlombok:lombok:_")
+//    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:_")
+//    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:_")
+//    implementation("com.ninja-squad:springmockk:_")
+//    implementation("org.codehaus.groovy:groovy-all:_")
+//    implementation("org.springframework.boot:spring-boot-starter:_")
+//    testImplementation("io.kotest:kotest-extensions-spring:_")
+//    testImplementation("io.mockk:mockk:_")
+//    testImplementation("org.assertj:assertj-core:_")
+//    testImplementation("org.junit.jupiter:junit-jupiter:_")
+//    testImplementation("org.mockito:mockito-core:_")
+//    testImplementation("org.mockito:mockito-junit-jupiter:_")
+//    testImplementation("org.springframework.boot:spring-boot-starter-test:_")
 }
 
 val out: StyledTextOutput = project.serviceOf<StyledTextOutputFactory>().create("colored-output")

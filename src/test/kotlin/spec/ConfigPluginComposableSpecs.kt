@@ -2,7 +2,6 @@ package spec
 
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import helper.accessField
-import helper.getConvention
 import helper.getDependencies
 import helper.getDependency
 import helper.getMavenBom
@@ -58,7 +57,7 @@ import org.gradle.api.artifacts.UnknownRepositoryException
 import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact
 import org.gradle.api.internal.artifacts.publish.ArchivePublishArtifact
 import org.gradle.api.internal.provider.ProviderInternal
-import org.gradle.api.plugins.BasePluginConvention
+import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.plugins.UnknownPluginException
 import org.gradle.api.publish.PublishingExtension
@@ -113,7 +112,7 @@ fun createExtensionTest(
             }
             with(test) {
                 maxParallelForks shouldBe Tests.MAX_PARALLEL_FORKS
-                with(testFrameworks) {
+                with(frameworks) {
                     java.shouldBeFalse()
                 }
             }
@@ -216,8 +215,8 @@ fun doNotApplyGroovyPluginTest(project: Project) = funSpec {
 
 fun doNotApplyKotlinPluginsTest(project: Project) = funSpec {
     test("Does not apply Kotlin plugins") {
-        shouldThrow<UnknownPluginException> { getPlugin(project, Plugins.KOTLIN_JVM).shouldNotBeNull() }
         shouldThrow<UnknownPluginException> { getPlugin(project, Plugins.KOTLIN_ALL_OPEN).shouldNotBeNull() }
+        shouldThrow<UnknownPluginException> { getPlugin(project, Plugins.KOTLIN_JVM).shouldNotBeNull() }
         shouldThrow<UnknownPluginException> { getPlugin(project, Plugins.KOTLIN_NO_ARG).shouldNotBeNull() }
     }
 }
@@ -237,17 +236,6 @@ fun doNotApplyKotlinSpringPluginsTest(project: Project) = funSpec {
 fun doNotApplyLombokPluginTest(project: Project) = funSpec {
     test("Does not apply Lombok plugin") {
         shouldThrow<UnknownPluginException> { getPlugin(project, Plugins.LOMBOK) }
-    }
-}
-
-fun configureConventionsTest(project: Project) = funSpec {
-    test("Configures conventions") {
-        val basePluginConvention = getConvention<BasePluginConvention>(project)
-
-        with(basePluginConvention) {
-            shouldNotBeNull()
-            archivesBaseName shouldBe project.name
-        }
     }
 }
 
@@ -399,8 +387,8 @@ fun addMockkDependenciesTest(project: Project) = funSpec {
 
 fun addSpringDependenciesTest(project: Project) = funSpec {
     test("Adds Spring dependencies") {
-        getDependency(project, "implementation", Dependencies.SPRING_BOOT_STARTER).shouldNotBeNull()
         getDependency(project, "annotationProcessor", Dependencies.SPRING_BOOT_CONFIG_PROCESSOR).shouldNotBeNull()
+        getDependency(project, "implementation", Dependencies.SPRING_BOOT_STARTER).shouldNotBeNull()
         getDependency(project, "testImplementation", Dependencies.SPRING_BOOT_STARTER_TEST).shouldNotBeNull()
     }
 }
@@ -486,8 +474,8 @@ fun doNotAddMockkDependenciesTest(project: Project) = funSpec {
 
 fun doNotAddSpringDependenciesTest(project: Project) = funSpec {
     test("Does not add Spring dependencies") {
-        getDependency(project, "implementation", Dependencies.SPRING_BOOT_STARTER).shouldBeNull()
         getDependency(project, "annotationProcessor", Dependencies.SPRING_BOOT_CONFIG_PROCESSOR).shouldBeNull()
+        getDependency(project, "implementation", Dependencies.SPRING_BOOT_STARTER).shouldBeNull()
         getDependency(project, "testImplementation", Dependencies.SPRING_BOOT_STARTER_TEST).shouldBeNull()
     }
 }
@@ -631,6 +619,17 @@ fun doNotConfigureAfterReleaseBuildTaskTest(project: Project) = funSpec {
         with(task) {
             shouldNotBeNull()
             dependsOn.contains(Releases.AFTER_RELEASE_BUILD_TASKS).shouldBeFalse()
+        }
+    }
+}
+
+fun configureBasePluginTest(project: Project) = funSpec {
+    test("Configures Base Plugin extension") {
+        val extension = project.getExtension<BasePluginExtension>()
+
+        with(extension) {
+            shouldNotBeNull()
+            archivesName.get() shouldBe project.name
         }
     }
 }

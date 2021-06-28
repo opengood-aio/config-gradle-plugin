@@ -21,9 +21,9 @@ import spec.applyKotlinSpringPluginsTest
 import spec.applyPluginTest
 import spec.applySpringPluginsTest
 import spec.configureAfterReleaseBuildTaskTest
+import spec.configureBasePluginTest
 import spec.configureBootJarResolutionTest
 import spec.configureBootJarTaskTest
-import spec.configureConventionsTest
 import spec.configureDependencyManagementExtensionTest
 import spec.configureDependencyResolutionStrategyTest
 import spec.configureDependencyUpdatesTaskTest
@@ -71,8 +71,6 @@ class ConfigPluginKotlinAppTest : FunSpec({
     include(applySpringPluginsTest(project))
     include(doNotApplyLibraryPluginTest(project))
 
-    include(configureConventionsTest(project))
-
     include(configureDependencyResolutionStrategyTest(project))
     include(configureBootJarResolutionTest(project))
 
@@ -103,6 +101,7 @@ class ConfigPluginKotlinAppTest : FunSpec({
     include(configureBootJarTaskTest(project, isEnabled = true))
     include(configureAfterReleaseBuildTaskTest(project))
 
+    include(configureBasePluginTest(project))
     include(configureDependencyManagementExtensionTest(project))
     include(configureJavaExtensionTest(project))
     include(configureSpringBootExtensionTest(project))

@@ -9,10 +9,9 @@ import io.opengood.gradle.config.TestConfiguration
 import io.opengood.gradle.extension.OpenGoodExtension.Companion.EXTENSION_NAME
 import org.gradle.api.Action
 import org.gradle.api.Project
-import org.gradle.util.ConfigureUtil
 
 open class OpenGoodExtension(
-    project: Project
+    private val project: Project
 ) {
     var main = MainConfiguration(project)
     var features = FeatureConfiguration(project)
@@ -24,31 +23,31 @@ open class OpenGoodExtension(
         action.execute(main)
 
     open fun main(closure: Closure<Unit>) =
-        ConfigureUtil.configure(closure, main)
+        project.configure(main, closure)
 
     open fun features(action: Action<in FeatureConfiguration>) =
         action.execute(features)
 
     open fun features(closure: Closure<Unit>) =
-        ConfigureUtil.configure(closure, features)
+        project.configure(features, closure)
 
     open fun test(action: Action<in TestConfiguration>) =
         action.execute(test)
 
     open fun test(closure: Closure<Unit>) =
-        ConfigureUtil.configure(closure, test)
+        project.configure(test, closure)
 
     open fun release(action: Action<in ReleaseConfiguration>) =
         action.execute(release)
 
     open fun release(closure: Closure<Unit>) =
-        ConfigureUtil.configure(closure, release)
+        project.configure(release, closure)
 
     open fun artifact(action: Action<in ArtifactConfiguration>) =
         action.execute(artifact)
 
     open fun artifact(closure: Closure<Unit>) =
-        ConfigureUtil.configure(closure, artifact)
+        project.configure(artifact, closure)
 
     companion object {
         const val EXTENSION_NAME = "opengood"

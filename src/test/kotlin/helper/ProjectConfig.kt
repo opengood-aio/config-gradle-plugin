@@ -11,6 +11,7 @@ data class ProjectConfig(
     val projectType: ProjectType = ProjectType.APP,
     val srcDir: Boolean = true,
     val buildGradle: Boolean = true,
+    val settingsGradle: Boolean = true,
     val features: Int = defaultFeatures,
     val testFrameworks: Int = defaultTestFrameworks
 )
