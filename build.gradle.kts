@@ -72,7 +72,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-gradle-plugin:_")
     implementation("io.spring.gradle:dependency-management-plugin:_")
     implementation("com.github.ben-manes:gradle-versions-plugin:_")
-    implementation("de.fayard.refreshVersions:refreshVersions:_")
     implementation("io.franzbecker:gradle-lombok:_")
     implementation("net.researchgate:gradle-release:_")
 

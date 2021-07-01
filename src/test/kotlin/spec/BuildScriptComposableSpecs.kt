@@ -3,11 +3,10 @@ package spec
 import helper.createProjectDir
 import helper.createProjectSrcDir
 import helper.getBuildGradleFile
-import helper.getSettingsGradleFile
 import io.kotest.core.spec.style.wordSpec
 import io.kotest.matchers.string.shouldContain
+import io.opengood.gradle.ConfigPlugin
 import io.opengood.gradle.enumeration.LanguageType
-import io.opengood.gradle.extension.OpenGoodExtension
 import org.gradle.testkit.runner.GradleRunner
 
 fun buildScriptTest(languageType: LanguageType) = wordSpec {
@@ -16,15 +15,6 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
         "Lead to successful build" {
             val projectDir = createProjectDir()
             createProjectSrcDir(languageType, projectDir)
-
-            val settingsGradleFile = projectDir.resolve(getSettingsGradleFile(languageType)).toFile()
-            settingsGradleFile.writeText(
-                """
-                plugins {
-                    id("io.opengood.gradle.config")
-                }
-                """.trimIndent()
-            )
 
             val buildGradleFile = projectDir.resolve(getBuildGradleFile(languageType)).toFile()
             buildGradleFile.writeText(
@@ -103,8 +93,7 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
 
             println(result.output)
 
-            result.output.shouldContain("Applying ${OpenGoodExtension.EXTENSION_NAME} settings...")
-            result.output.shouldContain("Applying ${OpenGoodExtension.EXTENSION_NAME} project configuration...")
+            result.output.shouldContain("Applying ${ConfigPlugin.PLUGIN_ID} project configuration...")
             result.output.shouldContain("BUILD SUCCESSFUL")
         }
     }

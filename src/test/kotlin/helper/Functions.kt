@@ -1,6 +1,5 @@
 package helper
 
-import data.settingsGradleFile
 import io.opengood.gradle.ConfigPlugin
 import io.opengood.gradle.constant.Directories
 import io.opengood.gradle.enumeration.BuildGradleType
@@ -63,7 +62,7 @@ internal fun createProjectDir(): Path =
     Files.createTempDirectory("")
 
 internal fun createProjectSettingsGradle(languageType: LanguageType, projectDir: Path) =
-    projectDir.resolve(getBuildGradleFile(languageType)).toFile().writeText(settingsGradleFile)
+    projectDir.resolve(getBuildGradleFile(languageType)).toFile().createNewFile()
 
 internal fun createProjectSrcDir(languageType: LanguageType, projectDir: Path) =
     when (languageType) {

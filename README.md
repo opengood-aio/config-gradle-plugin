@@ -199,8 +199,8 @@ To update dependency and plugin versions, run:
 
 #### Plugin
 
-**Note:** Used for publishing `opengood-config` Gradle plugin to Gradle
-plugin repository
+**Note:** Used for publishing OpenGood Gradle plugins to Gradle plugin
+repository
 
 ##### Local
 

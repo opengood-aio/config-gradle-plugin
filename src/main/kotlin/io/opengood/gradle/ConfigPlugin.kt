@@ -24,7 +24,6 @@ import net.researchgate.release.GitAdapter
 import net.researchgate.release.ReleaseExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.initialization.Settings
 import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.publish.PublishingExtension
@@ -45,25 +44,12 @@ import org.springframework.boot.gradle.dsl.SpringBootExtension
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 import java.net.URI
 
-class ConfigPlugin : Plugin<Any> {
+class ConfigPlugin : Plugin<Project> {
 
     private lateinit var extension: OpenGoodExtension
 
-    override fun apply(target: Any) {
-        if (target is Settings) {
-            println("Applying ${OpenGoodExtension.EXTENSION_NAME} settings...")
-            applySettings(settings = target)
-        } else if (target is Project) {
-            println("Applying ${OpenGoodExtension.EXTENSION_NAME} project configuration...")
-            applyProject(project = target)
-        }
-    }
-
-    private fun applySettings(settings: Settings) {
-        configurePlugins(settings)
-    }
-
-    private fun applyProject(project: Project) {
+    override fun apply(project: Project) {
+        println("Applying $PLUGIN_ID project configuration...")
         createExtension(project)
         configurePlugins(project)
         configureDependencyResolutionStrategy(project)
@@ -84,14 +70,6 @@ class ConfigPlugin : Plugin<Any> {
             OpenGoodExtension::class.java,
             project
         )
-    }
-
-    private fun configurePlugins(settings: Settings) {
-        with(settings) {
-            with(plugins) {
-                apply(Plugins.REFRESH_VERSIONS)
-            }
-        }
     }
 
     private fun configurePlugins(project: Project, afterEval: Boolean = false) {
@@ -438,8 +416,8 @@ class ConfigPlugin : Plugin<Any> {
             with(task) {
                 reports { config ->
                     with(config) {
-                        xml.isEnabled = true
-                        html.isEnabled = false
+                        xml.required.set(true)
+                        html.required.set(false)
                     }
                 }
             }
