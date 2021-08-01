@@ -21,6 +21,7 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
                 """
                 import io.opengood.gradle.enumeration.PackagingType
                 import io.opengood.gradle.enumeration.ProjectType
+                import io.opengood.gradle.enumeration.PublicationType
                 import io.opengood.gradle.enumeration.ScmProvider
                 
                 plugins {
@@ -32,7 +33,6 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
                         projectType = ProjectType.APP
                     }
                     features {
-                        publishing = false
                         assertj = false
                         jacksonKotlin = false
                         junitJupiter = false
@@ -61,9 +61,11 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
                         packaging = PackagingType.JAR
                         description = "description"
                         uri = "https://artifact.uri"
+                        publications = ${if (languageType == LanguageType.KOTLIN) "listOf(PublicationType.OSS)" else "[PublicationType.OSS]"}
                         repo {
-                            snapshotsRepoUri = "https://snapshots.uri"
-                            stagingRepoUri = "https://staging.uri"
+                            ossSnapshotsRepoUri = "https://snapshots.uri"
+                            ossStagingRepoUri = "https://staging.uri"
+                            gitHubPackagesRepoUri = "https://github.uri"
                         }
                         scm {
                             provider = ScmProvider.GIT

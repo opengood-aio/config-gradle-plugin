@@ -13,9 +13,6 @@ class Releases {
         const val REQUIRE_BRANCH = ""
         const val VERSION_PATTERN = """[.]*\.(\d+)\.(\d+)[.]*"""
 
-        val AFTER_RELEASE_BUILD_TASKS = arrayOf<Any>(
-            "publish${Publications.OSS_PUB_NAME}PublicationTo${Repositories.OSS_STAGING_REPO_NAME}Repository"
-        )
         val VERSION_PATTERN_CLOSURE = KotlinClosure2<Matcher, Project, String>({ matcher, _ ->
             matcher.replaceAll(".${(matcher.group(1)).toString().toInt() + 1}.0")
         })

@@ -1,7 +1,8 @@
 package io.opengood.gradle.enumeration
 
 enum class ScmProvider(private val value: String) {
-    GIT("git");
+    GIT("git")
+    ;
 
     override fun toString(): String = value
 

@@ -12,13 +12,16 @@ import helper.getRepository
 import helper.getTaskByName
 import helper.getTaskByType
 import helper.getTaskByTypeAndName
+import helper.getTasksDependsOn
 import helper.hasTaskFinalizedByDependency
 import helper.then
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.funSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainAnyOf
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -26,21 +29,28 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldBeEmpty
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotBeBlank
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.opengood.gradle.ConfigPlugin
 import io.opengood.gradle.constant.Artifacts
 import io.opengood.gradle.constant.Boms
+import io.opengood.gradle.constant.Configurations
 import io.opengood.gradle.constant.Dependencies
+import io.opengood.gradle.constant.Elements
 import io.opengood.gradle.constant.GitHub
+import io.opengood.gradle.constant.Jars
 import io.opengood.gradle.constant.KotlinOptions
 import io.opengood.gradle.constant.Plugins
 import io.opengood.gradle.constant.Publications
 import io.opengood.gradle.constant.Releases
 import io.opengood.gradle.constant.Repositories
+import io.opengood.gradle.constant.Signatures
+import io.opengood.gradle.constant.Tasks
 import io.opengood.gradle.constant.Tests
 import io.opengood.gradle.constant.Versions
 import io.opengood.gradle.enumeration.PackagingType
 import io.opengood.gradle.enumeration.ProjectType
+import io.opengood.gradle.enumeration.PublicationType
 import io.opengood.gradle.enumeration.ScmProvider
 import io.opengood.gradle.extension.opengood
 import io.opengood.gradle.getExtension
@@ -54,6 +64,7 @@ import org.gradle.api.Project
 import org.gradle.api.UnknownDomainObjectException
 import org.gradle.api.UnknownTaskException
 import org.gradle.api.artifacts.UnknownRepositoryException
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact
 import org.gradle.api.internal.artifacts.publish.ArchivePublishArtifact
 import org.gradle.api.internal.provider.ProviderInternal
@@ -61,6 +72,7 @@ import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.plugins.UnknownPluginException
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.internal.publication.DefaultMavenPom
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
@@ -97,7 +109,6 @@ fun createExtensionTest(
                 main.projectType shouldBe projectType
             }
             with(features) {
-                publishing.shouldBeTrue()
                 assertj.shouldBeTrue()
                 jacksonKotlin.shouldBeTrue()
                 junitJupiter.shouldBeTrue()
@@ -117,7 +128,18 @@ fun createExtensionTest(
                 }
             }
             with(release) {
-                afterReleaseBuildTasks shouldBe Releases.AFTER_RELEASE_BUILD_TASKS
+                afterReleaseBuildTasks shouldBe arrayOf(
+                    String.format(
+                        Tasks.PUBLISH_PUBLICATION,
+                        Publications.GITHUB_PUB_NAME,
+                        Repositories.GITHUB_PACKAGES_REPO_NAME
+                    ),
+                    String.format(
+                        Tasks.PUBLISH_PUBLICATION,
+                        Publications.OSS_PUB_NAME,
+                        Repositories.OSS_SNAPSHOTS_REPO_NAME
+                    )
+                )
                 requireBranch shouldBe Releases.REQUIRE_BRANCH
                 pushToRemote shouldBe Releases.PUSH_TO_REMOTE
             }
@@ -126,9 +148,11 @@ fun createExtensionTest(
                 packaging shouldBe PackagingType.JAR
                 description.shouldBeEmpty()
                 uri shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}"
+                publications shouldBe listOf(PublicationType.GITHUB, PublicationType.OSS)
                 with(repo) {
-                    snapshotsRepoUri shouldBe Repositories.OSS_SNAPSHOTS_REPO_URI
-                    stagingRepoUri shouldBe Repositories.OSS_STAGING_REPO_URI
+                    ossSnapshotsRepoUri shouldBe Repositories.OSS_SNAPSHOTS_REPO_URI
+                    ossStagingRepoUri shouldBe Repositories.OSS_STAGING_REPO_URI
+                    gitHubPackagesRepoUri shouldBe "${Repositories.GITHUB_PACKAGES_REPO_URI}/${GitHub.OPENGOOD_ORG_NAME}/${project.name}"
                 }
                 with(scm) {
                     provider shouldBe ScmProvider.GIT
@@ -138,7 +162,7 @@ fun createExtensionTest(
                 }
                 with(license) {
                     name shouldBe Artifacts.LICENSE_NAME
-                    uri shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}/${GitHub.BLOB_ENDPOINT}/${GitHub.BRANCH}/${Artifacts.LICENSE_RESOURCE}"
+                    uri shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}/${GitHub.BLOB_ENDPOINT_NAME}/${GitHub.DEFAULT_BRANCH_NAME}/${Artifacts.LICENSE_RESOURCE}"
                 }
                 with(developer) {
                     id shouldBe Artifacts.DEVELOPER_ID
@@ -241,8 +265,8 @@ fun doNotApplyLombokPluginTest(project: Project) = funSpec {
 
 fun configureDependencyResolutionStrategyTest(project: Project) = funSpec {
     test("Configures dependency resolution strategy") {
-        val implementationDependencies = getDependencies(project, "implementation")
-        val testImplementationDependencies = getDependencies(project, "testImplementation")
+        val implementationDependencies = getDependencies(project, Configurations.IMPLEMENTATION)
+        val testImplementationDependencies = getDependencies(project, Configurations.TEST_IMPLEMENTATION)
         (implementationDependencies + testImplementationDependencies).forEach { dependency ->
             if (dependency.group == "org.jetbrains.kotlin") {
                 dependency.version shouldBe Versions.KOTLIN
@@ -254,11 +278,11 @@ fun configureDependencyResolutionStrategyTest(project: Project) = funSpec {
 fun configureBootJarResolutionTest(project: Project) = funSpec {
     test("Configures boot jar resolution") {
         with(project.configurations) {
-            val apiElements = named("apiElements")
-            val runtimeElements = named("runtimeElements")
+            val apiElements = named(Elements.API)
+            val runtimeElements = named(Elements.RUNTIME)
 
-            val jar = getTaskByTypeAndName<Jar>(project, "jar")
-            val bootJar = getTaskByTypeAndName<BootJar>(project, "bootJar")
+            val jar = getTaskByTypeAndName<Jar>(project, Jars.JAR)
+            val bootJar = getTaskByTypeAndName<BootJar>(project, Jars.BOOT_JAR)
 
             all {
                 val elements = listOf(apiElements, runtimeElements)
@@ -280,8 +304,8 @@ fun configureBootJarResolutionTest(project: Project) = funSpec {
 fun doNotConfigureBootJarResolutionTest(project: Project) = funSpec {
     test("Does not configure boot jar resolution") {
         with(project.configurations) {
-            val apiElements = named("apiElements")
-            val runtimeElements = named("runtimeElements")
+            val apiElements = named(Elements.API)
+            val runtimeElements = named(Elements.RUNTIME)
 
             all {
                 val elements = listOf(apiElements, runtimeElements)
@@ -290,8 +314,8 @@ fun doNotConfigureBootJarResolutionTest(project: Project) = funSpec {
                         artifacts.forEach { artifact ->
                             with(artifact as LazyPublishArtifact) {
                                 with(accessField<ProviderInternal<*>>("provider").toString()) {
-                                    contains("task 'jar'").shouldBeTrue()
-                                    contains("task 'bootJar'").shouldBeFalse()
+                                    contains("task '${Jars.JAR}'").shouldBeTrue()
+                                    contains("task '${Jars.BOOT_JAR}'").shouldBeFalse()
                                 }
                             }
                         }
@@ -314,175 +338,187 @@ fun addRepositoriesTest(project: Project) = funSpec {
 
 fun addGroovyDependenciesTest(project: Project) = funSpec {
     test("Adds Groovy dependencies") {
-        getDependency(project, "implementation", Dependencies.GROOVY).shouldNotBeNull()
+        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.GROOVY).shouldNotBeNull()
     }
 }
 
 fun addKotlinDependenciesTest(project: Project) = funSpec {
     test("Adds Kotlin dependencies") {
-        getDependency(project, "implementation", Dependencies.KOTLIN_REFLECT).shouldNotBeNull()
-        getDependency(project, "implementation", Dependencies.KOTLIN_STD_LIB).shouldNotBeNull()
-        getDependency(project, "testImplementation", Dependencies.KOTLIN_TEST).shouldNotBeNull()
+        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.KOTLIN_REFLECT).shouldNotBeNull()
+        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.KOTLIN_STD_LIB).shouldNotBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTLIN_TEST).shouldNotBeNull()
     }
 }
 
 fun addAssertjDependenciesTest(project: Project) = funSpec {
     test("Adds AssertJ dependencies") {
-        getDependency(project, "testImplementation", Dependencies.ASSERTJ).shouldNotBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.ASSERTJ).shouldNotBeNull()
     }
 }
 
 fun addJacksonKotlinDependenciesTest(project: Project) = funSpec {
     test("Adds Jackson Kotlin dependencies") {
-        getDependency(project, "implementation", Dependencies.JACKSON_KOTLIN).shouldNotBeNull()
+        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.JACKSON_KOTLIN).shouldNotBeNull()
     }
 }
 
 fun addJunitJupiterDependenciesTest(project: Project) = funSpec {
     test("Adds JUnit Jupiter dependencies") {
-        getDependency(project, "testImplementation", Dependencies.JUNIT_JUPITER).shouldNotBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.JUNIT_JUPITER).shouldNotBeNull()
     }
 }
 
 fun addKotestDependenciesTest(project: Project) = funSpec {
     test("Adds Kotest dependencies") {
-        getDependency(project, "testImplementation", Dependencies.KOTEST).shouldNotBeNull()
-        getDependency(project, "testImplementation", Dependencies.KOTEST_EXTENSIONS).shouldNotBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST).shouldNotBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST_EXTENSIONS).shouldNotBeNull()
     }
 }
 
 fun addKotestSpringDependenciesTest(project: Project) = funSpec {
     test("Adds Kotest Spring dependencies") {
-        getDependency(project, "testImplementation", Dependencies.KOTEST_SPRING).shouldNotBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST_SPRING).shouldNotBeNull()
     }
 }
 
 fun addKotlinCoroutinesDependenciesTest(project: Project) = funSpec {
     test("Adds Kotlin Coroutines dependencies") {
-        getDependency(project, "implementation", Dependencies.KOTLIN_COROUTINES).shouldNotBeNull()
+        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.KOTLIN_COROUTINES).shouldNotBeNull()
     }
 }
 
 fun addLombokDependenciesTest(project: Project) = funSpec {
     test("Adds Lombok dependencies") {
-        getDependency(project, "implementation", Dependencies.LOMBOK).shouldNotBeNull()
-        getDependency(project, "annotationProcessor", Dependencies.LOMBOK).shouldNotBeNull()
-        getDependency(project, "testImplementation", Dependencies.LOMBOK).shouldNotBeNull()
-        getDependency(project, "testAnnotationProcessor", Dependencies.LOMBOK).shouldNotBeNull()
+        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.LOMBOK).shouldNotBeNull()
+        getDependency(project, Configurations.ANNOTATION_PROCESSOR, Dependencies.LOMBOK).shouldNotBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.LOMBOK).shouldNotBeNull()
+        getDependency(project, Configurations.TEST_ANNOTATION_PROCESSOR, Dependencies.LOMBOK).shouldNotBeNull()
     }
 }
 
 fun addMockitoDependenciesTest(project: Project) = funSpec {
     test("Adds Mockito dependencies") {
-        getDependency(project, "testImplementation", Dependencies.MOCKITO).shouldNotBeNull()
-        getDependency(project, "testImplementation", Dependencies.MOCKITO_JUNIT_JUPITER).shouldNotBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.MOCKITO).shouldNotBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.MOCKITO_JUNIT_JUPITER).shouldNotBeNull()
     }
 }
 
 fun addMockkDependenciesTest(project: Project) = funSpec {
     test("Adds MockK dependencies") {
-        getDependency(project, "testImplementation", Dependencies.MOCKK).shouldNotBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.MOCKK).shouldNotBeNull()
     }
 }
 
 fun addSpringDependenciesTest(project: Project) = funSpec {
     test("Adds Spring dependencies") {
-        getDependency(project, "annotationProcessor", Dependencies.SPRING_BOOT_CONFIG_PROCESSOR).shouldNotBeNull()
-        getDependency(project, "implementation", Dependencies.SPRING_BOOT_STARTER).shouldNotBeNull()
-        getDependency(project, "testImplementation", Dependencies.SPRING_BOOT_STARTER_TEST).shouldNotBeNull()
+        getDependency(
+            project,
+            Configurations.ANNOTATION_PROCESSOR,
+            Dependencies.SPRING_BOOT_CONFIG_PROCESSOR
+        ).shouldNotBeNull()
+        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.SPRING_BOOT_STARTER).shouldNotBeNull()
+        getDependency(
+            project,
+            Configurations.TEST_IMPLEMENTATION,
+            Dependencies.SPRING_BOOT_STARTER_TEST
+        ).shouldNotBeNull()
     }
 }
 
 fun addSpringMockkDependenciesTest(project: Project) = funSpec {
     test("Adds Spring MockK dependencies") {
-        getDependency(project, "testImplementation", Dependencies.SPRING_MOCKK).shouldNotBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.SPRING_MOCKK).shouldNotBeNull()
     }
 }
 
 fun doNotAddGroovyDependenciesTest(project: Project) = funSpec {
     test("Does not add Groovy dependencies") {
-        getDependency(project, "implementation", Dependencies.GROOVY).shouldBeNull()
+        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.GROOVY).shouldBeNull()
     }
 }
 
 fun doNotAddKotlinDependenciesTest(project: Project) = funSpec {
     test("Does not add Kotlin dependencies") {
-        getDependency(project, "implementation", Dependencies.KOTLIN_REFLECT).shouldBeNull()
-        getDependency(project, "implementation", Dependencies.KOTLIN_STD_LIB).shouldBeNull()
-        getDependency(project, "testImplementation", Dependencies.KOTLIN_TEST).shouldBeNull()
+        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.KOTLIN_REFLECT).shouldBeNull()
+        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.KOTLIN_STD_LIB).shouldBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTLIN_TEST).shouldBeNull()
     }
 }
 
 fun doNotAddAssertjDependenciesTest(project: Project) = funSpec {
     test("Does not add AssertJ dependencies") {
-        getDependency(project, "testImplementation", Dependencies.ASSERTJ).shouldBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.ASSERTJ).shouldBeNull()
     }
 }
 
 fun doNotAddJacksonKotlinDependenciesTest(project: Project) = funSpec {
     test("Does not add Jackson Kotlin dependencies") {
-        getDependency(project, "implementation", Dependencies.JACKSON_KOTLIN).shouldBeNull()
+        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.JACKSON_KOTLIN).shouldBeNull()
     }
 }
 
 fun doNotAddJunitJupiterDependenciesTest(project: Project) = funSpec {
     test("Does not add JUnit Jupiter dependencies") {
-        getDependency(project, "testImplementation", Dependencies.JUNIT_JUPITER).shouldBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.JUNIT_JUPITER).shouldBeNull()
     }
 }
 
 fun doNotAddKotestDependenciesTest(project: Project) = funSpec {
     test("Does not add Kotest dependencies") {
-        getDependency(project, "testImplementation", Dependencies.KOTEST).shouldBeNull()
-        getDependency(project, "testImplementation", Dependencies.KOTEST_EXTENSIONS).shouldBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST).shouldBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST_EXTENSIONS).shouldBeNull()
     }
 }
 
 fun doNotAddKotestSpringDependenciesTest(project: Project) = funSpec {
     test("Does not add Kotest Spring dependencies") {
-        getDependency(project, "testImplementation", Dependencies.KOTEST_SPRING).shouldBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST_SPRING).shouldBeNull()
     }
 }
 
 fun doNotAddKotlinCoroutinesDependenciesTest(project: Project) = funSpec {
     test("Does not add Kotlin Coroutines dependencies") {
-        getDependency(project, "implementation", Dependencies.KOTLIN_COROUTINES).shouldBeNull()
+        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.KOTLIN_COROUTINES).shouldBeNull()
     }
 }
 
 fun doNotAddLombokDependenciesTest(project: Project) = funSpec {
     test("Does not add Lombok dependencies") {
-        getDependency(project, "implementation", Dependencies.LOMBOK).shouldBeNull()
-        getDependency(project, "annotationProcessor", Dependencies.LOMBOK).shouldBeNull()
-        getDependency(project, "testImplementation", Dependencies.LOMBOK).shouldBeNull()
-        getDependency(project, "testAnnotationProcessor", Dependencies.LOMBOK).shouldBeNull()
+        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.LOMBOK).shouldBeNull()
+        getDependency(project, Configurations.ANNOTATION_PROCESSOR, Dependencies.LOMBOK).shouldBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.LOMBOK).shouldBeNull()
+        getDependency(project, Configurations.TEST_ANNOTATION_PROCESSOR, Dependencies.LOMBOK).shouldBeNull()
     }
 }
 
 fun doNotAddMockitoDependenciesTest(project: Project) = funSpec {
     test("Does not add Mockito dependencies") {
-        getDependency(project, "testImplementation", Dependencies.MOCKITO).shouldBeNull()
-        getDependency(project, "testImplementation", Dependencies.MOCKITO_JUNIT_JUPITER).shouldBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.MOCKITO).shouldBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.MOCKITO_JUNIT_JUPITER).shouldBeNull()
     }
 }
 
 fun doNotAddMockkDependenciesTest(project: Project) = funSpec {
     test("Does not add MockK dependencies") {
-        getDependency(project, "testImplementation", Dependencies.MOCKK).shouldBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.MOCKK).shouldBeNull()
     }
 }
 
 fun doNotAddSpringDependenciesTest(project: Project) = funSpec {
     test("Does not add Spring dependencies") {
-        getDependency(project, "annotationProcessor", Dependencies.SPRING_BOOT_CONFIG_PROCESSOR).shouldBeNull()
-        getDependency(project, "implementation", Dependencies.SPRING_BOOT_STARTER).shouldBeNull()
-        getDependency(project, "testImplementation", Dependencies.SPRING_BOOT_STARTER_TEST).shouldBeNull()
+        getDependency(
+            project,
+            Configurations.ANNOTATION_PROCESSOR,
+            Dependencies.SPRING_BOOT_CONFIG_PROCESSOR
+        ).shouldBeNull()
+        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.SPRING_BOOT_STARTER).shouldBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.SPRING_BOOT_STARTER_TEST).shouldBeNull()
     }
 }
 
 fun doNotAddSpringMockkDependenciesTest(project: Project) = funSpec {
     test("Does not add Spring MockK dependencies") {
-        getDependency(project, "testImplementation", Dependencies.SPRING_MOCKK).shouldBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.SPRING_MOCKK).shouldBeNull()
     }
 }
 
@@ -499,7 +535,7 @@ fun configureGradleWrapperTaskTest(project: Project) = funSpec {
 
 fun configureKotlinCompileTaskTest(project: Project) = funSpec {
     test("Configures Kotlin Compile task") {
-        val task = getTaskByTypeAndName<KotlinCompile>(project, "compileKotlin")
+        val task = getTaskByTypeAndName<KotlinCompile>(project, Tasks.COMPILE_KOTLIN)
 
         with(task) {
             shouldNotBeNull()
@@ -511,7 +547,7 @@ fun configureKotlinCompileTaskTest(project: Project) = funSpec {
 
 fun configureJavaCompileTaskTest(project: Project) = funSpec {
     test("Configures Java Compile task") {
-        val task = getTaskByTypeAndName<JavaCompile>(project, "compileJava")
+        val task = getTaskByTypeAndName<JavaCompile>(project, Tasks.COMPILE_JAVA)
 
         with(task) {
             shouldNotBeNull()
@@ -534,7 +570,7 @@ fun configureProcessResourcesTaskTest(project: Project) = funSpec {
 
 fun configureDependencyUpdatesTaskTest(project: Project) = funSpec {
     test("Configures Dependency Updates task") {
-        val task = getTaskByTypeAndName<DependencyUpdatesTask>(project, "dependencyUpdates")
+        val task = getTaskByTypeAndName<DependencyUpdatesTask>(project, Tasks.DEPENDENCY_UPDATES)
 
         with(task) {
             shouldNotBeNull()
@@ -544,11 +580,11 @@ fun configureDependencyUpdatesTaskTest(project: Project) = funSpec {
 
 fun configureTestTaskTest(project: Project) = funSpec {
     test("Configures Test task") {
-        val task = getTaskByTypeAndName<Test>(project, "test")
+        val task = getTaskByTypeAndName<Test>(project, Tasks.TEST)
 
         with(task) {
             shouldNotBeNull()
-            hasTaskFinalizedByDependency(task, "jacocoTestReport").shouldBeTrue()
+            hasTaskFinalizedByDependency(task, Tasks.JACOCO_TEST_REPORT).shouldBeTrue()
             onlyIf.shouldNotBeNull()
             with(testLogging) {
                 events shouldBe Tests.LOGGING_EVENTS
@@ -565,14 +601,14 @@ fun configureTestTaskTest(project: Project) = funSpec {
 
 fun configureJacocoTestReportTaskTest(project: Project) = funSpec {
     test("Configures Jacoco Test Report task") {
-        val task = getTaskByTypeAndName<JacocoReport>(project, "jacocoTestReport")
+        val task = getTaskByTypeAndName<JacocoReport>(project, Tasks.JACOCO_TEST_REPORT)
 
         with(task) {
             shouldNotBeNull()
             with(reports) {
                 shouldNotBeNull()
-                xml.isEnabled.shouldBeTrue()
-                html.isEnabled.shouldBeFalse()
+                xml.required.get().shouldBeTrue()
+                html.required.get().shouldBeFalse()
             }
         }
     }
@@ -580,7 +616,7 @@ fun configureJacocoTestReportTaskTest(project: Project) = funSpec {
 
 fun configureJarTaskTest(project: Project, isEnabled: Boolean) = funSpec {
     test("Configures Jar task") {
-        val task = getTaskByTypeAndName<Jar>(project, "jar")
+        val task = getTaskByTypeAndName<Jar>(project, Jars.JAR)
 
         with(task) {
             shouldNotBeNull()
@@ -592,7 +628,7 @@ fun configureJarTaskTest(project: Project, isEnabled: Boolean) = funSpec {
 
 fun configureBootJarTaskTest(project: Project, isEnabled: Boolean) = funSpec {
     test("Configures Boot Jar task") {
-        val task = getTaskByTypeAndName<BootJar>(project, "bootJar")
+        val task = getTaskByTypeAndName<BootJar>(project, Jars.BOOT_JAR)
 
         with(task) {
             shouldNotBeNull()
@@ -603,27 +639,75 @@ fun configureBootJarTaskTest(project: Project, isEnabled: Boolean) = funSpec {
 
 fun configureAfterReleaseBuildTaskTest(project: Project) = funSpec {
     test("Configures After Release Build task") {
-        val task = getTaskByName(project, "afterReleaseBuild")
+        val task = getTaskByName(project, Tasks.AFTER_RELEASE_BUILD)
 
         with(task) {
             shouldNotBeNull()
-            dependsOn.contains(Releases.AFTER_RELEASE_BUILD_TASKS).shouldBeTrue()
+
+            val afterReleaseBuildTasks = mutableListOf<Any>()
+
+            with(project.opengood().artifact) {
+                if (publications.contains(PublicationType.GITHUB)) {
+                    afterReleaseBuildTasks.add(
+                        String.format(
+                            Tasks.PUBLISH_PUBLICATION,
+                            Publications.GITHUB_PUB_NAME,
+                            Repositories.GITHUB_PACKAGES_REPO_NAME
+                        )
+                    )
+                }
+                if (publications.contains(PublicationType.OSS)) {
+                    afterReleaseBuildTasks.add(
+                        String.format(
+                            Tasks.PUBLISH_PUBLICATION,
+                            Publications.OSS_PUB_NAME,
+                            if (project.isSnapshotVersion) Repositories.OSS_SNAPSHOTS_REPO_NAME else Repositories.OSS_STAGING_REPO_NAME
+                        )
+                    )
+                }
+            }
+
+            getTasksDependsOn(task).shouldContainAll(afterReleaseBuildTasks)
         }
     }
 }
 
 fun doNotConfigureAfterReleaseBuildTaskTest(project: Project) = funSpec {
     test("Does not configure After Release Build task") {
-        val task = getTaskByName(project, "afterReleaseBuild")
+        val task = getTaskByName(project, Tasks.AFTER_RELEASE_BUILD)
 
         with(task) {
             shouldNotBeNull()
-            dependsOn.contains(Releases.AFTER_RELEASE_BUILD_TASKS).shouldBeFalse()
+
+            val afterReleaseBuildTasks = mutableListOf<Any>()
+
+            with(project.opengood().artifact) {
+                if (publications.contains(PublicationType.GITHUB)) {
+                    afterReleaseBuildTasks.add(
+                        String.format(
+                            Tasks.PUBLISH_PUBLICATION,
+                            Publications.GITHUB_PUB_NAME,
+                            Repositories.GITHUB_PACKAGES_REPO_NAME
+                        )
+                    )
+                }
+                if (publications.contains(PublicationType.OSS)) {
+                    afterReleaseBuildTasks.add(
+                        String.format(
+                            Tasks.PUBLISH_PUBLICATION,
+                            Publications.OSS_PUB_NAME,
+                            if (project.isSnapshotVersion) Repositories.OSS_SNAPSHOTS_REPO_NAME else Repositories.OSS_STAGING_REPO_NAME
+                        )
+                    )
+                }
+            }
+
+            dependsOn.shouldBeEmpty()
         }
     }
 }
 
-fun configureBasePluginTest(project: Project) = funSpec {
+fun configureBasePluginExtensionTest(project: Project) = funSpec {
     test("Configures Base Plugin extension") {
         val extension = project.getExtension<BasePluginExtension>()
 
@@ -651,8 +735,8 @@ fun configureJavaExtensionTest(project: Project) = funSpec {
 
         with(extension) {
             shouldNotBeNull()
-            getTaskByName(project, "javadocJar").shouldNotBeNull()
-            getTaskByName(project, "sourcesJar").shouldNotBeNull()
+            getTaskByName(project, Tasks.JAVADOC_JAR).shouldNotBeNull()
+            getTaskByName(project, Tasks.SOURCES_JAR).shouldNotBeNull()
         }
     }
 }
@@ -692,65 +776,102 @@ fun configurePublishingExtensionTest(project: Project) = funSpec {
         with(extension) {
             shouldNotBeNull()
 
-            val publication = getMavenPublication(extension, Publications.OSS_PUB_NAME)
-            with(publication) {
-                shouldNotBeNull()
-                artifacts.shouldNotBeNull()
+            val assertPublication = fun(publication: MavenPublication) {
+                with(publication) {
+                    shouldNotBeNull()
+                    artifacts.shouldNotBeNull()
 
-                with(pom as DefaultMavenPom) {
-                    groupId shouldBe project.group
-                    artifactId shouldBe project.name
-                    version shouldBe project.version
-                    name.get() shouldBe project.name
-                    packaging shouldBe PackagingType.JAR.toString()
-                    description.get() shouldBe ""
-                    url.get() shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}"
-                    with(scm) {
-                        connection.get() shouldBe "${ScmProvider.PROTOCOL}:${ScmProvider.GIT}:${GitHub.OPENGOOD_ORG_URI}/${project.name}"
-                        developerConnection.get() shouldBe "${ScmProvider.PROTOCOL}:${ScmProvider.GIT}:${GitHub.OPENGOOD_ORG_URI}/${project.name}"
+                    with(pom as DefaultMavenPom) {
+                        groupId shouldBe project.group
+                        artifactId shouldBe project.name
+                        version shouldBe project.version
+                        name.get() shouldBe project.name
+                        packaging shouldBe PackagingType.JAR.toString()
+                        description.get() shouldBe ""
                         url.get() shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}"
-                    }
-                    with(licenses.first()) {
-                        name.get() shouldBe Artifacts.LICENSE_NAME
-                        url.get() shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}/${GitHub.BLOB_ENDPOINT}/${GitHub.BRANCH}/${Artifacts.LICENSE_RESOURCE}"
-                    }
-                    with(developers.first()) {
-                        id.get() shouldBe Artifacts.DEVELOPER_ID
-                        name.get() shouldBe Artifacts.DEVELOPER_NAME
-                        email.get() shouldBe Artifacts.DEVELOPER_EMAIL
+                        with(scm) {
+                            connection.get() shouldBe "${ScmProvider.PROTOCOL}:${ScmProvider.GIT}:${GitHub.OPENGOOD_ORG_URI}/${project.name}"
+                            developerConnection.get() shouldBe "${ScmProvider.PROTOCOL}:${ScmProvider.GIT}:${GitHub.OPENGOOD_ORG_URI}/${project.name}"
+                            url.get() shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}"
+                        }
+                        with(licenses.first()) {
+                            name.get() shouldBe Artifacts.LICENSE_NAME
+                            url.get() shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}/${GitHub.BLOB_ENDPOINT_NAME}/${GitHub.DEFAULT_BRANCH_NAME}/${Artifacts.LICENSE_RESOURCE}"
+                        }
+                        with(developers.first()) {
+                            id.get() shouldBe Artifacts.DEVELOPER_ID
+                            name.get() shouldBe Artifacts.DEVELOPER_NAME
+                            email.get() shouldBe Artifacts.DEVELOPER_EMAIL
+                        }
                     }
                 }
             }
 
-            val mavenLocalRepo = getMavenRepository(extension, Repositories.LOCAL_REPO_NAME)
-            with(mavenLocalRepo) {
-                shouldNotBeNull()
-                name shouldBe Repositories.LOCAL_REPO_NAME
-                url shouldBe project.repositories.mavenLocal().url
-            }
+            val assertRepository = fun(
+                repo: MavenArtifactRepository,
+                repoName: String,
+                repoUri: URI,
+                hasCredentials: Boolean,
+                publicationName: String?
+            ) {
+                with(repo) {
+                    shouldNotBeNull()
+                    name shouldBe repoName
+                    url shouldBe repoUri
+                    if (hasCredentials) {
+                        with(credentials) {
+                            username.shouldNotBeBlank()
+                            password.shouldNotBeBlank()
+                        }
+                    }
+                }
 
-            val ossRepoName = (project.isSnapshotVersion) then { Repositories.OSS_SNAPSHOTS_REPO_NAME }
-                ?: Repositories.OSS_STAGING_REPO_NAME
-            val ossRepoUri = URI(
-                (project.isSnapshotVersion) then { Repositories.OSS_SNAPSHOTS_REPO_URI }
-                    ?: Repositories.OSS_STAGING_REPO_URI
-            )
-
-            val ossRepo = getMavenRepository(extension, ossRepoName)
-            with(ossRepo) {
-                shouldNotBeNull()
-                name shouldBe ossRepoName
-                url shouldBe ossRepoUri
-                with(credentials) {
-                    username.shouldBeEmpty()
-                    password.shouldBeEmpty()
+                if (publicationName != null) {
+                    getTaskByName(
+                        project,
+                        String.format(Tasks.PUBLISH_PUBLICATION, publicationName, repoName)
+                    ).shouldNotBeNull()
                 }
             }
 
-            getTaskByName(
-                project,
-                "publish${Publications.OSS_PUB_NAME}PublicationTo${ossRepoName}Repository"
-            ).shouldNotBeNull()
+            with(project.opengood().artifact) {
+                assertRepository(
+                    getMavenRepository(extension, Repositories.LOCAL_REPO_NAME),
+                    Repositories.LOCAL_REPO_NAME,
+                    project.repositories.mavenLocal().url,
+                    false,
+                    null
+                )
+
+                if (publications.contains(PublicationType.GITHUB)) {
+                    assertPublication(getMavenPublication(extension, Publications.GITHUB_PUB_NAME))
+
+                    assertRepository(
+                        getMavenRepository(extension, Repositories.GITHUB_PACKAGES_REPO_NAME),
+                        Repositories.GITHUB_PACKAGES_REPO_NAME,
+                        URI("${Repositories.GITHUB_PACKAGES_REPO_URI}/${GitHub.OPENGOOD_ORG_NAME}/${project.name}"),
+                        true,
+                        Publications.GITHUB_PUB_NAME
+                    )
+                }
+                if (publications.contains(PublicationType.OSS)) {
+                    assertPublication(getMavenPublication(extension, Publications.OSS_PUB_NAME))
+
+                    val ossRepoName =
+                        ((project.isSnapshotVersion) then { Repositories.OSS_SNAPSHOTS_REPO_NAME })
+                            ?: Repositories.OSS_STAGING_REPO_NAME
+                    val ossRepoUri = ((project.isSnapshotVersion) then { Repositories.OSS_SNAPSHOTS_REPO_URI })
+                        ?: Repositories.OSS_STAGING_REPO_URI
+
+                    assertRepository(
+                        getMavenRepository(extension, ossRepoName),
+                        ossRepoName,
+                        URI(ossRepoUri),
+                        true,
+                        Publications.OSS_PUB_NAME
+                    )
+                }
+            }
         }
     }
 }
@@ -762,18 +883,36 @@ fun configureSigningExtensionTest(project: Project) = funSpec {
         with(extension) {
             shouldNotBeNull()
 
-            val task = getTaskByTypeAndName<Sign>(project, "sign${Publications.OSS_PUB_NAME}Publication")
-            with(task) {
-                shouldNotBeNull()
-                signatures.map { it.toString() }.shouldContainAnyOf(
-                    "Signature pom-default.xml.asc:xml.asc:asc:null",
-                    "Signature ${project.name}-${project.version}.jar.asc:jar.asc:asc:asc:null",
-                    "Signature ${project.name}-${project.version}-javadoc.jar.asc:jar.asc:asc:asc:null",
-                    "Signature ${project.name}-${project.version}-sources.jar.asc:jar.asc:asc:asc:null"
-                )
+            val assertPublicationSigning = fun(task: Sign) {
+                with(task) {
+                    shouldNotBeNull()
+                    signatures.map { it.toString() }.shouldContainAnyOf(
+                        "Signature ${Signatures.POM}",
+                        "Signature ${String.format(Signatures.JAR, project.name, project.version)}",
+                        "Signature ${String.format(Signatures.JAVADOC, project.name, project.version)}",
+                        "Signature ${String.format(Signatures.SOURCES, project.name, project.version)}"
+                    )
+                }
             }
 
-            getTaskByName(project, "sign${Publications.OSS_PUB_NAME}Publication").shouldNotBeNull()
+            with(project.opengood().artifact) {
+                if (publications.contains(PublicationType.GITHUB)) {
+                    assertPublicationSigning(
+                        getTaskByTypeAndName(
+                            project,
+                            String.format(Tasks.SIGN_PUBLICATION, Publications.GITHUB_PUB_NAME)
+                        )
+                    )
+                }
+                if (publications.contains(PublicationType.OSS)) {
+                    assertPublicationSigning(
+                        getTaskByTypeAndName(
+                            project,
+                            String.format(Tasks.SIGN_PUBLICATION, Publications.OSS_PUB_NAME)
+                        )
+                    )
+                }
+            }
         }
     }
 }
@@ -795,8 +934,16 @@ fun doNotConfigurePublishingExtensionTest(project: Project) = funSpec {
 
         with(extension) {
             shouldNotBeNull()
-            shouldThrow<UnknownDomainObjectException> { getMavenPublication(extension, Publications.OSS_PUB_NAME) }
             shouldThrow<UnknownRepositoryException> { getMavenRepository(extension, Repositories.LOCAL_REPO_NAME) }
+            shouldThrow<UnknownDomainObjectException> { getMavenPublication(extension, Publications.GITHUB_PUB_NAME) }
+            shouldThrow<UnknownDomainObjectException> { getMavenPublication(extension, Publications.OSS_PUB_NAME) }
+
+            shouldThrow<UnknownRepositoryException> {
+                getMavenRepository(
+                    extension,
+                    Repositories.GITHUB_PACKAGES_REPO_NAME
+                )
+            }
             shouldThrow<UnknownRepositoryException> {
                 getMavenRepository(
                     extension,
@@ -823,7 +970,13 @@ fun doNotConfigureSigningExtensionTest(project: Project) = funSpec {
             shouldThrow<UnknownTaskException> {
                 getTaskByTypeAndName<Sign>(
                     project,
-                    "sign${Publications.OSS_PUB_NAME}Publication"
+                    String.format(Tasks.SIGN_PUBLICATION, Publications.GITHUB_PUB_NAME)
+                )
+            }
+            shouldThrow<UnknownTaskException> {
+                getTaskByTypeAndName<Sign>(
+                    project,
+                    String.format(Tasks.SIGN_PUBLICATION, Publications.OSS_PUB_NAME)
                 )
             }
         }

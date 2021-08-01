@@ -16,7 +16,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.regex.Matcher
 
 plugins {
-    kotlin("jvm") version "1.5.20"
+    kotlin("jvm")
+    kotlin("plugin.allopen")
     id("java-gradle-plugin")
     id("jacoco")
     id("maven-publish")
@@ -36,6 +37,10 @@ gradlePlugin {
             description = "Gradle plugin providing centralized configuration of OpenGood Gradle projects"
         }
     }
+}
+
+allOpen {
+    annotation("io.opengood.gradle.annotation.AllOpen")
 }
 
 val kotlinVersion = getKotlinPluginVersion()
@@ -195,8 +200,8 @@ with(tasks) {
 
     jacocoTestReport {
         reports {
-            xml.isEnabled = true
-            html.isEnabled = false
+            xml.required.set(true)
+            html.required.set(false)
         }
     }
 

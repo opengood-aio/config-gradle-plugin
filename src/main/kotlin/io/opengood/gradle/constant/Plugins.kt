@@ -15,7 +15,6 @@ class Plugins {
         const val KOTLIN_SPRING = "org.jetbrains.kotlin.plugin.spring"
         const val LOMBOK = "io.franzbecker.gradle-lombok"
         const val MAVEN_PUBLISH = "maven-publish"
-        const val REFRESH_VERSIONS = "de.fayard.refreshVersions"
         const val RELEASE = "net.researchgate.release"
         const val SIGNING = "signing"
         const val SPRING_BOOT = "org.springframework.boot"

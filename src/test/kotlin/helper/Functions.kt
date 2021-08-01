@@ -1,5 +1,8 @@
 package helper
 
+import io.kotest.extensions.system.OverrideMode
+import io.kotest.extensions.system.withEnvironment
+import io.mockk.InternalPlatformDsl.toArray
 import io.opengood.gradle.ConfigPlugin
 import io.opengood.gradle.constant.Directories
 import io.opengood.gradle.enumeration.BuildGradleType
@@ -46,11 +49,14 @@ internal fun createProject(config: ProjectConfig): Project {
                     pluginManager.apply(ConfigPlugin.PLUGIN_ID)
                     extensions.configure(OpenGoodExtension::class.java) { ext ->
                         ext.main.projectType = projectType
+                        ext.artifact.publications = publications
                         ext.features = getFeatures(project, features)
                         ext.test.frameworks = getTestFrameworks(project, testFrameworks)
                     }
                 }
-                (project as ProjectInternal).evaluate()
+                withEnvironment(credentials, OverrideMode.SetOrError) {
+                    (project as ProjectInternal).evaluate()
+                }
             }
     }
 }
@@ -118,6 +124,9 @@ internal inline fun <reified T : Task> getTaskByType(project: Project): T =
 
 internal inline fun <reified T : Task> getTaskByTypeAndName(project: Project, name: String): T =
     project.tasks.withType(T::class.java).getByName(name)
+
+internal fun getTasksDependsOn(task: Task): List<String> =
+    task.dependsOn.toTypedArray().first().toArray().map { it.toString() }.toList()
 
 internal fun hasTaskFinalizedByDependency(task: Task, name: String): Boolean =
     (task.finalizedBy as DefaultTaskDependency).mutableValues.contains(name)

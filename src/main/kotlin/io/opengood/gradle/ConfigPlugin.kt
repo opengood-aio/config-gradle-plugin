@@ -6,17 +6,24 @@ import com.diogonunes.jcolor.Attribute.GREEN_TEXT
 import com.diogonunes.jcolor.Attribute.RED_TEXT
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import io.opengood.gradle.constant.Boms
+import io.opengood.gradle.constant.Configurations
 import io.opengood.gradle.constant.Dependencies
+import io.opengood.gradle.constant.Elements
+import io.opengood.gradle.constant.EnvVars
+import io.opengood.gradle.constant.Jars
 import io.opengood.gradle.constant.KotlinOptions
 import io.opengood.gradle.constant.Plugins
+import io.opengood.gradle.constant.Properties
 import io.opengood.gradle.constant.Publications
 import io.opengood.gradle.constant.Releases
 import io.opengood.gradle.constant.Repositories
 import io.opengood.gradle.constant.Resources
+import io.opengood.gradle.constant.Tasks
 import io.opengood.gradle.constant.Tests
 import io.opengood.gradle.constant.Versions
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
+import io.opengood.gradle.enumeration.PublicationType
 import io.opengood.gradle.extension.OpenGoodExtension
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import net.researchgate.release.BaseScmAdapter
@@ -24,8 +31,10 @@ import net.researchgate.release.GitAdapter
 import net.researchgate.release.ReleaseExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.publish.PublicationContainer
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
@@ -135,12 +144,12 @@ class ConfigPlugin : Plugin<Project> {
                 with(main) {
                     if (spring && projectType == ProjectType.APP) {
                         with(project.configurations) {
-                            val apiElements = named("apiElements")
-                            val runtimeElements = named("runtimeElements")
+                            val apiElements = named(Elements.API)
+                            val runtimeElements = named(Elements.RUNTIME)
                             all {
                                 with(project.tasks) {
-                                    val jar = withType(Jar::class.java).getByName("jar")
-                                    val bootJar = withType(BootJar::class.java).getByName("bootJar")
+                                    val jar = withType(Jar::class.java).getByName(Jars.JAR)
+                                    val bootJar = withType(BootJar::class.java).getByName(Jars.BOOT_JAR)
 
                                     val elements = listOf(apiElements, runtimeElements)
                                     elements.forEach { element ->
@@ -171,10 +180,10 @@ class ConfigPlugin : Plugin<Project> {
     private fun configureDependencies(project: Project) {
         with(project) {
             with(configurations) {
-                val implementation = getByName("implementation")
-                val annotationProcessor = getByName("annotationProcessor")
-                val testImplementation = getByName("testImplementation")
-                val testAnnotationProcessor = getByName("testAnnotationProcessor")
+                val implementation = getByName(Configurations.IMPLEMENTATION)
+                val annotationProcessor = getByName(Configurations.ANNOTATION_PROCESSOR)
+                val testImplementation = getByName(Configurations.TEST_IMPLEMENTATION)
+                val testAnnotationProcessor = getByName(Configurations.TEST_ANNOTATION_PROCESSOR)
 
                 with(dependencies) {
                     with(extension) {
@@ -256,8 +265,8 @@ class ConfigPlugin : Plugin<Project> {
                     configureKotlinCompileTask(project)
                 }
             }
-            with(features) {
-                if (publishing) {
+            with(artifact) {
+                if (publications.isNotEmpty()) {
                     configureAfterReleaseBuildTask(project)
                 }
             }
@@ -346,7 +355,7 @@ class ConfigPlugin : Plugin<Project> {
     private fun configureTestTask(project: Project) {
         project.tasks.withType(Test::class.java) { task ->
             with(task) {
-                finalizedBy("jacocoTestReport")
+                finalizedBy(Tasks.JACOCO_TEST_REPORT)
                 setOnlyIf { !project.hasProperty(Tests.SKIP_TESTS) }
                 useJUnitPlatform()
 
@@ -412,7 +421,7 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     private fun configureJacocoTestReportTask(project: Project) {
-        project.tasks.withType(JacocoReport::class.java).getByName("jacocoTestReport") { task ->
+        project.tasks.withType(JacocoReport::class.java).getByName(Tasks.JACOCO_TEST_REPORT) { task ->
             with(task) {
                 reports { config ->
                     with(config) {
@@ -426,7 +435,7 @@ class ConfigPlugin : Plugin<Project> {
 
     private fun configureJarTask(project: Project) {
         with(extension.main) {
-            project.tasks.withType(Jar::class.java).getByName("jar") { task ->
+            project.tasks.withType(Jar::class.java).getByName(Jars.JAR) { task ->
                 with(task) {
                     enabled = projectType == ProjectType.LIB
                     archiveClassifier.set("")
@@ -440,7 +449,7 @@ class ConfigPlugin : Plugin<Project> {
             with(main) {
                 with(features) {
                     if (!spring || projectType == ProjectType.LIB) {
-                        project.tasks.withType(BootJar::class.java).getByName("bootJar") { task ->
+                        project.tasks.withType(BootJar::class.java).getByName(Jars.BOOT_JAR) { task ->
                             with(task) {
                                 enabled = false
                             }
@@ -452,10 +461,38 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     private fun configureAfterReleaseBuildTask(project: Project) {
-        with(extension.release) {
-            project.tasks.getByName("afterReleaseBuild") { task ->
-                with(task) {
-                    dependsOn(afterReleaseBuildTasks)
+        with(extension) {
+            with(release) {
+                with(artifact) {
+                    val tasks = mutableListOf<Any>()
+
+                    if (publications.contains(PublicationType.GITHUB)) {
+                        tasks.add(
+                            String.format(
+                                Tasks.PUBLISH_PUBLICATION,
+                                Publications.GITHUB_PUB_NAME,
+                                Repositories.GITHUB_PACKAGES_REPO_NAME
+                            )
+                        )
+                    }
+                    if (publications.contains(PublicationType.OSS)) {
+                        tasks.add(
+                            String.format(
+                                Tasks.PUBLISH_PUBLICATION,
+                                Publications.OSS_PUB_NAME,
+                                if (project.isSnapshotVersion) Repositories.OSS_SNAPSHOTS_REPO_NAME else Repositories.OSS_STAGING_REPO_NAME
+                            )
+                        )
+                    }
+
+                    if (tasks.isNotEmpty())
+                        afterReleaseBuildTasks = tasks.toTypedArray()
+                }
+
+                project.tasks.getByName(Tasks.AFTER_RELEASE_BUILD) { task ->
+                    with(task) {
+                        dependsOn(afterReleaseBuildTasks)
+                    }
                 }
             }
         }
@@ -474,8 +511,8 @@ class ConfigPlugin : Plugin<Project> {
         configureSpringBootExtension(project)
         configureReleaseExtension(project)
 
-        with(extension.features) {
-            if (publishing) {
+        with(extension.artifact) {
+            if (publications.isNotEmpty()) {
                 configurePublishingExtension(project)
                 configureSigningExtension(project)
             }
@@ -565,81 +602,147 @@ class ConfigPlugin : Plugin<Project> {
             pluginManager.withPlugin(Plugins.MAVEN_PUBLISH) {
                 extensions.configure(PublishingExtension::class.java) { ext ->
                     with(ext) {
-                        publications { publications ->
-                            publications.register(
-                                Publications.OSS_PUB_NAME,
-                                MavenPublication::class.java
-                            ) { publication ->
-                                with(publication) {
-                                    with(extension) {
-                                        from(components.getByName("java"))
-                                        pom { pom ->
-                                            with(pom) {
-                                                name.set(artifact.name)
-                                                packaging = artifact.packaging.toString()
-                                                description.set(artifact.description)
-                                                url.set(artifact.uri)
-                                                scm { scm ->
-                                                    with(scm) {
-                                                        connection.set(artifact.scm.connection)
-                                                        developerConnection.set(artifact.scm.developerConnection)
-                                                        url.set(artifact.scm.uri)
-                                                    }
-                                                }
-                                                licenses {
-                                                    it.license { license ->
-                                                        with(license) {
-                                                            name.set(artifact.license.name)
-                                                            url.set(artifact.license.uri)
-                                                        }
-                                                    }
-                                                }
-                                                developers {
-                                                    it.developer { developer ->
-                                                        with(developer) {
-                                                            id.set(artifact.developer.id)
-                                                            name.set(artifact.developer.name)
-                                                            email.set(artifact.developer.email)
-                                                        }
-                                                    }
-                                                }
-                                            }
+                        with(extension) {
+                            publications { publications ->
+                                with(artifact) {
+                                    if (this.publications.contains(PublicationType.GITHUB)) {
+                                        createPublication(project, publications, Publications.GITHUB_PUB_NAME)
+                                    }
+                                    if (this.publications.contains(PublicationType.OSS)) {
+                                        createPublication(project, publications, Publications.OSS_PUB_NAME)
+                                    }
+                                }
+                            }
+
+                            repositories { repos ->
+                                createArtifactRepository(
+                                    repos = repos,
+                                    repoName = Repositories.LOCAL_REPO_NAME,
+                                    repoUri = repositories.mavenLocal().url.toString()
+                                )
+
+                                with(artifact) {
+                                    if (publications.contains(PublicationType.GITHUB)) {
+                                        val githubPackagesRepoUsername =
+                                            project.getProperty(
+                                                Properties.GITHUB_PACKAGES_REPO_USERNAME,
+                                                getEnv(EnvVars.GITHUB_USER, "")
+                                            )
+                                        val githubPackagesRepoPassword =
+                                            project.getProperty(
+                                                Properties.GITHUB_PACKAGES_REPO_PASSWORD,
+                                                getEnv(EnvVars.GITHUB_TOKEN, "")
+                                            )
+
+                                        if (githubPackagesRepoUsername.isBlank()) println("WARN: ${Properties.GITHUB_PACKAGES_REPO_USERNAME} property or ${EnvVars.GITHUB_USER} environment variable is not set")
+                                        if (githubPackagesRepoPassword.isBlank()) println("WARN: ${Properties.GITHUB_PACKAGES_REPO_PASSWORD} property or ${EnvVars.GITHUB_TOKEN} environment variable is not set")
+
+                                        with(repo) {
+                                            createArtifactRepository(
+                                                repos = repos,
+                                                repoName = Repositories.GITHUB_PACKAGES_REPO_NAME,
+                                                repoUri = gitHubPackagesRepoUri,
+                                                repoUsername = githubPackagesRepoUsername,
+                                                repoPassword = githubPackagesRepoPassword
+                                            )
+                                        }
+                                    }
+
+                                    if (publications.contains(PublicationType.OSS)) {
+                                        val ossRepoUsername =
+                                            project.getProperty(Properties.OSS_REPO_USERNAME, getEnv(EnvVars.OSS_REPO_USERNAME, ""))
+                                        val ossRepoPassword =
+                                            project.getProperty(Properties.OSS_REPO_PASSWORD, getEnv(EnvVars.OSS_REPO_PASSWORD, ""))
+
+                                        if (ossRepoUsername.isBlank()) println("WARN: ${Properties.OSS_REPO_USERNAME} property or ${EnvVars.GITHUB_USER} environment variable is not set")
+                                        if (ossRepoPassword.isBlank()) println("WARN: ${Properties.OSS_REPO_PASSWORD} property or ${EnvVars.GITHUB_TOKEN} environment variable is not set")
+
+                                        with(repo) {
+                                            createArtifactRepository(
+                                                repos = repos,
+                                                repoName = if (isSnapshotVersion) Repositories.OSS_SNAPSHOTS_REPO_NAME else Repositories.OSS_STAGING_REPO_NAME,
+                                                repoUri = if (isSnapshotVersion) ossSnapshotsRepoUri else ossStagingRepoUri,
+                                                repoUsername = ossRepoUsername,
+                                                repoPassword = ossRepoPassword
+                                            )
                                         }
                                     }
                                 }
                             }
                         }
+                    }
+                }
+            }
+        }
+    }
 
-                        repositories { repos ->
-                            repos.maven { repo ->
-                                with(repo) {
-                                    name = Repositories.LOCAL_REPO_NAME
-                                    url = repositories.mavenLocal().url
+    private fun createPublication(
+        project: Project,
+        publications: PublicationContainer,
+        publicationName: String,
+    ) {
+        with(project) {
+            publications.register(publicationName, MavenPublication::class.java) { publication ->
+                with(publication) {
+                    with(extension) {
+                        from(components.getByName("java"))
+                        pom { pom ->
+                            with(pom) {
+                                name.set(artifact.name)
+                                packaging = artifact.packaging.toString()
+                                description.set(artifact.description)
+                                url.set(artifact.uri)
+                                scm { scm ->
+                                    with(scm) {
+                                        connection.set(artifact.scm.connection)
+                                        developerConnection.set(artifact.scm.developerConnection)
+                                        url.set(artifact.scm.uri)
+                                    }
                                 }
-                            }
-
-                            val ossrhUsername = project.getProperty("ossrhUsername", getEnv("OSSRH_USERNAME", ""))
-                            val ossrhPassword = project.getProperty("ossrhPassword", getEnv("OSSRH_PASSWORD", ""))
-
-                            if (ossrhUsername.isBlank()) println("WARN: ossrhUsername property or OSSRH_USERNAME environment variable is not set")
-                            if (ossrhPassword.isBlank()) println("WARN: ossrhPassword property or OSSRH_PASSWORD environment variable is not set")
-
-                            with(extension) {
-                                repos.maven { repo ->
-                                    with(repo) {
-                                        name =
-                                            if (isSnapshotVersion) Repositories.OSS_SNAPSHOTS_REPO_NAME else Repositories.OSS_STAGING_REPO_NAME
-                                        url =
-                                            URI(if (isSnapshotVersion) artifact.repo.snapshotsRepoUri else artifact.repo.stagingRepoUri)
-                                        credentials { credential ->
-                                            with(credential) {
-                                                username = ossrhUsername
-                                                password = ossrhPassword
-                                            }
+                                licenses {
+                                    it.license { license ->
+                                        with(license) {
+                                            name.set(artifact.license.name)
+                                            url.set(artifact.license.uri)
+                                        }
+                                    }
+                                }
+                                developers {
+                                    it.developer { developer ->
+                                        with(developer) {
+                                            id.set(artifact.developer.id)
+                                            name.set(artifact.developer.name)
+                                            email.set(artifact.developer.email)
                                         }
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun createArtifactRepository(
+        repos: RepositoryHandler,
+        repoName: String,
+        repoUri: String,
+        repoUsername: String? = null,
+        repoPassword: String? = null
+    ) {
+        repos.maven { repo ->
+            with(repo) {
+                name = repoName
+                url = URI(repoUri)
+
+                if (repoUsername != null && repoUsername.isNotBlank() &&
+                    repoPassword != null && repoPassword.isNotBlank()
+                ) {
+                    credentials { credential ->
+                        with(credential) {
+                            username = repoUsername
+                            password = repoPassword
                         }
                     }
                 }
@@ -652,19 +755,26 @@ class ConfigPlugin : Plugin<Project> {
             pluginManager.withPlugin(Plugins.SIGNING) {
                 extensions.configure(SigningExtension::class.java) { ext ->
                     with(ext) {
-                        val signingKey = getEnv("GPG_SIGNING_PRIVATE_KEY", "")
-                        val signingPassword = getEnv("GPG_SIGNING_PASSWORD", "")
+                        val signingKey = getEnv(EnvVars.GPG_SIGNING_PRIVATE_KEY, "")
+                        val signingPassword = getEnv(EnvVars.GPG_SIGNING_PASSWORD, "")
 
                         if (signingKey.isNotBlank() && signingPassword.isNotBlank()) {
-                            println("Environment variables GPG_SIGNING_PRIVATE_KEY and GPG_SIGNING_PASSWORD are set")
+                            println("Environment variables ${EnvVars.GPG_SIGNING_PRIVATE_KEY} and ${EnvVars.GPG_SIGNING_PASSWORD} are set")
                             println("Using in-memory GPG key for signing")
                             useInMemoryPgpKeys(signingKey, signingPassword)
                         } else {
-                            println("Environment variables GPG_SIGNING_PRIVATE_KEY and GPG_SIGNING_PASSWORD are not set")
+                            println("Environment variables ${EnvVars.GPG_SIGNING_PRIVATE_KEY} and ${EnvVars.GPG_SIGNING_PASSWORD} are not set")
                             println("Defaulting to global Gradle properties file for GPG key for signing")
                         }
 
-                        sign(getExtension<PublishingExtension>().publications.getByName(Publications.OSS_PUB_NAME))
+                        with(extension.artifact) {
+                            if (publications.contains(PublicationType.GITHUB)) {
+                                sign(getExtension<PublishingExtension>().publications.getByName(Publications.GITHUB_PUB_NAME))
+                            }
+                            if (publications.contains(PublicationType.OSS)) {
+                                sign(getExtension<PublishingExtension>().publications.getByName(Publications.OSS_PUB_NAME))
+                            }
+                        }
                     }
                 }
             }

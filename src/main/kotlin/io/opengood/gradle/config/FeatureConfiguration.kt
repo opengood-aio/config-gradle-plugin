@@ -1,12 +1,11 @@
 package io.opengood.gradle.config
 
+import io.opengood.gradle.annotation.AllOpen
 import io.opengood.gradle.property.GradleProperty
 import org.gradle.api.Project
 
-open class FeatureConfiguration(
-    project: Project
-) {
-    var publishing by GradleProperty(project, Boolean::class.java, true)
+@AllOpen
+class FeatureConfiguration(project: Project) {
     var assertj by GradleProperty(project, Boolean::class.java, true)
     var jacksonKotlin by GradleProperty(project, Boolean::class.java, true)
     var junitJupiter by GradleProperty(project, Boolean::class.java, true)

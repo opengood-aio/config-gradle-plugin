@@ -38,7 +38,6 @@ The plugin supports customized properties:
 
 | Property | Description | Default |
 |---|---|---|
-| `publishing` | Value indicating if artifact publishing is enabled | `true` |
 | `assertj` | Value indicating if AssertJ dependency is enabled | `true` |
 | `jacksonKotlin` | Value indicating if Jackson Kotlin dependency is enabled | `true` |
 | `junitJupiter` | Value indicating if JUnit Jupiter dependency is enabled | `true` |
@@ -72,6 +71,7 @@ The plugin supports customized properties:
 | `packaging` | Type of packaging. Supported (`JAR`) | `JAR` |
 | `description` | Description of artifact |  |
 | `uri` | URI of artifact project repository | `GitHub Org URI + Gradle project.name` |
+| `publications` | Publication of artifact. Supported (`OSS`, `GITHUB`) | `OSS` |
 | `repo` | Artifact repository details | see *[Artifact Repository](#artifact-repository)* |
 | `scm` | SCM details | see *[SCM](#scm)* |
 | `licenses` | License details | see *[License](#license)* |
@@ -81,8 +81,9 @@ The plugin supports customized properties:
 
 | Property | Description | Default |
 |---|---|---|
-| `snapshotsRepoUri` | URI of artifact snapshots repository | `https://oss.sonatype.org/content/repositories/snapshots` |
-| `stagingRepoUri` | URI of artifact staging repository | `https://oss.sonatype.org/service/local/staging/deploy/maven2` |
+| `ossSnapshotsRepoUri` | URI of OSS snapshots artifact repository | `https://oss.sonatype.org/content/repositories/snapshots` |
+| `ossStagingRepoUri` | URI of OSS staging artifact repository | `https://oss.sonatype.org/service/local/staging/deploy/maven2` |
+| `gitHubPackagesRepoUri` | URI of GitHub packages artifact repository | `https://maven.pkg.github.com/ + GitHub Org URI + Gradle project.name` |
 
 #### SCM
 
@@ -113,6 +114,7 @@ The plugin supports customized properties:
 ```kotlin
 import io.opengood.gradle.enumeration.PackagingType
 import io.opengood.gradle.enumeration.ProjectType
+import io.opengood.gradle.enumeration.PublicationType
 import io.opengood.gradle.enumeration.ScmProvider
 
 plugins {
@@ -124,7 +126,6 @@ opengood {
         projectType = ProjectType.APP
     }
     features {
-        publishing = false
         assertj = false
         jacksonKotlin = false
         junitJupiter = false
@@ -148,9 +149,11 @@ opengood {
         packaging = PackagingType.JAR
         description = "description"
         uri = "https://artifact.uri"
+        publications = listOf(PublicationType.GITHUB)
         repo {
-            snapshotsRepoUri = "https://snapshots.uri"
-            stagingRepoUri = "https://staging.uri"
+            ossSnapshotsRepoUri = "https://oss.snapshots.uri"
+            ossStagingRepoUri = "https://oss.staging.uri"
+            gitHubPackagesRepoUri = "https://github.packages.uri"
         }
         scm {
             provider = ScmProvider.GIT
@@ -244,12 +247,14 @@ plugin to Maven OSS repository
 
 ##### Local
 
+###### Maven OSS
+
 * Using Sonatype OSS account with GPG key for publishing, add
 credentials to `~/.gradle/gradle.properties`:
 
     ```properties
-    ossrhUsername=<sonatype-account-username>
-    ossrhPassword=<sonatype-account-password>
+    ossRepoUsername=<sonatype-account-username>
+    ossRepoPassword=<sonatype-account-password>
     
     signing.keyId=<gpg-key-id>
     signing.password=<gpg-key-password>
@@ -265,14 +270,37 @@ credentials to `~/.gradle/gradle.properties`:
     **Note:** `publishOssPublicationToOssStagingRepository` tasks are
     configured with Gradle release plugin to execute after release build
 
+###### GitHub
+
+* Using GitHub account for publishing, add
+credentials to `~/.gradle/gradle.properties`:
+
+    ```properties
+    githubPackagesRepoPassword=<github-account-username>
+    githubPackagesRepoUsername=<github-access-token>
+    ```
+
+* Create release version and publish artifact to GitHub packages
+repository:
+
+    ```bash
+    ./gradlew clean release -Prelease.useAutomaticVersion=true
+    ```
+
+    **Note:** `publishGitHubPublicationToGitHubPackagesRepository` tasks
+    are configured with Gradle release plugin to execute after release
+    build
+
 ##### CI/CD
+
+###### Maven OSS
 
 * Using Sonatype OSS account with GPG key for publishing, add
 environment variables to CI job:
 
     ```
-    OSSRH_USERNAME=<sonatype-account-username>
-    OSSRH_PASSWORD=<sonatype-account-password>
+    OSS_REPO_USERNAME=<sonatype-account-username>
+    OSS_REPO_PASSWORD=<sonatype-account-password>
     GPG_SIGNING_PRIVATE_KEY=<gpg-key-private-key>
     GPG_SIGNING_PASSWORD=<gpg-key-password>
     ```
@@ -284,3 +312,24 @@ environment variables to CI job:
     ```bash
     git commit --allow-empty -m "Create release"; git push
     ```
+
+###### GitHub
+
+* Using GitHub account for publishing, add
+environment variables to CI job:
+
+    ```
+    GITHUB_ACTOR=<github-account-username>
+    GITHUB_TOKEN=<github-access-token>
+    ```
+
+  *Note*: By default, these environment variables are automatically
+  by added GitHub
+
+* Create release version and publish artifact to GitHub packages
+repository:
+
+    ```bash
+    git commit --allow-empty -m "Create release"; git push
+    ```
+

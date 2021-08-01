@@ -1,6 +1,6 @@
 package io.opengood.gradle.constant
 
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
@@ -9,7 +9,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_ERROR
 class Tests {
 
     companion object {
-        val EXCEPTION_FORMAT = FULL
+        val EXCEPTION_FORMAT = TestExceptionFormat.FULL
         val LOGGING_EVENTS = setOf(PASSED, SKIPPED, FAILED, STANDARD_ERROR)
         val MAX_PARALLEL_FORKS = Runtime.getRuntime().availableProcessors() / 2 + 1
 

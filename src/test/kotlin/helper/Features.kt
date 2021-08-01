@@ -5,23 +5,21 @@ import org.gradle.api.Project
 
 internal enum class Features(val flag: Int) {
     NONE(0),
-    PUBLISHING(0b000000000001),
-    ASSERTJ(0b000000000010),
-    JACKSON_KOTLIN(0b000000000100),
-    JUNIT_JUPITER(0b000000001000),
-    KOTEST(0b000000010000),
-    KOTEST_SPRING(0b000000100000),
-    KOTLIN_COROUTINES(0b00000100000),
-    LOMBOK(0b000010000000),
-    MOCKITO(0b000100000000),
-    MOCKK(0b001000000000),
-    SPRING(0b010000000000),
-    SPRING_MOCKK(0b100000000000)
+    ASSERTJ(0b00000000001),
+    JACKSON_KOTLIN(0b00000000010),
+    JUNIT_JUPITER(0b00000000100),
+    KOTEST(0b00000001000),
+    KOTEST_SPRING(0b00000010000),
+    KOTLIN_COROUTINES(0b0000010000),
+    LOMBOK(0b00001000000),
+    MOCKITO(0b00010000000),
+    MOCKK(0b00100000000),
+    SPRING(0b01000000000),
+    SPRING_MOCKK(0b10000000000)
 }
 
 internal val defaultFeatures =
-    Features.PUBLISHING.flag or
-        Features.ASSERTJ.flag or
+    Features.ASSERTJ.flag or
         Features.JACKSON_KOTLIN.flag or
         Features.JUNIT_JUPITER.flag or
         Features.KOTEST.flag or
@@ -35,7 +33,6 @@ internal val defaultFeatures =
 
 internal fun getFeatures(project: Project, flags: Int): FeatureConfiguration {
     val features = FeatureConfiguration(project)
-    if (flags and Features.PUBLISHING.flag == 0) features.publishing = false
     if (flags and Features.ASSERTJ.flag == 0) features.assertj = false
     if (flags and Features.JACKSON_KOTLIN.flag == 0) features.jacksonKotlin = false
     if (flags and Features.JUNIT_JUPITER.flag == 0) features.junitJupiter = false
