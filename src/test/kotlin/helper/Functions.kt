@@ -1,6 +1,5 @@
 package helper
 
-import io.kotest.extensions.system.OverrideMode
 import io.kotest.extensions.system.withEnvironment
 import io.mockk.InternalPlatformDsl.toArray
 import io.opengood.gradle.ConfigPlugin
@@ -54,7 +53,7 @@ internal fun createProject(config: ProjectConfig): Project {
                         ext.test.frameworks = getTestFrameworks(project, testFrameworks)
                     }
                 }
-                withEnvironment(credentials, OverrideMode.SetOrError) {
+                withEnvironment(credentials) {
                     (project as ProjectInternal).evaluate()
                 }
             }
