@@ -16,7 +16,7 @@ class ArtifactConfiguration(private val project: Project) {
     var packaging by GradleProperty(project, PackagingType::class.java, PackagingType.JAR)
     var description by GradleProperty(project, String::class.java, "")
     var uri by GradleProperty(project, String::class.java, "${GitHub.OPENGOOD_ORG_URI}/${project.name}")
-    var publications by GradleListProperty(project, PublicationType::class.java, mutableListOf(PublicationType.OSS))
+    var publications by GradleListProperty(project, PublicationType::class.java, listOf(PublicationType.OSS))
     var repo = RepoConfiguration(project)
     var scm = ScmConfiguration(project)
     var license = LicenseConfiguration(project)
