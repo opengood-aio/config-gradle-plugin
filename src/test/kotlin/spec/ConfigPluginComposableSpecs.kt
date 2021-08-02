@@ -32,6 +32,7 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotBeBlank
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.opengood.gradle.ConfigPlugin
+import io.opengood.gradle.constant.Archives
 import io.opengood.gradle.constant.Artifacts
 import io.opengood.gradle.constant.Boms
 import io.opengood.gradle.constant.Configurations
@@ -621,7 +622,7 @@ fun configureJarTaskTest(project: Project, isEnabled: Boolean) = funSpec {
         with(task) {
             shouldNotBeNull()
             enabled shouldBe isEnabled
-            archiveClassifier.get() shouldBe ""
+            archiveClassifier.get() shouldBe Archives.CLASSIFIER
         }
     }
 }

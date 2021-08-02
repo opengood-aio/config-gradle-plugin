@@ -5,6 +5,7 @@ import com.diogonunes.jcolor.Attribute.CYAN_TEXT
 import com.diogonunes.jcolor.Attribute.GREEN_TEXT
 import com.diogonunes.jcolor.Attribute.RED_TEXT
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import io.opengood.gradle.constant.Archives
 import io.opengood.gradle.constant.Boms
 import io.opengood.gradle.constant.Configurations
 import io.opengood.gradle.constant.Dependencies
@@ -438,7 +439,7 @@ class ConfigPlugin : Plugin<Project> {
             project.tasks.withType(Jar::class.java).getByName(Jars.JAR) { task ->
                 with(task) {
                     enabled = projectType == ProjectType.LIB
-                    archiveClassifier.set("")
+                    archiveClassifier.set(Archives.CLASSIFIER)
                 }
             }
         }
