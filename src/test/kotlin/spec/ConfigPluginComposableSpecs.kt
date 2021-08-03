@@ -670,6 +670,13 @@ fun configureAfterReleaseBuildTaskTest(project: Project) = funSpec {
 
             getTasksDependsOn(task).shouldContainAll(afterReleaseBuildTasks)
         }
+
+        val testTask = getTaskByName(project, Tasks.TEST)
+
+        with(testTask) {
+            shouldNotBeNull()
+            enabled.shouldBeFalse()
+        }
     }
 }
 
@@ -704,6 +711,13 @@ fun doNotConfigureAfterReleaseBuildTaskTest(project: Project) = funSpec {
             }
 
             dependsOn.shouldBeEmpty()
+        }
+
+        val testTask = getTaskByName(project, Tasks.TEST)
+
+        with(testTask) {
+            shouldNotBeNull()
+            enabled.shouldBeTrue()
         }
     }
 }

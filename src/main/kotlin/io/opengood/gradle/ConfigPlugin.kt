@@ -495,6 +495,12 @@ class ConfigPlugin : Plugin<Project> {
                         dependsOn(afterReleaseBuildTasks)
                     }
                 }
+
+                project.tasks.getByName(Tasks.TEST) { task ->
+                    with(task) {
+                        enabled = false
+                    }
+                }
             }
         }
     }
