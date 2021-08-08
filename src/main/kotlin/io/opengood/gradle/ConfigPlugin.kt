@@ -356,8 +356,8 @@ class ConfigPlugin : Plugin<Project> {
     private fun configureTestTask(project: Project) {
         project.tasks.withType(Test::class.java) { task ->
             with(task) {
-                finalizedBy(Tasks.JACOCO_TEST_REPORT)
                 setOnlyIf { !project.hasProperty(Tests.SKIP_TESTS) }
+                finalizedBy(Tasks.JACOCO_TEST_REPORT)
                 useJUnitPlatform()
 
                 testLogging { logging ->
@@ -493,12 +493,6 @@ class ConfigPlugin : Plugin<Project> {
                 project.tasks.getByName(Tasks.AFTER_RELEASE_BUILD) { task ->
                     with(task) {
                         dependsOn(afterReleaseBuildTasks)
-                    }
-                }
-
-                project.tasks.getByName(Tasks.TEST) { task ->
-                    with(task) {
-                        enabled = false
                     }
                 }
             }

@@ -585,8 +585,9 @@ fun configureTestTaskTest(project: Project) = funSpec {
 
         with(task) {
             shouldNotBeNull()
-            hasTaskFinalizedByDependency(task, Tasks.JACOCO_TEST_REPORT).shouldBeTrue()
+            enabled.shouldBeTrue()
             onlyIf.shouldNotBeNull()
+            hasTaskFinalizedByDependency(task, Tasks.JACOCO_TEST_REPORT).shouldBeTrue()
             with(testLogging) {
                 events shouldBe Tests.LOGGING_EVENTS
                 exceptionFormat shouldBe Tests.EXCEPTION_FORMAT
@@ -670,13 +671,6 @@ fun configureAfterReleaseBuildTaskTest(project: Project) = funSpec {
 
             getTasksDependsOn(task).shouldContainAll(afterReleaseBuildTasks)
         }
-
-        val testTask = getTaskByName(project, Tasks.TEST)
-
-        with(testTask) {
-            shouldNotBeNull()
-            enabled.shouldBeFalse()
-        }
     }
 }
 
@@ -711,13 +705,6 @@ fun doNotConfigureAfterReleaseBuildTaskTest(project: Project) = funSpec {
             }
 
             dependsOn.shouldBeEmpty()
-        }
-
-        val testTask = getTaskByName(project, Tasks.TEST)
-
-        with(testTask) {
-            shouldNotBeNull()
-            enabled.shouldBeTrue()
         }
     }
 }
