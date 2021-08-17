@@ -898,14 +898,6 @@ fun configureSigningExtensionTest(project: Project) = funSpec {
             }
 
             with(project.opengood().artifact) {
-                if (publications.contains(PublicationType.GITHUB)) {
-                    assertPublicationSigning(
-                        getTaskByTypeAndName(
-                            project,
-                            String.format(Tasks.SIGN_PUBLICATION, Publications.GITHUB_PUB_NAME)
-                        )
-                    )
-                }
                 if (publications.contains(PublicationType.OSS)) {
                     assertPublicationSigning(
                         getTaskByTypeAndName(

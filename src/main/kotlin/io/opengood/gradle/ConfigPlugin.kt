@@ -769,9 +769,6 @@ class ConfigPlugin : Plugin<Project> {
                         }
 
                         with(extension.artifact) {
-                            if (publications.contains(PublicationType.GITHUB)) {
-                                sign(getExtension<PublishingExtension>().publications.getByName(Publications.GITHUB_PUB_NAME))
-                            }
                             if (publications.contains(PublicationType.OSS)) {
                                 sign(getExtension<PublishingExtension>().publications.getByName(Publications.OSS_PUB_NAME))
                             }
