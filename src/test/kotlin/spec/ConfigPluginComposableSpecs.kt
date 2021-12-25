@@ -53,7 +53,7 @@ import io.opengood.gradle.enumeration.PackagingType
 import io.opengood.gradle.enumeration.ProjectType
 import io.opengood.gradle.enumeration.PublicationType
 import io.opengood.gradle.enumeration.ScmProvider
-import io.opengood.gradle.extension.opengood
+import io.opengood.gradle.extension.openGood
 import io.opengood.gradle.getExtension
 import io.opengood.gradle.git
 import io.opengood.gradle.isSnapshotVersion
@@ -102,7 +102,7 @@ fun createExtensionTest(
     projectType: ProjectType
 ) = funSpec {
     test("Creates extension") {
-        with(project.opengood()) {
+        with(project.openGood()) {
             shouldNotBeNull()
 
             with(main) {
@@ -163,7 +163,7 @@ fun createExtensionTest(
                 }
                 with(license) {
                     name shouldBe Artifacts.LICENSE_NAME
-                    uri shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}/${GitHub.BLOB_ENDPOINT_NAME}/${GitHub.DEFAULT_BRANCH_NAME}/${Artifacts.LICENSE_RESOURCE}"
+                    uri shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}/${GitHub.BLOB_ENDPOINT}/${GitHub.DEFAULT_BRANCH_NAME}/${Artifacts.LICENSE_RESOURCE}"
                 }
                 with(developer) {
                     id shouldBe Artifacts.DEVELOPER_ID
@@ -372,7 +372,9 @@ fun addJunitJupiterDependenciesTest(project: Project) = funSpec {
 fun addKotestDependenciesTest(project: Project) = funSpec {
     test("Adds Kotest dependencies") {
         getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST).shouldNotBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST_ASSERTIONS).shouldNotBeNull()
         getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST_EXTENSIONS).shouldNotBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST_PROPERTIES).shouldNotBeNull()
     }
 }
 
@@ -467,7 +469,9 @@ fun doNotAddJunitJupiterDependenciesTest(project: Project) = funSpec {
 fun doNotAddKotestDependenciesTest(project: Project) = funSpec {
     test("Does not add Kotest dependencies") {
         getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST).shouldBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST_ASSERTIONS).shouldBeNull()
         getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST_EXTENSIONS).shouldBeNull()
+        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST_PROPERTIES).shouldBeNull()
     }
 }
 
@@ -648,7 +652,7 @@ fun configureAfterReleaseBuildTaskTest(project: Project) = funSpec {
 
             val afterReleaseBuildTasks = mutableListOf<Any>()
 
-            with(project.opengood().artifact) {
+            with(project.openGood().artifact) {
                 if (publications.contains(PublicationType.GITHUB)) {
                     afterReleaseBuildTasks.add(
                         String.format(
@@ -683,7 +687,7 @@ fun doNotConfigureAfterReleaseBuildTaskTest(project: Project) = funSpec {
 
             val afterReleaseBuildTasks = mutableListOf<Any>()
 
-            with(project.opengood().artifact) {
+            with(project.openGood().artifact) {
                 if (publications.contains(PublicationType.GITHUB)) {
                     afterReleaseBuildTasks.add(
                         String.format(
@@ -798,7 +802,7 @@ fun configurePublishingExtensionTest(project: Project) = funSpec {
                         }
                         with(licenses.first()) {
                             name.get() shouldBe Artifacts.LICENSE_NAME
-                            url.get() shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}/${GitHub.BLOB_ENDPOINT_NAME}/${GitHub.DEFAULT_BRANCH_NAME}/${Artifacts.LICENSE_RESOURCE}"
+                            url.get() shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}/${GitHub.BLOB_ENDPOINT}/${GitHub.DEFAULT_BRANCH_NAME}/${Artifacts.LICENSE_RESOURCE}"
                         }
                         with(developers.first()) {
                             id.get() shouldBe Artifacts.DEVELOPER_ID
@@ -836,7 +840,7 @@ fun configurePublishingExtensionTest(project: Project) = funSpec {
                 }
             }
 
-            with(project.opengood().artifact) {
+            with(project.openGood().artifact) {
                 assertRepository(
                     getMavenRepository(extension, Repositories.LOCAL_REPO_NAME),
                     Repositories.LOCAL_REPO_NAME,
@@ -897,7 +901,7 @@ fun configureSigningExtensionTest(project: Project) = funSpec {
                 }
             }
 
-            with(project.opengood().artifact) {
+            with(project.openGood().artifact) {
                 if (publications.contains(PublicationType.OSS)) {
                     assertPublicationSigning(
                         getTaskByTypeAndName(

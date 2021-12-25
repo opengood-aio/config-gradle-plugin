@@ -44,6 +44,6 @@ class OpenGoodExtension(private val project: Project) {
     }
 }
 
-fun Project.opengood(): OpenGoodExtension =
+fun Project.openGood(): OpenGoodExtension =
     extensions.getByName(EXTENSION_NAME) as? OpenGoodExtension
         ?: throw IllegalStateException("$EXTENSION_NAME is not of the correct type")

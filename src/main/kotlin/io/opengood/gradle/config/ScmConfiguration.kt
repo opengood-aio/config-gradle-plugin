@@ -8,7 +8,7 @@ import org.gradle.api.Project
 
 @AllOpen
 class ScmConfiguration(project: Project) {
-    var provider by GradleProperty(project, ScmProvider::class.java, ScmProvider.GIT)
+    final var provider by GradleProperty(project, ScmProvider::class.java, ScmProvider.GIT)
     var connection by GradleProperty(
         project,
         String::class.java,

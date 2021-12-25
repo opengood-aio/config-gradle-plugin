@@ -53,6 +53,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.dsl.SpringBootExtension
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 import java.net.URI
+import java.util.Locale
 
 class ConfigPlugin : Plugin<Project> {
 
@@ -214,7 +215,9 @@ class ConfigPlugin : Plugin<Project> {
                                     }
                                     if (kotest) {
                                         testImplementation.dependencies.add(create(Dependencies.KOTEST))
+                                        testImplementation.dependencies.add(create(Dependencies.KOTEST_ASSERTIONS))
                                         testImplementation.dependencies.add(create(Dependencies.KOTEST_EXTENSIONS))
+                                        testImplementation.dependencies.add(create(Dependencies.KOTEST_PROPERTIES))
                                     }
                                     if (kotestSpring) {
                                         testImplementation.dependencies.add(create(Dependencies.KOTEST_SPRING))
@@ -326,7 +329,7 @@ class ConfigPlugin : Plugin<Project> {
 
     private fun configureDependencyUpdatesTask(project: Project) {
         val isDependencyVersionNotStable = fun(version: String): Boolean {
-            val stableKeywords = listOf("RELEASE", "FINAL", "GA").any { version.toUpperCase() in it }
+            val stableKeywords = listOf("RELEASE", "FINAL", "GA").any { version.uppercase(Locale.getDefault()) in it }
             val regex = "^[0-9,.v-]+(-r)?$".toRegex()
             val isStable = stableKeywords || regex.matches(version)
             return isStable.not()
@@ -651,9 +654,15 @@ class ConfigPlugin : Plugin<Project> {
 
                                     if (publications.contains(PublicationType.OSS)) {
                                         val ossRepoUsername =
-                                            project.getProperty(Properties.OSS_REPO_USERNAME, getEnv(EnvVars.OSS_REPO_USERNAME, ""))
+                                            project.getProperty(
+                                                Properties.OSS_REPO_USERNAME,
+                                                getEnv(EnvVars.OSS_REPO_USERNAME, "")
+                                            )
                                         val ossRepoPassword =
-                                            project.getProperty(Properties.OSS_REPO_PASSWORD, getEnv(EnvVars.OSS_REPO_PASSWORD, ""))
+                                            project.getProperty(
+                                                Properties.OSS_REPO_PASSWORD,
+                                                getEnv(EnvVars.OSS_REPO_PASSWORD, "")
+                                            )
 
                                         if (ossRepoUsername.isBlank()) println("WARN: ${Properties.OSS_REPO_USERNAME} property or ${EnvVars.GITHUB_USER} environment variable is not set")
                                         if (ossRepoPassword.isBlank()) println("WARN: ${Properties.OSS_REPO_PASSWORD} property or ${EnvVars.GITHUB_TOKEN} environment variable is not set")

@@ -12,6 +12,6 @@ class LicenseConfiguration(project: Project) {
     var uri by GradleProperty(
         project,
         String::class.java,
-        "${GitHub.OPENGOOD_ORG_URI}/${project.name}/${GitHub.BLOB_ENDPOINT_NAME}/${GitHub.DEFAULT_BRANCH_NAME}/${Artifacts.LICENSE_RESOURCE}"
+        "${GitHub.OPENGOOD_ORG_URI}/${project.name}/${GitHub.BLOB_ENDPOINT}/${GitHub.DEFAULT_BRANCH_NAME}/${Artifacts.LICENSE_RESOURCE}"
     )
 }

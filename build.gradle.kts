@@ -1,6 +1,8 @@
+
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import net.researchgate.release.GitAdapter.GitConfig
 import net.researchgate.release.ReleaseExtension
+import org.gradle.api.internal.classpath.ModuleRegistry
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
@@ -84,9 +86,17 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-annotations:_")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:_")
 
+    testRuntimeOnly(
+        files(
+            serviceOf<ModuleRegistry>().getModule("gradle-tooling-api-builders").classpath.asFiles.first()
+        )
+    )
+
     testImplementation(kotlin("test"))
-    testImplementation("io.kotest:kotest-runner-junit5:_")
+    testImplementation("io.kotest:kotest-assertions-core:_")
     testImplementation("io.kotest:kotest-extensions-junit5:_")
+    testImplementation("io.kotest:kotest-property:_")
+    testImplementation("io.kotest:kotest-runner-junit5:_")
     testImplementation("io.mockk:mockk:_")
 
     // annotationProcessor("org.projectlombok:lombok:_")

@@ -8,10 +8,12 @@ import io.kotest.matchers.string.shouldContain
 import io.opengood.gradle.ConfigPlugin
 import io.opengood.gradle.enumeration.LanguageType
 import org.gradle.testkit.runner.GradleRunner
+import java.util.Locale
 
 fun buildScriptTest(languageType: LanguageType) = wordSpec {
 
-    "Gradle ${languageType.toString().toLowerCase().capitalize()} DSL build script with configured plugin" should {
+    "Gradle ${languageType.toString().lowercase(Locale.getDefault())
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} DSL build script with configured plugin" should {
         "Lead to successful build" {
             val projectDir = createProjectDir()
             createProjectSrcDir(languageType, projectDir)

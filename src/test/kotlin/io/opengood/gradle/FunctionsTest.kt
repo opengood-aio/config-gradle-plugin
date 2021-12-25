@@ -13,7 +13,7 @@ import io.opengood.gradle.constant.Versions
 import io.opengood.gradle.enumeration.BuildGradleType
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.extension.OpenGoodExtension
-import io.opengood.gradle.extension.opengood
+import io.opengood.gradle.extension.openGood
 import org.gradle.testfixtures.ProjectBuilder
 
 class FunctionsTest : FunSpec({
@@ -51,7 +51,7 @@ class FunctionsTest : FunSpec({
 
         val extension = project.getExtension<OpenGoodExtension>(OpenGoodExtension.EXTENSION_NAME)
 
-        extension shouldBeSameInstanceAs project.opengood()
+        extension shouldBeSameInstanceAs project.openGood()
     }
 
     test("getExtension returns Gradle extension given type") {
@@ -59,7 +59,7 @@ class FunctionsTest : FunSpec({
 
         val extension = project.getExtension<OpenGoodExtension>()
 
-        extension shouldBeSameInstanceAs project.opengood()
+        extension shouldBeSameInstanceAs project.openGood()
     }
 
     test("getProperty returns property value when property exists") {

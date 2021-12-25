@@ -3,20 +3,20 @@ package io.opengood.gradle.constant
 class Versions {
 
     companion object {
-        const val ASSERTJ = "3.20.2"
-        const val GROOVY = "3.0.8"
-        const val JACKSON_KOTLIN = "2.12.5"
+        const val ASSERTJ = "3.21.0"
+        const val GROOVY = "3.0.9"
+        const val JACKSON_KOTLIN = "2.13.1"
         const val JAVA = "11"
-        const val JUNIT_JUPITER = "5.7.2"
+        const val JUNIT_JUPITER = "5.8.2"
         const val KOTEST = "4.6.1"
         const val KOTEST_SPRING = "4.4.3"
-        const val KOTLIN = "1.5.30"
-        const val KOTLIN_COROUTINES = "1.5.1"
-        const val LOMBOK = "1.18.20"
-        const val MOCKITO = "3.12.4"
-        const val MOCKK = "1.12.0"
+        const val KOTLIN = "1.6.10"
+        const val KOTLIN_COROUTINES = "1.6.0"
+        const val LOMBOK = "1.18.22"
+        const val MOCKITO = "4.2.0"
+        const val MOCKK = "1.12.1"
         const val SNAPSHOT = "-SNAPSHOT"
-        const val SPRING_BOOT = "2.5.4"
-        const val SPRING_MOCKK = "3.0.1"
+        const val SPRING_BOOT = "2.6.2"
+        const val SPRING_MOCKK = "3.1.0"
     }
 }
