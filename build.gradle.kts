@@ -1,4 +1,3 @@
-
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import net.researchgate.release.GitAdapter.GitConfig
 import net.researchgate.release.ReleaseExtension
