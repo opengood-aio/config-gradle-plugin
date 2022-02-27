@@ -1,15 +1,5 @@
 name: release
-# description:
-# - Creates release version in gradle.properties
-# - Runs Gradle build creating release jar
-# - Publishes release jar to Gradle Plugins artifact repository
-# - Creates release version Git commit
-# - Creates Git release version tag
-# - Pushes Git release version commit and tag
-# - Creates GitHub release for release version tag
-# - Creates new development version in gradle.properties, incrementing minor version part
-# - Creates new development version Git commit
-# - Pushes Git new development version commit
+
 on:
   push:
     branches:
@@ -17,35 +7,9 @@ on:
 
 jobs:
   release:
-    name: Create Release
-    runs-on: ubuntu-latest
-    if: ${{ github.event.head_commit.message == 'Create release' }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1.0.4
-
-      - name: Setup Git
-        run: |
-          git config user.name ${GIT_USER}
-          git config user.email ${GIT_EMAIL}
-        env:
-          GIT_USER: ${{ secrets.CI_USER_GIT_USER }}
-          GIT_EMAIL: ${{ secrets.CI_USER_GIT_EMAIL }}
-
-      - name: Setup Java
-        uses: actions/setup-java@v2.5.0
-        with:
-          java-version: 11
-          distribution: adopt
-
-      - name: Run Release and Publish
-        uses: burrunan/gradle-cache-action@v1
-        with:
-          arguments: clean release -PskipTests=true -Prelease.useAutomaticVersion=true
-          gradle-version: wrapper
-        env:
-          GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
-          GRADLE_PUBLISH_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
+    uses: opengoodio/central-workflows/.github/workflows/gradle-plugin-release.yml@main
+    secrets:
+      git-email: ${{ secrets.GIT_EMAIL }}
+      git-user: ${{ secrets.GIT_USER }}
+      gradle-publish-key: ${{ secrets.GRADLE_PUBLISH_KEY }}
+      gradle-publish-secret: ${{ secrets.GRADLE_PUBLISH_SECRET }}
