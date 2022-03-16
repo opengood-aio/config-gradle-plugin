@@ -68,7 +68,7 @@ internal fun createProjectDir(): Path =
     Files.createTempDirectory("")
 
 internal fun createProjectSettingsGradle(languageType: LanguageType, projectDir: Path) =
-    projectDir.resolve(getBuildGradleFile(languageType)).toFile().createNewFile()
+    projectDir.resolve(getSettingsGradleFile(languageType)).toFile().createNewFile()
 
 internal fun createProjectSrcDir(languageType: LanguageType, projectDir: Path) =
     when (languageType) {
