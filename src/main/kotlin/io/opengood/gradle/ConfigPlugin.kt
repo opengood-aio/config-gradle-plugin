@@ -134,6 +134,10 @@ class ConfigPlugin : Plugin<Project> {
                             useVersion(Versions.KOTLIN)
                             because("Incompatibilities with older Kotlin versions")
                         }
+                        if (requested.group == "org.jetbrains.kotlinx" && requested.name == "kotlinx-coroutines-core") {
+                            useVersion(Versions.KOTLIN_COROUTINES)
+                            because("Incompatibilities with older Kotlin Coroutines versions")
+                        }
                     }
                 }
             }

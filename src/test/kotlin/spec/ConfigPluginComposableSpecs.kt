@@ -272,6 +272,9 @@ fun configureDependencyResolutionStrategyTest(project: Project) = funSpec {
             if (dependency.group == "org.jetbrains.kotlin") {
                 dependency.version shouldBe Versions.KOTLIN
             }
+            if (dependency.group == "org.jetbrains.kotlinx" && dependency.name == "kotlinx-coroutines-core") {
+                dependency.version shouldBe Versions.KOTLIN_COROUTINES
+            }
         }
     }
 }

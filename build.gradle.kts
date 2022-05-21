@@ -1,4 +1,5 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import de.fayard.refreshVersions.core.versionFor
 import net.researchgate.release.GitAdapter.GitConfig
 import net.researchgate.release.ReleaseExtension
 import org.gradle.api.internal.classpath.ModuleRegistry
@@ -58,6 +59,10 @@ configurations.all {
         if (requested.group == "org.jetbrains.kotlin") {
             useVersion(kotlinVersion)
             because("Incompatibilities with older Kotlin versions")
+        }
+        if (requested.group == "org.jetbrains.kotlinx" && requested.name == "kotlinx-coroutines-core") {
+            useVersion(versionFor("version.kotlinx.coroutines"))
+            because("Incompatibilities with older Kotlin Coroutines versions")
         }
     }
 }
