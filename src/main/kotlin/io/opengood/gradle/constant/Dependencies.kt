@@ -11,7 +11,7 @@ class Dependencies {
         const val KOTEST_ASSERTIONS = "io.kotest:kotest-assertions-core:${Versions.KOTEST}"
         const val KOTEST_EXTENSIONS = "io.kotest:kotest-extensions-junit5:${Versions.KOTEST}"
         const val KOTEST_PROPERTIES = "io.kotest:kotest-property:${Versions.KOTEST}"
-        const val KOTEST_SPRING = "io.kotest:kotest-extensions-spring:${Versions.KOTEST_SPRING}"
+        const val KOTEST_SPRING = "io.kotest.extensions:kotest-extensions-spring:${Versions.KOTEST_SPRING}"
         const val KOTLIN_COROUTINES = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.KOTLIN_COROUTINES}"
         const val KOTLIN_REFLECT = "org.jetbrains.kotlin:kotlin-reflect:${Versions.KOTLIN}"
         const val KOTLIN_STD_LIB = "org.jetbrains.kotlin:kotlin-stdlib:${Versions.KOTLIN}"

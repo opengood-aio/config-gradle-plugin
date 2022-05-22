@@ -9,7 +9,7 @@ class Versions {
         const val JAVA = "11"
         const val JUNIT_JUPITER = "5.8.2"
         const val KOTEST = "5.3.0"
-        const val KOTEST_SPRING = "4.4.3"
+        const val KOTEST_SPRING = "1.1.1"
         const val KOTLIN = "1.6.21"
         const val KOTLIN_COROUTINES = "1.6.1"
         const val LOMBOK = "1.18.24"
