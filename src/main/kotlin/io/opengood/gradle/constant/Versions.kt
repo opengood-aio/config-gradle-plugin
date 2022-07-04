@@ -8,7 +8,7 @@ class Versions {
         const val JACKSON_KOTLIN = "2.13.3"
         const val JAVA = "17"
         const val JUNIT_JUPITER = "5.8.2"
-        const val KOTEST = "5.3.0"
+        const val KOTEST = "5.3.2"
         const val KOTEST_SPRING = "4.4.3"
         const val KOTLIN = "1.6.21"
         const val KOTLIN_COROUTINES = "1.6.3"
