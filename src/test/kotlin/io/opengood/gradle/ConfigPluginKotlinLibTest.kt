@@ -26,7 +26,6 @@ import spec.configureBasePluginExtensionTest
 import spec.configureBootJarTaskTest
 import spec.configureDependencyManagementExtensionTest
 import spec.configureDependencyResolutionStrategyTest
-import spec.configureDependencyUpdatesTaskTest
 import spec.configureGradleWrapperTaskTest
 import spec.configureJacocoTestReportTaskTest
 import spec.configureJarTaskTest
@@ -91,7 +90,6 @@ class ConfigPluginKotlinLibTest : FunSpec({
     include(configureGradleWrapperTaskTest(project))
     include(configureKotlinCompileTaskTest(project))
     include(configureJavaCompileTaskTest(project))
-    include(configureDependencyUpdatesTaskTest(project))
     include(configureTestTaskTest(project))
     include(configureJacocoTestReportTaskTest(project))
     include(configureJarTaskTest(project, isEnabled = true))

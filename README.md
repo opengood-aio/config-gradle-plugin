@@ -186,12 +186,6 @@ To update Gradle wrapper to the latest version, run:
 
 ### Versions
 
-To check for dependency and plugin version updates, run:
-
-```bash
-./gradlew dependencyUpdates
-```
-
 To update dependency and plugin versions, run:
 
 ```bash

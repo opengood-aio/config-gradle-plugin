@@ -1,4 +1,3 @@
-import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import de.fayard.refreshVersions.core.versionFor
 import net.researchgate.release.GitAdapter.GitConfig
 import net.researchgate.release.ReleaseExtension
@@ -23,7 +22,6 @@ plugins {
     id("java-gradle-plugin")
     id("jacoco")
     id("maven-publish")
-    id("com.github.ben-manes.versions")
     id("net.researchgate.release")
     id("com.gradle.plugin-publish")
 }
@@ -82,7 +80,6 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-gradle-plugin:_")
     implementation("io.spring.gradle:dependency-management-plugin:_")
-    implementation("com.github.ben-manes:gradle-versions-plugin:_")
     implementation("io.franzbecker:gradle-lombok:_")
     implementation("net.researchgate:gradle-release:_")
 
@@ -129,25 +126,6 @@ with(tasks) {
         kotlinOptions {
             freeCompilerArgs = listOf("-Xjsr305=strict")
             jvmTarget = jvmTargetVersion
-        }
-    }
-
-    withType<DependencyUpdatesTask> {
-        val isDependencyVersionNotStable = fun(version: String): Boolean {
-            val stableKeywords = listOf("RELEASE", "FINAL", "GA").any { version.toUpperCase().contains(it) }
-            val regex = "^[0-9,.v-]+(-r)?$".toRegex()
-            val isStable = stableKeywords || regex.matches(version)
-            return isStable.not()
-        }
-
-        resolutionStrategy {
-            componentSelection {
-                all {
-                    if (isDependencyVersionNotStable(candidate.version) && !isDependencyVersionNotStable(currentVersion)) {
-                        reject("Release candidate")
-                    }
-                }
-            }
         }
     }
 
@@ -260,7 +238,7 @@ release {
         })
     )
     git {
-        requireBranch.set("")
+        requireBranch.set("main")
         pushToRemote.set("origin")
     }
 }

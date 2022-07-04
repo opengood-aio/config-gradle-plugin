@@ -1,6 +1,5 @@
 package spec
 
-import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import helper.accessField
 import helper.getDependencies
 import helper.getDependency
@@ -202,7 +201,6 @@ fun applyCommonPluginsTest(project: Project) = funSpec {
         getPlugin(project, Plugins.MAVEN_PUBLISH).shouldNotBeNull()
         getPlugin(project, Plugins.RELEASE).shouldNotBeNull()
         getPlugin(project, Plugins.SIGNING).shouldNotBeNull()
-        getPlugin(project, Plugins.VERSIONS).shouldNotBeNull()
     }
 }
 
@@ -575,16 +573,6 @@ fun configureProcessResourcesTaskTest(project: Project) = funSpec {
     }
 }
 
-fun configureDependencyUpdatesTaskTest(project: Project) = funSpec {
-    test("Configures Dependency Updates task") {
-        val task = getTaskByTypeAndName<DependencyUpdatesTask>(project, Tasks.DEPENDENCY_UPDATES)
-
-        with(task) {
-            shouldNotBeNull()
-        }
-    }
-}
-
 fun configureTestTaskTest(project: Project) = funSpec {
     test("Configures Test task") {
         val task = getTaskByTypeAndName<Test>(project, Tasks.TEST)
@@ -594,6 +582,7 @@ fun configureTestTaskTest(project: Project) = funSpec {
             enabled.shouldBeTrue()
             onlyIf.shouldNotBeNull()
             hasTaskFinalizedByDependency(task, Tasks.JACOCO_TEST_REPORT).shouldBeTrue()
+            jvmArgs.containsAll(listOf(Tests.JVM_ARGS_ADD_OPENS, Tests.JVM_ARGS_ADD_OPENS_JAVA_UTIL))
             with(testLogging) {
                 events shouldBe Tests.LOGGING_EVENTS
                 exceptionFormat shouldBe Tests.EXCEPTION_FORMAT

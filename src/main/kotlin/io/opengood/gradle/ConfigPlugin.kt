@@ -4,7 +4,6 @@ import com.diogonunes.jcolor.Ansi.colorize
 import com.diogonunes.jcolor.Attribute.CYAN_TEXT
 import com.diogonunes.jcolor.Attribute.GREEN_TEXT
 import com.diogonunes.jcolor.Attribute.RED_TEXT
-import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import io.opengood.gradle.constant.Archives
 import io.opengood.gradle.constant.Boms
 import io.opengood.gradle.constant.Configurations
@@ -53,7 +52,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.dsl.SpringBootExtension
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 import java.net.URI
-import java.util.Locale
 
 class ConfigPlugin : Plugin<Project> {
 
@@ -119,7 +117,6 @@ class ConfigPlugin : Plugin<Project> {
                     apply(Plugins.SIGNING)
                     apply(Plugins.SPRING_BOOT)
                     apply(Plugins.SPRING_DEPENDENCY_MANAGEMENT)
-                    apply(Plugins.VERSIONS)
                 }
             }
         }
@@ -282,7 +279,6 @@ class ConfigPlugin : Plugin<Project> {
 
         configureJavaCompileTask(project)
         configureProcessResourcesTask(project)
-        configureDependencyUpdatesTask(project)
         configureTestTask(project)
         configureJacocoTestReportTask(project)
         configureJarTask(project)
@@ -331,40 +327,12 @@ class ConfigPlugin : Plugin<Project> {
         }
     }
 
-    private fun configureDependencyUpdatesTask(project: Project) {
-        val isDependencyVersionNotStable = fun(version: String): Boolean {
-            val stableKeywords = listOf("RELEASE", "FINAL", "GA").any { version.uppercase(Locale.getDefault()) in it }
-            val regex = "^[0-9,.v-]+(-r)?$".toRegex()
-            val isStable = stableKeywords || regex.matches(version)
-            return isStable.not()
-        }
-
-        project.tasks.withType(DependencyUpdatesTask::class.java) { task ->
-            with(task) {
-                resolutionStrategy { strategy ->
-                    with(strategy) {
-                        componentSelection { component ->
-                            component.all { selection ->
-                                with(selection) {
-                                    if (isDependencyVersionNotStable(candidate.version) &&
-                                        !isDependencyVersionNotStable(currentVersion)
-                                    ) {
-                                        reject("Release candidate")
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     private fun configureTestTask(project: Project) {
         project.tasks.withType(Test::class.java) { task ->
             with(task) {
                 setOnlyIf { !project.hasProperty(Tests.SKIP_TESTS) }
                 finalizedBy(Tasks.JACOCO_TEST_REPORT)
+                jvmArgs(Tests.JVM_ARGS_ADD_OPENS, Tests.JVM_ARGS_ADD_OPENS_JAVA_UTIL)
                 useJUnitPlatform()
 
                 testLogging { logging ->

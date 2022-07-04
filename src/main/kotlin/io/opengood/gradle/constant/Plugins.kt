@@ -19,6 +19,5 @@ class Plugins {
         const val SIGNING = "signing"
         const val SPRING_BOOT = "org.springframework.boot"
         const val SPRING_DEPENDENCY_MANAGEMENT = "io.spring.dependency-management"
-        const val VERSIONS = "com.github.ben-manes.versions"
     }
 }

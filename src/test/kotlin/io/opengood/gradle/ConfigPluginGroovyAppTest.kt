@@ -22,7 +22,6 @@ import spec.configureBootJarResolutionTest
 import spec.configureBootJarTaskTest
 import spec.configureDependencyManagementExtensionTest
 import spec.configureDependencyResolutionStrategyTest
-import spec.configureDependencyUpdatesTaskTest
 import spec.configureGradleWrapperTaskTest
 import spec.configureJacocoTestReportTaskTest
 import spec.configureJarTaskTest
@@ -92,7 +91,6 @@ class ConfigPluginGroovyAppTest : FunSpec({
     include(configureGradleWrapperTaskTest(project))
     include(configureProcessResourcesTaskTest(project))
     include(configureJavaCompileTaskTest(project))
-    include(configureDependencyUpdatesTaskTest(project))
     include(configureTestTaskTest(project))
     include(configureJacocoTestReportTaskTest(project))
     include(configureJarTaskTest(project, isEnabled = false))
