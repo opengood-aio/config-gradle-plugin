@@ -46,8 +46,8 @@ allOpen {
 }
 
 val kotlinVersion = getKotlinPluginVersion()
-val javaVersion = JavaVersion.VERSION_11
-val jvmTargetVersion = "11"
+val javaVersion = JavaVersion.VERSION_17
+val jvmTargetVersion = "17"
 
 java.apply {
     sourceCompatibility = javaVersion
@@ -153,6 +153,7 @@ with(tasks) {
 
     withType<Test> {
         finalizedBy("jacocoTestReport")
+        jvmArgs("--add-opens", "java.base/java.util=ALL-UNNAMED")
         useJUnitPlatform()
 
         testLogging {
@@ -248,19 +249,19 @@ with(tasks) {
 }
 
 fun ReleaseExtension.git(config: GitConfig.() -> Unit) =
-    (propertyMissing("git") as GitConfig).config()
+    (getProperty("git") as GitConfig).config()
 
 release {
-    preTagCommitMessage = "[Gradle Release] - pre tag commit: "
-    newVersionCommitMessage = "[Gradle Release] - new version commit: "
+    preTagCommitMessage.set("[Gradle Release] - pre tag commit: ")
+    newVersionCommitMessage.set("[Gradle Release] - new version commit: ")
     versionPatterns = mapOf(
         """[.]*\.(\d+)\.(\d+)[.]*""" to KotlinClosure2<Matcher, Project, String>({ matcher, _ ->
             matcher.replaceAll(".${(matcher.group(1)).toString().toInt() + 1}.0")
         })
     )
     git {
-        requireBranch = ""
-        pushToRemote = "origin"
+        requireBranch.set("")
+        pushToRemote.set("origin")
     }
 }
 

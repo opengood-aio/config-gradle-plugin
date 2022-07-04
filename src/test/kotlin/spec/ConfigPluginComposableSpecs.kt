@@ -55,7 +55,6 @@ import io.opengood.gradle.enumeration.PublicationType
 import io.opengood.gradle.enumeration.ScmProvider
 import io.opengood.gradle.extension.openGood
 import io.opengood.gradle.getExtension
-import io.opengood.gradle.git
 import io.opengood.gradle.isSnapshotVersion
 import io.opengood.gradle.languageType
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
@@ -767,12 +766,12 @@ fun configureReleaseExtensionTest(project: Project) = funSpec {
         with(extension) {
             shouldNotBeNull()
             scmAdapters shouldContain GitAdapter::class.java
-            preTagCommitMessage shouldBe Releases.PRE_TAG_COMMIT_MESSAGE
-            newVersionCommitMessage shouldBe Releases.NEW_VERSION_COMMIT_MESSAGE
+            preTagCommitMessage.get() shouldBe Releases.PRE_TAG_COMMIT_MESSAGE
+            newVersionCommitMessage.get() shouldBe Releases.NEW_VERSION_COMMIT_MESSAGE
             versionPatterns shouldBe Releases.VERSION_PATTERNS
             with(git) {
-                requireBranch = Releases.REQUIRE_BRANCH
-                pushToRemote = Releases.PUSH_TO_REMOTE
+                requireBranch.set(Releases.REQUIRE_BRANCH)
+                pushToRemote.set(Releases.PUSH_TO_REMOTE)
             }
         }
     }

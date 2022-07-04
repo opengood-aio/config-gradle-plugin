@@ -30,11 +30,11 @@ internal inline fun <reified V : Any> Project.getProperty(name: String, default:
     if (hasProperty(name)) property(name) as V else default
 
 internal fun ReleaseExtension.git(config: GitAdapter.GitConfig.() -> Unit) =
-    (propertyMissing("git") as GitAdapter.GitConfig).config()
+    (getProperty("git") as GitAdapter.GitConfig).config()
 
 internal val ReleaseExtension.git: GitAdapter.GitConfig
     get() =
-        (propertyMissing("git") as GitAdapter.GitConfig)
+        (getProperty("git") as GitAdapter.GitConfig)
 
 internal val Project.isGroovy: Boolean
     get() =

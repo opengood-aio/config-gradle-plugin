@@ -411,7 +411,7 @@ class ConfigPlugin : Plugin<Project> {
                             |$startItem$output$endItem
                             |${"-".repeat(repeatLength)}
                             |
-                            """.trimMargin(),
+                                    """.trimMargin(),
                                     if (result.failedTestCount == 0L) GREEN_TEXT() else RED_TEXT()
                                 )
                             )
@@ -592,12 +592,14 @@ class ConfigPlugin : Plugin<Project> {
                 extensions.configure(ReleaseExtension::class.java) { ext ->
                     with(ext) {
                         scmAdapters = mutableListOf<Class<out BaseScmAdapter>>(GitAdapter::class.java)
-                        preTagCommitMessage = Releases.PRE_TAG_COMMIT_MESSAGE
-                        newVersionCommitMessage = Releases.NEW_VERSION_COMMIT_MESSAGE
+                        preTagCommitMessage.set(Releases.PRE_TAG_COMMIT_MESSAGE)
+                        newVersionCommitMessage.set(Releases.NEW_VERSION_COMMIT_MESSAGE)
                         versionPatterns = Releases.VERSION_PATTERNS
-                        git {
-                            requireBranch = extension.release.requireBranch
-                            pushToRemote = extension.release.pushToRemote
+                        git { git ->
+                            with(git) {
+                                requireBranch.set(extension.release.requireBranch)
+                                pushToRemote.set(extension.release.pushToRemote)
+                            }
                         }
                     }
                 }
