@@ -106,7 +106,7 @@ dependencies {
     // implementation("com.ninja-squad:springmockk:_")
     // implementation("org.codehaus.groovy:groovy-all:_")
     // implementation("org.springframework.boot:spring-boot-starter:_")
-    // testImplementation("io.kotest:kotest-extensions-spring:_")
+    // testImplementation("io.kotest.extensions:kotest-extensions-spring:_")
     // testImplementation("io.mockk:mockk:_")
     // testImplementation("org.assertj:assertj-core:_")
     // testImplementation("org.junit.jupiter:junit-jupiter:_")
