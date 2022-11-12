@@ -1,22 +1,22 @@
 package io.opengood.gradle
 
-import helper.Features
-import helper.ProjectConfig
-import helper.createProject
 import io.kotest.core.spec.style.FunSpec
 import io.opengood.gradle.enumeration.LanguageType
-import spec.doNotAddAssertjDependenciesTest
-import spec.doNotAddJacksonKotlinDependenciesTest
-import spec.doNotAddJunitJupiterDependenciesTest
-import spec.doNotAddKotestDependenciesTest
-import spec.doNotAddKotestSpringDependenciesTest
-import spec.doNotAddKotlinCoroutinesDependenciesTest
-import spec.doNotAddLombokDependenciesTest
-import spec.doNotAddMockitoDependenciesTest
-import spec.doNotAddMockkDependenciesTest
-import spec.doNotAddSpringDependenciesTest
-import spec.doNotAddSpringMockkDependenciesTest
-import spec.doNotConfigureDependencyManagementExtensionTest
+import test.createProject
+import test.enumeration.Features
+import test.model.ProjectConfig
+import test.spec.doNotAddAssertjDependenciesTest
+import test.spec.doNotAddJacksonKotlinDependenciesTest
+import test.spec.doNotAddJunitJupiterDependenciesTest
+import test.spec.doNotAddKotestDependenciesTest
+import test.spec.doNotAddKotestSpringDependenciesTest
+import test.spec.doNotAddKotlinCoroutinesDependenciesTest
+import test.spec.doNotAddLombokDependenciesTest
+import test.spec.doNotAddMockitoDependenciesTest
+import test.spec.doNotAddMockkDependenciesTest
+import test.spec.doNotAddSpringDependenciesTest
+import test.spec.doNotAddSpringMockkDependenciesTest
+import test.spec.doNotConfigureDependencyManagementExtensionTest
 
 class ConfigPluginFeaturesTest : FunSpec({
 

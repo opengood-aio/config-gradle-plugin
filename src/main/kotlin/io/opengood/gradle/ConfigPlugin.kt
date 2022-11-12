@@ -97,10 +97,12 @@ class ConfigPlugin : Plugin<Project> {
                         LanguageType.GROOVY -> {
                             apply(Plugins.GROOVY)
                         }
+
                         LanguageType.JAVA -> {
                             apply(Plugins.JAVA)
                             apply(Plugins.LOMBOK)
                         }
+
                         LanguageType.KOTLIN -> {
                             apply(Plugins.KOTLIN_ALL_OPEN)
                             apply(Plugins.KOTLIN_JVM)
@@ -195,6 +197,7 @@ class ConfigPlugin : Plugin<Project> {
                                 LanguageType.GROOVY -> {
                                     implementation.dependencies.add(create(Dependencies.GROOVY))
                                 }
+
                                 LanguageType.JAVA -> {
                                     if (lombok) {
                                         implementation.dependencies.add(create(Dependencies.LOMBOK))
@@ -203,6 +206,7 @@ class ConfigPlugin : Plugin<Project> {
                                         testAnnotationProcessor.dependencies.add(create(Dependencies.LOMBOK))
                                     }
                                 }
+
                                 LanguageType.KOTLIN -> {
                                     implementation.dependencies.add(create(Dependencies.KOTLIN_REFLECT))
                                     implementation.dependencies.add(create(Dependencies.KOTLIN_STD_LIB))
@@ -461,8 +465,9 @@ class ConfigPlugin : Plugin<Project> {
                         )
                     }
 
-                    if (tasks.isNotEmpty())
+                    if (tasks.isNotEmpty()) {
                         afterReleaseBuildTasks = tasks.toTypedArray()
+                    }
                 }
 
                 project.tasks.getByName(Tasks.AFTER_RELEASE_BUILD) { task ->
@@ -663,7 +668,7 @@ class ConfigPlugin : Plugin<Project> {
     private fun createPublication(
         project: Project,
         publications: PublicationContainer,
-        publicationName: String,
+        publicationName: String
     ) {
         with(project) {
             publications.register(publicationName, MavenPublication::class.java) { publication ->

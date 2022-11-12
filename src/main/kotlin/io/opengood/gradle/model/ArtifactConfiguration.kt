@@ -1,4 +1,4 @@
-package io.opengood.gradle.config
+package io.opengood.gradle.model
 
 import groovy.lang.Closure
 import io.opengood.gradle.annotation.AllOpen

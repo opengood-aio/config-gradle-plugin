@@ -1,19 +1,5 @@
-package spec
+package test.spec
 
-import helper.accessField
-import helper.getDependencies
-import helper.getDependency
-import helper.getMavenBom
-import helper.getMavenPublication
-import helper.getMavenRepository
-import helper.getPlugin
-import helper.getRepository
-import helper.getTaskByName
-import helper.getTaskByType
-import helper.getTaskByTypeAndName
-import helper.getTasksDependsOn
-import helper.hasTaskFinalizedByDependency
-import helper.then
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.funSpec
 import io.kotest.matchers.booleans.shouldBeFalse
@@ -85,6 +71,20 @@ import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.dsl.SpringBootExtension
 import org.springframework.boot.gradle.tasks.bundling.BootJar
+import test.accessField
+import test.getDependencies
+import test.getDependency
+import test.getMavenBom
+import test.getMavenPublication
+import test.getMavenRepository
+import test.getPlugin
+import test.getRepository
+import test.getTaskByName
+import test.getTaskByType
+import test.getTaskByTypeAndName
+import test.getTasksDependsOn
+import test.hasTaskFinalizedByDependency
+import test.then
 import java.net.URI
 
 fun applyPluginTest(project: Project) = funSpec {

@@ -1,18 +1,18 @@
 package io.opengood.gradle
 
-import helper.ProjectConfig
-import helper.TestFrameworks
-import helper.createProject
 import io.kotest.core.spec.style.FunSpec
 import io.opengood.gradle.enumeration.LanguageType
-import spec.addAssertjDependenciesTest
-import spec.addJunitJupiterDependenciesTest
-import spec.addKotestDependenciesTest
-import spec.addKotestSpringDependenciesTest
-import spec.addKotlinCoroutinesDependenciesTest
-import spec.addMockitoDependenciesTest
-import spec.addMockkDependenciesTest
-import spec.addSpringMockkDependenciesTest
+import test.createProject
+import test.enumeration.TestFrameworks
+import test.model.ProjectConfig
+import test.spec.addAssertjDependenciesTest
+import test.spec.addJunitJupiterDependenciesTest
+import test.spec.addKotestDependenciesTest
+import test.spec.addKotestSpringDependenciesTest
+import test.spec.addKotlinCoroutinesDependenciesTest
+import test.spec.addMockitoDependenciesTest
+import test.spec.addMockkDependenciesTest
+import test.spec.addSpringMockkDependenciesTest
 
 class ConfigPluginTestFrameworksTest : FunSpec({
 

@@ -1,11 +1,11 @@
 package io.opengood.gradle
 
-import helper.ProjectConfig
-import helper.createProject
 import io.kotest.core.spec.style.FunSpec
 import io.opengood.gradle.enumeration.LanguageType
-import spec.configurePublishingExtensionTest
-import spec.configureSigningExtensionTest
+import test.createProject
+import test.model.ProjectConfig
+import test.spec.configurePublishingExtensionTest
+import test.spec.configureSigningExtensionTest
 
 class ConfigPluginReleaseTest : FunSpec({
 

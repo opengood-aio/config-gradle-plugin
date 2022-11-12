@@ -1,6 +1,6 @@
-package helper
+package test.enumeration
 
-import io.opengood.gradle.config.FeatureConfiguration
+import io.opengood.gradle.model.FeatureConfiguration
 import org.gradle.api.Project
 
 internal enum class Features(val flag: Int) {

@@ -1,7 +1,5 @@
 package io.opengood.gradle
 
-import helper.ProjectConfig
-import helper.createProject
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.system.withEnvironment
@@ -15,6 +13,8 @@ import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.extension.OpenGoodExtension
 import io.opengood.gradle.extension.openGood
 import org.gradle.testfixtures.ProjectBuilder
+import test.createProject
+import test.model.ProjectConfig
 
 class FunctionsTest : FunSpec({
 

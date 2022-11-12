@@ -16,7 +16,7 @@ Add `opengood-config` Gradle plugin to `build.gradle.kts`:
 
 ```kotlin
 plugins {
-    id("io.opengood.gradle.config") version "VERSION"
+    id("io.opengood.gradle.model") version "VERSION"
 }
 ```
 
@@ -118,7 +118,7 @@ import io.opengood.gradle.enumeration.PublicationType
 import io.opengood.gradle.enumeration.ScmProvider
 
 plugins {
-    id("io.opengood.gradle.config") version "VERSION"
+    id("io.opengood.gradle.model") version "VERSION"
 }
 
 opengood {

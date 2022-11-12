@@ -1,4 +1,4 @@
-package io.opengood.gradle.config
+package io.opengood.gradle.model
 
 import io.opengood.gradle.annotation.AllOpen
 import io.opengood.gradle.property.GradleProperty

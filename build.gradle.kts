@@ -1,3 +1,4 @@
+
 import de.fayard.refreshVersions.core.versionFor
 import net.researchgate.release.GitAdapter.GitConfig
 import net.researchgate.release.ReleaseExtension

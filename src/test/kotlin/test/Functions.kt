@@ -1,4 +1,4 @@
-package helper
+package test
 
 import io.kotest.extensions.system.OverrideMode
 import io.kotest.extensions.system.withEnvironment
@@ -23,6 +23,9 @@ import org.gradle.api.internal.tasks.DefaultTaskDependency
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.testfixtures.ProjectBuilder
+import test.enumeration.getFeatures
+import test.enumeration.getTestFrameworks
+import test.model.ProjectConfig
 import java.nio.file.Files
 import java.nio.file.Path
 

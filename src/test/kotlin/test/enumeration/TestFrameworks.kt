@@ -1,6 +1,6 @@
-package helper
+package test.enumeration
 
-import io.opengood.gradle.config.TestFrameworkConfiguration
+import io.opengood.gradle.model.TestFrameworkConfiguration
 import org.gradle.api.Project
 
 internal enum class TestFrameworks(val flag: Int) {

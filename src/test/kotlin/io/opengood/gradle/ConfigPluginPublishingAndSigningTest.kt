@@ -1,12 +1,12 @@
 package io.opengood.gradle
 
-import helper.ProjectConfig
-import helper.createProject
 import io.kotest.core.spec.style.FunSpec
 import io.opengood.gradle.enumeration.LanguageType
-import spec.doNotConfigureAfterReleaseBuildTaskTest
-import spec.doNotConfigurePublishingExtensionTest
-import spec.doNotConfigureSigningExtensionTest
+import test.createProject
+import test.model.ProjectConfig
+import test.spec.doNotConfigureAfterReleaseBuildTaskTest
+import test.spec.doNotConfigurePublishingExtensionTest
+import test.spec.doNotConfigureSigningExtensionTest
 
 class ConfigPluginPublishingAndSigningTest : FunSpec({
 

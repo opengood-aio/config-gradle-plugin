@@ -1,9 +1,11 @@
-package helper
+package test.model
 
 import io.opengood.gradle.constant.EnvVars
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
 import io.opengood.gradle.enumeration.PublicationType
+import test.enumeration.defaultFeatures
+import test.enumeration.defaultTestFrameworks
 
 data class ProjectConfig(
     val languageType: LanguageType,
