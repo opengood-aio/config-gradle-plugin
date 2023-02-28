@@ -19,7 +19,10 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import io.opengood.gradle.ConfigPlugin
 import io.opengood.gradle.constant.Archives
 import io.opengood.gradle.constant.Boms
-import io.opengood.gradle.constant.Configurations
+import io.opengood.gradle.constant.Configurations.Companion.ANNOTATION_PROCESSOR
+import io.opengood.gradle.constant.Configurations.Companion.IMPLEMENTATION
+import io.opengood.gradle.constant.Configurations.Companion.TEST_ANNOTATION_PROCESSOR
+import io.opengood.gradle.constant.Configurations.Companion.TEST_IMPLEMENTATION
 import io.opengood.gradle.constant.Dependencies
 import io.opengood.gradle.constant.Developers
 import io.opengood.gradle.constant.Elements
@@ -264,8 +267,8 @@ fun doNotApplyLombokPluginTest(project: Project) = funSpec {
 
 fun configureDependencyResolutionStrategyTest(project: Project) = funSpec {
     test("Configures dependency resolution strategy") {
-        val implementationDependencies = getDependencies(project, Configurations.IMPLEMENTATION)
-        val testImplementationDependencies = getDependencies(project, Configurations.TEST_IMPLEMENTATION)
+        val implementationDependencies = getDependencies(project, IMPLEMENTATION)
+        val testImplementationDependencies = getDependencies(project, TEST_IMPLEMENTATION)
         (implementationDependencies + testImplementationDependencies).forEach { dependency ->
             with(project.dependenciesVersions) {
                 if (dependency.group == "org.jetbrains.kotlin") {
@@ -342,193 +345,247 @@ fun addRepositoriesTest(project: Project) = funSpec {
 
 fun addGroovyDependenciesTest(project: Project) = funSpec {
     test("Adds Groovy dependencies") {
-        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.GROOVY).shouldNotBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, IMPLEMENTATION, getDependencyAndVersion(Dependencies.GROOVY)).shouldNotBeNull()
+        }
     }
 }
 
 fun addLombokDependenciesTest(project: Project) = funSpec {
     test("Adds Lombok dependencies") {
-        getDependency(project, Configurations.ANNOTATION_PROCESSOR, Dependencies.LOMBOK).shouldNotBeNull()
-        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.LOMBOK).shouldNotBeNull()
-        getDependency(project, Configurations.TEST_ANNOTATION_PROCESSOR, Dependencies.LOMBOK).shouldNotBeNull()
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.LOMBOK).shouldNotBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, ANNOTATION_PROCESSOR, getDependencyAndVersion(Dependencies.LOMBOK)).shouldNotBeNull()
+            getDependency(project, IMPLEMENTATION, getDependencyAndVersion(Dependencies.LOMBOK)).shouldNotBeNull()
+            getDependency(project, TEST_ANNOTATION_PROCESSOR, getDependencyAndVersion(Dependencies.LOMBOK)).shouldNotBeNull()
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.LOMBOK)).shouldNotBeNull()
+        }
     }
 }
 
 fun addKotlinDependenciesTest(project: Project) = funSpec {
     test("Adds Kotlin dependencies") {
-        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.KOTLIN_REFLECT).shouldNotBeNull()
-        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.KOTLIN_STD_LIB).shouldNotBeNull()
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTLIN_TEST).shouldNotBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTLIN_REFLECT)).shouldNotBeNull()
+            getDependency(project, IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTLIN_STD_LIB)).shouldNotBeNull()
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTLIN_TEST)).shouldNotBeNull()
+        }
     }
 }
 
 fun addKotlinCoroutinesDependenciesTest(project: Project) = funSpec {
     test("Adds Kotlin Coroutines dependencies") {
         with(project.dependenciesVersions) {
-            getDependency(project, Configurations.IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTLIN_COROUTINES_CORE)).shouldNotBeNull()
+            getDependency(project, IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTLIN_COROUTINES_CORE)).shouldNotBeNull()
         }
     }
 }
 
 fun addJacksonKotlinDependenciesTest(project: Project) = funSpec {
     test("Adds Jackson Kotlin dependencies") {
-        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.JACKSON_MODULE_KOTLIN).shouldNotBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, IMPLEMENTATION, getDependencyAndVersion(Dependencies.JACKSON_MODULE_KOTLIN)).shouldNotBeNull()
+        }
     }
 }
 
 fun addKotestDependenciesTest(project: Project) = funSpec {
     test("Adds Kotest dependencies") {
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST_RUNNER).shouldNotBeNull()
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST_ASSERTIONS).shouldNotBeNull()
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST_EXTENSIONS).shouldNotBeNull()
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST_PROPERTIES).shouldNotBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTEST_RUNNER)).shouldNotBeNull()
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTEST_ASSERTIONS)).shouldNotBeNull()
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTEST_EXTENSIONS)).shouldNotBeNull()
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTEST_PROPERTIES)).shouldNotBeNull()
+        }
     }
 }
 
 fun addKotestSpringDependenciesTest(project: Project) = funSpec {
     test("Adds Kotest Spring dependencies") {
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST_SPRING).shouldNotBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTEST_SPRING)).shouldNotBeNull()
+        }
     }
 }
 
 fun addMockkDependenciesTest(project: Project) = funSpec {
     test("Adds MockK dependencies") {
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.MOCKK).shouldNotBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.MOCKK_ALL)).shouldNotBeNull()
+        }
     }
 }
 
 fun addSpringMockkDependenciesTest(project: Project) = funSpec {
     test("Adds Spring MockK dependencies") {
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.SPRING_MOCKK).shouldNotBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.SPRING_MOCKK)).shouldNotBeNull()
+        }
     }
 }
 
 fun addJacksonDependenciesTest(project: Project) = funSpec {
     test("Adds Jackson dependencies") {
-        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.JACKSON_ANNOTATIONS).shouldNotBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, IMPLEMENTATION, getDependencyAndVersion(Dependencies.JACKSON_ANNOTATIONS)).shouldNotBeNull()
+        }
     }
 }
 
 fun addSpringDependenciesTest(project: Project) = funSpec {
     test("Adds Spring dependencies") {
-        getDependency(project, Configurations.ANNOTATION_PROCESSOR, Dependencies.SPRING_BOOT_CONFIG_PROCESSOR).shouldNotBeNull()
-        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.SPRING_BOOT_STARTER).shouldNotBeNull()
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.SPRING_BOOT_STARTER_TEST).shouldNotBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, ANNOTATION_PROCESSOR, getDependencyAndVersion(Dependencies.SPRING_BOOT_CONFIG_PROCESSOR)).shouldNotBeNull()
+            getDependency(project, IMPLEMENTATION, getDependencyAndVersion(Dependencies.SPRING_BOOT_STARTER)).shouldNotBeNull()
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.SPRING_BOOT_STARTER_TEST)).shouldNotBeNull()
+        }
     }
 }
 
 fun addAssertjDependenciesTest(project: Project) = funSpec {
     test("Adds AssertJ dependencies") {
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.ASSERTJ).shouldNotBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.ASSERTJ_CORE)).shouldNotBeNull()
+        }
     }
 }
 
 fun addJunitJupiterDependenciesTest(project: Project) = funSpec {
     test("Adds JUnit Jupiter dependencies") {
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.JUNIT_JUPITER).shouldNotBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.JUNIT_JUPITER_ALL)).shouldNotBeNull()
+        }
     }
 }
 
 fun addMockitoDependenciesTest(project: Project) = funSpec {
     test("Adds Mockito dependencies") {
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.MOCKITO).shouldNotBeNull()
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.MOCKITO_JUNIT_JUPITER).shouldNotBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.MOCKITO_CORE)).shouldNotBeNull()
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.MOCKITO_JUNIT_JUPITER)).shouldNotBeNull()
+        }
     }
 }
 
 fun doNotAddGroovyDependenciesTest(project: Project) = funSpec {
     test("Does not add Groovy dependencies") {
-        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.GROOVY).shouldBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, IMPLEMENTATION, getDependencyAndVersion(Dependencies.GROOVY)).shouldBeNull()
+        }
     }
 }
 
 fun doNotAddLombokDependenciesTest(project: Project) = funSpec {
     test("Does not add Lombok dependencies") {
-        getDependency(project, Configurations.ANNOTATION_PROCESSOR, Dependencies.LOMBOK).shouldBeNull()
-        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.LOMBOK).shouldBeNull()
-        getDependency(project, Configurations.TEST_ANNOTATION_PROCESSOR, Dependencies.LOMBOK).shouldBeNull()
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.LOMBOK).shouldBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, ANNOTATION_PROCESSOR, getDependencyAndVersion(Dependencies.LOMBOK)).shouldBeNull()
+            getDependency(project, IMPLEMENTATION, getDependencyAndVersion(Dependencies.LOMBOK)).shouldBeNull()
+            getDependency(project, TEST_ANNOTATION_PROCESSOR, getDependencyAndVersion(Dependencies.LOMBOK)).shouldBeNull()
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.LOMBOK)).shouldBeNull()
+        }
     }
 }
 
 fun doNotAddKotlinDependenciesTest(project: Project) = funSpec {
     test("Does not add Kotlin dependencies") {
-        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.KOTLIN_REFLECT).shouldBeNull()
-        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.KOTLIN_STD_LIB).shouldBeNull()
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTLIN_TEST).shouldBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTLIN_REFLECT)).shouldBeNull()
+            getDependency(project, IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTLIN_STD_LIB)).shouldBeNull()
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTLIN_TEST)).shouldBeNull()
+        }
     }
 }
 
 fun doNotAddKotlinCoroutinesDependenciesTest(project: Project) = funSpec {
     test("Does not add Kotlin Coroutines dependencies") {
-        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.KOTLIN_COROUTINES_CORE).shouldBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTLIN_COROUTINES_CORE)).shouldBeNull()
+        }
     }
 }
 
 fun doNotAddJacksonKotlinDependenciesTest(project: Project) = funSpec {
     test("Does not add Jackson Kotlin dependencies") {
-        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.JACKSON_MODULE_KOTLIN).shouldBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, IMPLEMENTATION, getDependencyAndVersion(Dependencies.JACKSON_MODULE_KOTLIN)).shouldBeNull()
+        }
     }
 }
 
 fun doNotAddKotestDependenciesTest(project: Project) = funSpec {
     test("Does not add Kotest dependencies") {
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST_RUNNER).shouldBeNull()
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST_ASSERTIONS).shouldBeNull()
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST_EXTENSIONS).shouldBeNull()
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST_PROPERTIES).shouldBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTEST_RUNNER)).shouldBeNull()
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTEST_ASSERTIONS)).shouldBeNull()
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTEST_EXTENSIONS)).shouldBeNull()
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTEST_PROPERTIES)).shouldBeNull()
+        }
     }
 }
 
 fun doNotAddKotestSpringDependenciesTest(project: Project) = funSpec {
     test("Does not add Kotest Spring dependencies") {
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.KOTEST_SPRING).shouldBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTEST_SPRING)).shouldBeNull()
+        }
     }
 }
 
 fun doNotAddMockkDependenciesTest(project: Project) = funSpec {
     test("Does not add MockK dependencies") {
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.MOCKK).shouldBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.MOCKK_ALL)).shouldBeNull()
+        }
     }
 }
 
 fun doNotAddSpringMockkDependenciesTest(project: Project) = funSpec {
     test("Does not add Spring MockK dependencies") {
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.SPRING_MOCKK).shouldBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.SPRING_MOCKK)).shouldBeNull()
+        }
     }
 }
 
 fun doNotAddJacksonDependenciesTest(project: Project) = funSpec {
     test("Does not add Jackson dependencies") {
-        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.JACKSON_ANNOTATIONS).shouldBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, IMPLEMENTATION, getDependencyAndVersion(Dependencies.JACKSON_ANNOTATIONS)).shouldBeNull()
+        }
     }
 }
 
 fun doNotAddSpringDependenciesTest(project: Project) = funSpec {
     test("Does not add Spring dependencies") {
-        getDependency(project, Configurations.ANNOTATION_PROCESSOR, Dependencies.SPRING_BOOT_CONFIG_PROCESSOR).shouldBeNull()
-        getDependency(project, Configurations.IMPLEMENTATION, Dependencies.SPRING_BOOT_STARTER).shouldBeNull()
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.SPRING_BOOT_STARTER_TEST).shouldBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, ANNOTATION_PROCESSOR, getDependencyAndVersion(Dependencies.SPRING_BOOT_CONFIG_PROCESSOR)).shouldBeNull()
+            getDependency(project, IMPLEMENTATION, getDependencyAndVersion(Dependencies.SPRING_BOOT_STARTER)).shouldBeNull()
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.SPRING_BOOT_STARTER_TEST)).shouldBeNull()
+        }
     }
 }
 
 fun doNotAddAssertjDependenciesTest(project: Project) = funSpec {
     test("Does not add AssertJ dependencies") {
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.ASSERTJ).shouldBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.ASSERTJ_CORE)).shouldBeNull()
+        }
     }
 }
 
 fun doNotAddJunitJupiterDependenciesTest(project: Project) = funSpec {
     test("Does not add JUnit Jupiter dependencies") {
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.JUNIT_JUPITER).shouldBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.JUNIT_JUPITER_ALL)).shouldBeNull()
+        }
     }
 }
 
 fun doNotAddMockitoDependenciesTest(project: Project) = funSpec {
     test("Does not add Mockito dependencies") {
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.MOCKITO).shouldBeNull()
-        getDependency(project, Configurations.TEST_IMPLEMENTATION, Dependencies.MOCKITO_JUNIT_JUPITER).shouldBeNull()
+        with(project.dependenciesVersions) {
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.MOCKITO_CORE)).shouldBeNull()
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.MOCKITO_JUNIT_JUPITER)).shouldBeNull()
+        }
     }
 }
 
@@ -730,9 +787,11 @@ fun configureDependencyManagementExtensionTest(project: Project) = funSpec {
     test("Configures Dependency Management extension") {
         val extension = project.getExtension<DependencyManagementExtension>()
 
-        with(extension) {
-            shouldNotBeNull()
-            getBom(extension, Boms.KOTLIN).shouldNotBeNull()
+        with(project.dependenciesVersions) {
+            with(extension) {
+                shouldNotBeNull()
+                getBom(extension, getDependencyAndVersion(Boms.KOTLIN)).shouldNotBeNull()
+            }
         }
     }
 }

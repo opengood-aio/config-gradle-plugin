@@ -127,7 +127,7 @@ class ExtensionsTest : FunSpec({
     test("isKotlin returns false when Kotlin source directory does not exist") {
         val project = createProject(ProjectConfig(languageType = LanguageType.JAVA))
 
-        project.isKotlin.shouldBeTrue()
+        project.isKotlin.shouldBeFalse()
     }
 
     test("isKotlinDsl returns true for Kotlin Gradle project when Kotlin source directory and build Gradle file exist") {

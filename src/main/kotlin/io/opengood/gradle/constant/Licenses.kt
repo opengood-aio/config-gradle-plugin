@@ -9,6 +9,6 @@ class Licenses {
     companion object {
         const val NAME = "MIT"
         const val RESOURCE = "LICENSE"
-        const val URI = "$OPENGOOD_ORG_URI/$%s/$BLOB_ENDPOINT_NAME/$DEFAULT_BRANCH_NAME/$RESOURCE"
+        const val URI = "$OPENGOOD_ORG_URI/%s/$BLOB_ENDPOINT_NAME/$DEFAULT_BRANCH_NAME/$RESOURCE"
     }
 }

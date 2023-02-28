@@ -6,7 +6,8 @@ import com.fasterxml.jackson.annotation.JsonValue
 
 @JsonFormat(shape = Shape.OBJECT)
 enum class PackagingType(@JsonValue private val value: String) {
-    JAR("jar")
+    JAR("jar"),
+    ;
 
-    override fun toString(): String = value,
+    override fun toString(): String = value
 }

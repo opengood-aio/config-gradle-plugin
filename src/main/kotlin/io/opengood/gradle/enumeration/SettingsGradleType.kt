@@ -7,7 +7,8 @@ import com.fasterxml.jackson.annotation.JsonValue
 @JsonFormat(shape = Shape.OBJECT)
 enum class SettingsGradleType(@JsonValue private val value: String) {
     GROOVY_DSL("settings.gradle"),
-    KOTLIN_DSL("settings.gradle.kts")
+    KOTLIN_DSL("settings.gradle.kts"),
+    ;
 
-    override fun toString(): String = value,
+    override fun toString(): String = value
 }
