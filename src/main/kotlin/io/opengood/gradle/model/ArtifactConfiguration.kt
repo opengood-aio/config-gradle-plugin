@@ -2,6 +2,7 @@ package io.opengood.gradle.model
 
 import groovy.lang.Closure
 import io.opengood.gradle.annotation.AllOpen
+import io.opengood.gradle.constant.Artifacts
 import io.opengood.gradle.constant.GitHub
 import io.opengood.gradle.enumeration.PackagingType
 import io.opengood.gradle.enumeration.PublicationType
@@ -14,8 +15,8 @@ import org.gradle.api.Project
 class ArtifactConfiguration(private val project: Project) {
     var name by GradleProperty(project, String::class.java, project.name)
     var packaging by GradleProperty(project, PackagingType::class.java, PackagingType.JAR)
-    var description by GradleProperty(project, String::class.java, "")
-    var uri by GradleProperty(project, String::class.java, "${GitHub.OPENGOOD_ORG_URI}/${project.name}")
+    var description by GradleProperty(project, String::class.java, Artifacts.DESCRIPTION)
+    var uri by GradleProperty(project, String::class.java, String.format(GitHub.OPENGOOD_REPO_URI, project.name))
     var publications by GradleListProperty(project, PublicationType::class.java, listOf(PublicationType.OSS))
     var repo = RepoConfiguration(project)
     var scm = ScmConfiguration(project)

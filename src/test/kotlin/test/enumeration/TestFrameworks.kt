@@ -5,7 +5,7 @@ import org.gradle.api.Project
 
 internal enum class TestFrameworks(val flag: Int) {
     DEFAULT(0),
-    JAVA(0b0000001)
+    JAVA(0b0000001),
 }
 
 internal val defaultTestFrameworks =

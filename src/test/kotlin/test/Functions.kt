@@ -4,10 +4,10 @@ import io.kotest.extensions.system.OverrideMode
 import io.kotest.extensions.system.withEnvironment
 import io.mockk.InternalPlatformDsl.toArray
 import io.opengood.gradle.ConfigPlugin
-import io.opengood.gradle.constant.Directories
 import io.opengood.gradle.enumeration.BuildGradleType
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.SettingsGradleType
+import io.opengood.gradle.enumeration.SrcDirType
 import io.opengood.gradle.extension.OpenGoodExtension
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer
@@ -29,12 +29,6 @@ import test.model.ProjectConfig
 import java.nio.file.Files
 import java.nio.file.Path
 
-internal inline fun <reified T : Any> Any.accessField(name: String): T =
-    javaClass.getDeclaredField(name).let {
-        it.isAccessible = true
-        return@let it.get(this) as T
-    }
-
 internal fun createProject(config: ProjectConfig): Project {
     return with(config) {
         val projectDir = createProjectDir()
@@ -49,12 +43,12 @@ internal fun createProject(config: ProjectConfig): Project {
                     buildGradle then { createProjectBuildGradle(languageType, projectDir) }
                     settingsGradle then { createProjectSettingsGradle(languageType, projectDir) }
 
-                    pluginManager.apply(ConfigPlugin.PLUGIN_ID)
+                    pluginManager.apply(ConfigPlugin.ID)
                     extensions.configure(OpenGoodExtension::class.java) { ext ->
                         ext.main.projectType = projectType
-                        ext.artifact.publications = publications
                         ext.features = getFeatures(project, features)
                         ext.test.frameworks = getTestFrameworks(project, testFrameworks)
+                        ext.artifact.publications = publications
                     }
                 }
                 withEnvironment(credentials, mode = OverrideMode.SetOrOverride) {
@@ -64,26 +58,35 @@ internal fun createProject(config: ProjectConfig): Project {
     }
 }
 
-internal fun createProjectBuildGradle(languageType: LanguageType, projectDir: Path) =
+internal fun createProjectBuildGradle(languageType: LanguageType, projectDir: Path): Boolean =
     projectDir.resolve(getBuildGradleFile(languageType)).toFile().createNewFile()
 
 internal fun createProjectDir(): Path =
     Files.createTempDirectory("")
 
-internal fun createProjectSettingsGradle(languageType: LanguageType, projectDir: Path) =
+internal fun createProjectSettingsGradle(languageType: LanguageType, projectDir: Path): Boolean =
     projectDir.resolve(getSettingsGradleFile(languageType)).toFile().createNewFile()
 
-internal fun createProjectSrcDir(languageType: LanguageType, projectDir: Path) =
+internal fun createProjectSrcDir(languageType: LanguageType, projectDir: Path): Boolean =
     when (languageType) {
-        LanguageType.GROOVY -> projectDir.resolve(Directories.GROOVY_SRC).toFile().mkdirs()
-        LanguageType.JAVA -> projectDir.resolve(Directories.JAVA_SRC).toFile().mkdirs()
-        LanguageType.KOTLIN -> projectDir.resolve(Directories.KOTLIN_SRC).toFile().mkdirs()
+        LanguageType.GROOVY -> projectDir.resolve(SrcDirType.GROOVY.first()).toFile().mkdirs()
+        LanguageType.JAVA -> projectDir.resolve(SrcDirType.JAVA.first()).toFile().mkdirs()
+        LanguageType.KOTLIN -> projectDir.resolve(SrcDirType.KOTLIN.first()).toFile().mkdirs()
     }
+
+internal fun getBom(extension: DependencyManagementExtension, name: String): PomReference? =
+    extension.accessField<DependencyManagementContainer>("dependencyManagementContainer")
+        .globalDependencyManagement.accessField<List<PomReference>>("importedBoms")
+        .find {
+            with(it.coordinates) {
+                "$groupId:$artifactId:$version" == name
+            }
+        }
 
 internal fun getBuildGradleFile(languageType: LanguageType): String =
     when (languageType) {
-        LanguageType.KOTLIN -> BuildGradleType.KOTLIN.toString()
-        else -> BuildGradleType.GROOVY.toString()
+        LanguageType.KOTLIN -> BuildGradleType.KOTLIN_DSL.toString()
+        else -> BuildGradleType.GROOVY_DSL.toString()
     }
 
 internal fun getDependencies(project: Project, configuration: String): List<Dependency> =
@@ -93,30 +96,25 @@ internal fun getDependency(project: Project, configuration: String, name: String
     project.configurations.getByName(configuration).dependencies
         .firstOrNull { it == project.dependencies.create(name) }
 
-internal fun getMavenPublication(extension: PublishingExtension, name: String): MavenPublication =
-    extension.publications.getByName(name) as MavenPublication
-
-internal fun getMavenBom(extension: DependencyManagementExtension, name: String) =
-    extension.accessField<DependencyManagementContainer>("dependencyManagementContainer")
-        .globalDependencyManagement.accessField<List<PomReference>>("importedBoms")
-        .find { "${it.coordinates.groupId}:${it.coordinates.artifactId}:${it.coordinates.version}" == name }
-
-internal fun getMavenRepository(extension: PublishingExtension, name: String): MavenArtifactRepository =
-    extension.repositories.getByName(name) as MavenArtifactRepository
-
 internal inline fun <reified T : Plugin<*>> getPlugin(project: Project): T =
     project.plugins.getPlugin(T::class.java)
 
 internal fun getPlugin(project: Project, id: String): Plugin<Any> =
     project.plugins.getPlugin(id)
 
+internal fun getPublication(extension: PublishingExtension, name: String): MavenPublication =
+    extension.publications.getByName(name) as MavenPublication
+
 internal fun getRepository(project: Project, name: String): ArtifactRepository =
     project.repositories.getByName(name)
 
+internal fun getRepository(extension: PublishingExtension, name: String): MavenArtifactRepository =
+    extension.repositories.getByName(name) as MavenArtifactRepository
+
 internal fun getSettingsGradleFile(languageType: LanguageType): String =
     when (languageType) {
-        LanguageType.KOTLIN -> SettingsGradleType.KOTLIN.toString()
-        else -> SettingsGradleType.GROOVY.toString()
+        LanguageType.KOTLIN -> SettingsGradleType.KOTLIN_DSL.toString()
+        else -> SettingsGradleType.GROOVY_DSL.toString()
     }
 
 internal fun getTaskByName(project: Project, name: String): Task =
@@ -133,6 +131,3 @@ internal fun getTasksDependsOn(task: Task): List<String> =
 
 internal fun hasTaskFinalizedByDependency(task: Task, name: String): Boolean =
     (task.finalizedBy as DefaultTaskDependency).mutableValues.contains(name)
-
-infix fun <T> Boolean.then(param: () -> T): T? =
-    if (this) param() else null

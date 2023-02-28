@@ -6,7 +6,7 @@ import kotlin.reflect.KProperty
 class GradleProperty<T, V>(
     project: Project,
     type: Class<V>,
-    default: V? = null
+    default: V? = null,
 ) {
     private val property = project.objects.property(type).apply {
         set(default)

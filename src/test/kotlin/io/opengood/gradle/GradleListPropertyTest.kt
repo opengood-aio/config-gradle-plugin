@@ -21,7 +21,7 @@ class GradleListPropertyTest : WordSpec({
             Greetings(listOf("Hello World!", "Hello Us!")).messages shouldBe
                 listOf(
                     "Hello World!",
-                    "Hello Us!"
+                    "Hello Us!",
                 )
         }
 

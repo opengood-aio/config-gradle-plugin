@@ -5,6 +5,7 @@ import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
 import test.createProject
 import test.model.ProjectConfig
+import test.spec.addJacksonDependenciesTest
 import test.spec.addJacksonKotlinDependenciesTest
 import test.spec.addKotestDependenciesTest
 import test.spec.addKotestSpringDependenciesTest
@@ -17,7 +18,7 @@ import test.spec.addSpringMockkDependenciesTest
 import test.spec.applyCommonPluginsTest
 import test.spec.applyJavaPluginTest
 import test.spec.applyKotlinPluginsTest
-import test.spec.applyKotlinSpringPluginsTest
+import test.spec.applyKotlinSpringPluginTest
 import test.spec.applyLibraryPluginTest
 import test.spec.applyPluginTest
 import test.spec.applySpringPluginsTest
@@ -51,8 +52,8 @@ class ConfigPluginKotlinLibTest : FunSpec({
     val project = createProject(
         ProjectConfig(
             languageType = LanguageType.KOTLIN,
-            projectType = ProjectType.LIB
-        )
+            projectType = ProjectType.LIB,
+        ),
     )
 
     include(applyPluginTest(project))
@@ -63,7 +64,7 @@ class ConfigPluginKotlinLibTest : FunSpec({
     include(applyJavaPluginTest(project))
     include(doNotApplyLombokPluginTest(project))
     include(applyKotlinPluginsTest(project))
-    include(applyKotlinSpringPluginsTest(project))
+    include(applyKotlinSpringPluginTest(project))
     include(applyCommonPluginsTest(project))
     include(applySpringPluginsTest(project))
     include(applyLibraryPluginTest(project))
@@ -74,18 +75,19 @@ class ConfigPluginKotlinLibTest : FunSpec({
     include(addRepositoriesTest(project))
 
     include(doNotAddGroovyDependenciesTest(project))
+    include(doNotAddLombokDependenciesTest(project))
     include(addKotlinDependenciesTest(project))
-    include(doNotAddAssertjDependenciesTest(project))
+    include(addKotlinCoroutinesDependenciesTest(project))
     include(addJacksonKotlinDependenciesTest(project))
-    include(doNotAddJunitJupiterDependenciesTest(project))
     include(addKotestDependenciesTest(project))
     include(addKotestSpringDependenciesTest(project))
-    include(addKotlinCoroutinesDependenciesTest(project))
-    include(doNotAddLombokDependenciesTest(project))
-    include(doNotAddMockitoDependenciesTest(project))
     include(addMockkDependenciesTest(project))
-    include(addSpringDependenciesTest(project))
     include(addSpringMockkDependenciesTest(project))
+    include(addJacksonDependenciesTest(project))
+    include(addSpringDependenciesTest(project))
+    include(doNotAddAssertjDependenciesTest(project))
+    include(doNotAddJunitJupiterDependenciesTest(project))
+    include(doNotAddMockitoDependenciesTest(project))
 
     include(configureGradleWrapperTaskTest(project))
     include(configureKotlinCompileTaskTest(project))

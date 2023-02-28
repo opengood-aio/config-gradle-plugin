@@ -30,12 +30,16 @@ plugins {
 group = "io.opengood.gradle"
 
 gradlePlugin {
+    website.set("https://opengood.io")
+    vcsUrl.set("https://github.com/opengoodio/config-gradle-plugin")
+
     plugins {
         create("opengood-config") {
             id = "io.opengood.gradle.config"
-            implementationClass = "io.opengood.gradle.ConfigPlugin"
             displayName = "OpenGood Config Gradle Plugin"
             description = "Gradle plugin providing centralized configuration of OpenGood Gradle projects"
+            tags.set(listOf("kotlin", "spring-boot", "opengood"))
+            implementationClass = "io.opengood.gradle.ConfigPlugin"
         }
     }
 }
@@ -90,8 +94,8 @@ dependencies {
 
     testRuntimeOnly(
         files(
-            serviceOf<ModuleRegistry>().getModule("gradle-tooling-api-builders").classpath.asFiles.first()
-        )
+            serviceOf<ModuleRegistry>().getModule("gradle-tooling-api-builders").classpath.asFiles.first(),
+        ),
     )
 
     testImplementation(kotlin("test"))
@@ -178,7 +182,7 @@ with(tasks) {
                     |$startItem$output$endItem
                     |${"-".repeat(repeatLength)}
                     |
-                        """.trimMargin()
+                        """.trimMargin(),
                     )
                 }
             }
@@ -236,7 +240,7 @@ release {
     versionPatterns = mapOf(
         """[.]*\.(\d+)\.(\d+)[.]*""" to KotlinClosure2<Matcher, Project, String>({ matcher, _ ->
             matcher.replaceAll(".${(matcher.group(1)).toString().toInt() + 1}.0")
-        })
+        }),
     )
     git {
         requireBranch.set("main")
@@ -249,19 +253,6 @@ publishing {
         maven {
             name = "local"
             url = uri(mavenLocal().url)
-        }
-    }
-}
-
-pluginBundle {
-    website = "https://opengood.io"
-    vcsUrl = "https://github.com/opengoodio/config-gradle-plugin"
-    description = "Gradle plugin providing centralized configuration of OpenGood Gradle projects"
-    tags = listOf("kotlin", "spring-boot", "opengood")
-
-    (gradlePlugin.plugins) {
-        "opengood-config" {
-            displayName = "OpenGood Config Gradle Plugin"
         }
     }
 }

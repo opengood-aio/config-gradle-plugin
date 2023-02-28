@@ -6,6 +6,7 @@ import test.createProject
 import test.enumeration.Features
 import test.model.ProjectConfig
 import test.spec.doNotAddAssertjDependenciesTest
+import test.spec.doNotAddJacksonDependenciesTest
 import test.spec.doNotAddJacksonKotlinDependenciesTest
 import test.spec.doNotAddJunitJupiterDependenciesTest
 import test.spec.doNotAddKotestDependenciesTest
@@ -23,11 +24,12 @@ class ConfigPluginFeaturesTest : FunSpec({
     val project = createProject(
         ProjectConfig(
             languageType = LanguageType.KOTLIN,
-            features = Features.NONE.flag
-        )
+            features = Features.NONE.flag,
+        ),
     )
 
     include(doNotAddAssertjDependenciesTest(project))
+    include(doNotAddJacksonDependenciesTest(project))
     include(doNotAddJacksonKotlinDependenciesTest(project))
     include(doNotAddJunitJupiterDependenciesTest(project))
     include(doNotAddKotestDependenciesTest(project))

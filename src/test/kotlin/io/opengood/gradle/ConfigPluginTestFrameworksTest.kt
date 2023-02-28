@@ -19,16 +19,16 @@ class ConfigPluginTestFrameworksTest : FunSpec({
     val project = createProject(
         ProjectConfig(
             languageType = LanguageType.KOTLIN,
-            testFrameworks = TestFrameworks.JAVA.flag
-        )
+            testFrameworks = TestFrameworks.JAVA.flag,
+        ),
     )
 
-    include(addAssertjDependenciesTest(project))
-    include(addJunitJupiterDependenciesTest(project))
+    include(addKotlinCoroutinesDependenciesTest(project))
     include(addKotestDependenciesTest(project))
     include(addKotestSpringDependenciesTest(project))
-    include(addKotlinCoroutinesDependenciesTest(project))
-    include(addMockitoDependenciesTest(project))
     include(addMockkDependenciesTest(project))
     include(addSpringMockkDependenciesTest(project))
+    include(addAssertjDependenciesTest(project))
+    include(addJunitJupiterDependenciesTest(project))
+    include(addMockitoDependenciesTest(project))
 })

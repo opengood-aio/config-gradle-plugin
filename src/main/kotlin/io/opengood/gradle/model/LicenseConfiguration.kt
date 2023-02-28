@@ -1,17 +1,12 @@
 package io.opengood.gradle.model
 
 import io.opengood.gradle.annotation.AllOpen
-import io.opengood.gradle.constant.Artifacts
-import io.opengood.gradle.constant.GitHub
+import io.opengood.gradle.constant.Licenses
 import io.opengood.gradle.property.GradleProperty
 import org.gradle.api.Project
 
 @AllOpen
 class LicenseConfiguration(project: Project) {
-    var name by GradleProperty(project, String::class.java, Artifacts.LICENSE_NAME)
-    var uri by GradleProperty(
-        project,
-        String::class.java,
-        "${GitHub.OPENGOOD_ORG_URI}/${project.name}/${GitHub.BLOB_ENDPOINT}/${GitHub.DEFAULT_BRANCH_NAME}/${Artifacts.LICENSE_RESOURCE}"
-    )
+    var name by GradleProperty(project, String::class.java, Licenses.NAME)
+    var uri by GradleProperty(project, String::class.java, String.format(Licenses.URI, project.name))
 }

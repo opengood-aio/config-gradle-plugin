@@ -13,8 +13,8 @@ class ConfigPluginPublishingAndSigningTest : FunSpec({
     val project = createProject(
         ProjectConfig(
             languageType = LanguageType.KOTLIN,
-            publications = emptyList()
-        )
+            publications = emptyList(),
+        ),
     )
 
     include(doNotConfigureAfterReleaseBuildTaskTest(project))

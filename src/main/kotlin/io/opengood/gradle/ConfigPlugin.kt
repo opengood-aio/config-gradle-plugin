@@ -20,7 +20,6 @@ import io.opengood.gradle.constant.Repositories
 import io.opengood.gradle.constant.Resources
 import io.opengood.gradle.constant.Tasks
 import io.opengood.gradle.constant.Tests
-import io.opengood.gradle.constant.Versions
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
 import io.opengood.gradle.enumeration.PublicationType
@@ -58,7 +57,7 @@ class ConfigPlugin : Plugin<Project> {
     private lateinit var extension: OpenGoodExtension
 
     override fun apply(project: Project) {
-        println("Applying $PLUGIN_ID project configuration...")
+        println("Applying $ID project configuration...")
         createExtension(project)
         configurePlugins(project)
         configureDependencyResolutionStrategy(project)
@@ -77,7 +76,7 @@ class ConfigPlugin : Plugin<Project> {
         extension = project.extensions.create(
             OpenGoodExtension.EXTENSION_NAME,
             OpenGoodExtension::class.java,
-            project
+            project,
         )
     }
 
@@ -129,13 +128,15 @@ class ConfigPlugin : Plugin<Project> {
             with(configuration) {
                 resolutionStrategy.eachDependency { resolver ->
                     with(resolver) {
-                        if (requested.group == "org.jetbrains.kotlin") {
-                            useVersion(Versions.KOTLIN)
-                            because("Incompatibilities with older Kotlin versions")
-                        }
-                        if (requested.group == "org.jetbrains.kotlinx" && requested.name == "kotlinx-coroutines-core") {
-                            useVersion(Versions.KOTLIN_COROUTINES)
-                            because("Incompatibilities with older Kotlin Coroutines versions")
+                        with(project.dependenciesVersions) {
+                            if (requested.group == "org.jetbrains.kotlin") {
+                                useVersion(getVersion(Dependencies.KOTLIN))
+                                because("Incompatibilities with older Kotlin versions")
+                            }
+                            if (requested.group == "org.jetbrains.kotlinx" && requested.name == "kotlinx-coroutines-core") {
+                                useVersion(getVersion(Dependencies.KOTLIN_COROUTINES))
+                                because("Incompatibilities with older Kotlin Coroutines versions")
+                            }
                         }
                     }
                 }
@@ -185,76 +186,82 @@ class ConfigPlugin : Plugin<Project> {
     private fun configureDependencies(project: Project) {
         with(project) {
             with(configurations) {
-                val implementation = getByName(Configurations.IMPLEMENTATION)
                 val annotationProcessor = getByName(Configurations.ANNOTATION_PROCESSOR)
-                val testImplementation = getByName(Configurations.TEST_IMPLEMENTATION)
+                val implementation = getByName(Configurations.IMPLEMENTATION)
                 val testAnnotationProcessor = getByName(Configurations.TEST_ANNOTATION_PROCESSOR)
+                val testImplementation = getByName(Configurations.TEST_IMPLEMENTATION)
 
                 with(dependencies) {
-                    with(extension) {
-                        with(features) {
-                            when (languageType) {
-                                LanguageType.GROOVY -> {
-                                    implementation.dependencies.add(create(Dependencies.GROOVY))
+                    with(dependenciesVersions) {
+                        with(extension) {
+                            with(features) {
+                                when (languageType) {
+                                    LanguageType.GROOVY -> {
+                                        implementation.dependencies.add(create(getDependencyAndVersion(Dependencies.GROOVY)))
+                                    }
+
+                                    LanguageType.JAVA -> {
+                                        if (lombok) {
+                                            annotationProcessor.dependencies.add(create(getDependencyAndVersion(Dependencies.LOMBOK)))
+                                            implementation.dependencies.add(create(getDependencyAndVersion(Dependencies.LOMBOK)))
+                                            testAnnotationProcessor.dependencies.add(create(getDependencyAndVersion(Dependencies.LOMBOK)))
+                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.LOMBOK)))
+                                        }
+                                    }
+
+                                    LanguageType.KOTLIN -> {
+                                        implementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTLIN_REFLECT)))
+                                        implementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTLIN_STD_LIB)))
+                                        testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTLIN_TEST)))
+
+                                        if (kotlinCoroutines) {
+                                            implementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTLIN_COROUTINES_CORE)))
+                                        }
+                                        if (jacksonKotlin) {
+                                            implementation.dependencies.add(create(getDependencyAndVersion(Dependencies.JACKSON_MODULE_KOTLIN)))
+                                        }
+                                        if (kotest) {
+                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTEST_RUNNER)))
+                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTEST_ASSERTIONS)))
+                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTEST_EXTENSIONS)))
+                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTEST_PROPERTIES)))
+                                        }
+                                        if (kotestSpring) {
+                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTEST_SPRING)))
+                                        }
+                                        if (mockk) {
+                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.MOCKK_ALL)))
+                                        }
+                                        if (springMockk) {
+                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.SPRING_MOCKK)))
+                                        }
+                                    }
                                 }
 
-                                LanguageType.JAVA -> {
-                                    if (lombok) {
-                                        implementation.dependencies.add(create(Dependencies.LOMBOK))
-                                        annotationProcessor.dependencies.add(create(Dependencies.LOMBOK))
-                                        testImplementation.dependencies.add(create(Dependencies.LOMBOK))
-                                        testAnnotationProcessor.dependencies.add(create(Dependencies.LOMBOK))
-                                    }
+                                if (jackson) {
+                                    implementation.dependencies.add(create(getDependencyAndVersion(Dependencies.JACKSON_ANNOTATIONS)))
                                 }
 
-                                LanguageType.KOTLIN -> {
-                                    implementation.dependencies.add(create(Dependencies.KOTLIN_REFLECT))
-                                    implementation.dependencies.add(create(Dependencies.KOTLIN_STD_LIB))
-                                    testImplementation.dependencies.add(create(Dependencies.KOTLIN_TEST))
-
-                                    if (kotlinCoroutines) {
-                                        implementation.dependencies.add(create(Dependencies.KOTLIN_COROUTINES))
-                                    }
-                                    if (jacksonKotlin) {
-                                        implementation.dependencies.add(create(Dependencies.JACKSON_KOTLIN))
-                                    }
-                                    if (kotest) {
-                                        testImplementation.dependencies.add(create(Dependencies.KOTEST))
-                                        testImplementation.dependencies.add(create(Dependencies.KOTEST_ASSERTIONS))
-                                        testImplementation.dependencies.add(create(Dependencies.KOTEST_EXTENSIONS))
-                                        testImplementation.dependencies.add(create(Dependencies.KOTEST_PROPERTIES))
-                                    }
-                                    if (kotestSpring) {
-                                        testImplementation.dependencies.add(create(Dependencies.KOTEST_SPRING))
-                                    }
-                                    if (mockk) {
-                                        testImplementation.dependencies.add(create(Dependencies.MOCKK))
-                                    }
-                                    if (springMockk) {
-                                        testImplementation.dependencies.add(create(Dependencies.SPRING_MOCKK))
-                                    }
+                                if (spring) {
+                                    annotationProcessor.dependencies.add(create(getDependencyAndVersion(Dependencies.SPRING_BOOT_CONFIG_PROCESSOR)))
+                                    implementation.dependencies.add(create(getDependencyAndVersion(Dependencies.SPRING_BOOT_STARTER)))
+                                    testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.SPRING_BOOT_STARTER_TEST)))
                                 }
-                            }
 
-                            if (spring) {
-                                annotationProcessor.dependencies.add(create(Dependencies.SPRING_BOOT_CONFIG_PROCESSOR))
-                                implementation.dependencies.add(create(Dependencies.SPRING_BOOT_STARTER))
-                                testImplementation.dependencies.add(create(Dependencies.SPRING_BOOT_STARTER_TEST))
-                            }
-
-                            with(test) {
-                                if (languageType != LanguageType.KOTLIN ||
-                                    (languageType == LanguageType.KOTLIN && frameworks.java)
-                                ) {
-                                    if (assertj) {
-                                        testImplementation.dependencies.add(create(Dependencies.ASSERTJ))
-                                    }
-                                    if (junitJupiter) {
-                                        testImplementation.dependencies.add(create(Dependencies.JUNIT_JUPITER))
-                                    }
-                                    if (mockito) {
-                                        testImplementation.dependencies.add(create(Dependencies.MOCKITO))
-                                        testImplementation.dependencies.add(create(Dependencies.MOCKITO_JUNIT_JUPITER))
+                                with(test) {
+                                    if (languageType != LanguageType.KOTLIN ||
+                                        (languageType == LanguageType.KOTLIN && frameworks.java)
+                                    ) {
+                                        if (assertj) {
+                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.ASSERTJ_CORE)))
+                                        }
+                                        if (junitJupiter) {
+                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.JUNIT_JUPITER_ALL)))
+                                        }
+                                        if (mockito) {
+                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.MOCKITO_CORE)))
+                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.MOCKITO_JUNIT_JUPITER)))
+                                        }
                                     }
                                 }
                             }
@@ -300,9 +307,11 @@ class ConfigPlugin : Plugin<Project> {
     private fun configureKotlinCompileTask(project: Project) {
         project.tasks.withType(KotlinCompile::class.java) { task ->
             with(task) {
-                kotlinOptions {
-                    freeCompilerArgs = KotlinOptions.FREE_COMPILER_ARGS
-                    jvmTarget = Versions.JAVA
+                with(project.dependenciesVersions) {
+                    kotlinOptions {
+                        freeCompilerArgs = KotlinOptions.FREE_COMPILER_ARGS
+                        jvmTarget = getVersion(Dependencies.JAVA)
+                    }
                 }
             }
         }
@@ -311,8 +320,10 @@ class ConfigPlugin : Plugin<Project> {
     private fun configureJavaCompileTask(project: Project) {
         project.tasks.withType(JavaCompile::class.java) { task ->
             with(task) {
-                sourceCompatibility = Versions.JAVA
-                targetCompatibility = Versions.JAVA
+                with(project.dependenciesVersions) {
+                    sourceCompatibility = getVersion(Dependencies.JAVA)
+                    targetCompatibility = getVersion(Dependencies.JAVA)
+                }
             }
         }
     }
@@ -384,8 +395,8 @@ class ConfigPlugin : Plugin<Project> {
                             |${"-".repeat(repeatLength)}
                             |
                                     """.trimMargin(),
-                                    if (result.failedTestCount == 0L) GREEN_TEXT() else RED_TEXT()
-                                )
+                                    if (result.failedTestCount == 0L) GREEN_TEXT() else RED_TEXT(),
+                                ),
                             )
                         }
                     }
@@ -450,18 +461,18 @@ class ConfigPlugin : Plugin<Project> {
                         tasks.add(
                             String.format(
                                 Tasks.PUBLISH_PUBLICATION,
-                                Publications.GITHUB_PUB_NAME,
-                                Repositories.GITHUB_PACKAGES_REPO_NAME
-                            )
+                                Publications.GITHUB,
+                                Repositories.GITHUB_PACKAGES_REPO_NAME,
+                            ),
                         )
                     }
                     if (publications.contains(PublicationType.OSS)) {
                         tasks.add(
                             String.format(
                                 Tasks.PUBLISH_PUBLICATION,
-                                Publications.OSS_PUB_NAME,
-                                if (project.isSnapshotVersion) Repositories.OSS_SNAPSHOTS_REPO_NAME else Repositories.OSS_STAGING_REPO_NAME
-                            )
+                                Publications.OSS,
+                                if (project.isSnapshotVersion) Repositories.OSS_SNAPSHOTS_REPO_NAME else Repositories.OSS_STAGING_REPO_NAME,
+                            ),
                         )
                     }
 
@@ -520,8 +531,10 @@ class ConfigPlugin : Plugin<Project> {
                 extensions.configure(DependencyManagementExtension::class.java) { ext ->
                     with(ext) {
                         imports { imports ->
-                            with(imports) {
-                                mavenBom(Boms.KOTLIN)
+                            with(dependenciesVersions) {
+                                with(imports) {
+                                    mavenBom(getDependencyAndVersion(Boms.KOTLIN))
+                                }
                             }
                         }
                     }
@@ -570,8 +583,10 @@ class ConfigPlugin : Plugin<Project> {
                         versionPatterns = Releases.VERSION_PATTERNS
                         git { git ->
                             with(git) {
-                                requireBranch.set(extension.release.requireBranch)
-                                pushToRemote.set(extension.release.pushToRemote)
+                                with(extension) {
+                                    requireBranch.set(release.requireBranch)
+                                    pushToRemote.set(release.pushToRemote)
+                                }
                             }
                         }
                     }
@@ -589,10 +604,10 @@ class ConfigPlugin : Plugin<Project> {
                             publications { publications ->
                                 with(artifact) {
                                     if (this.publications.contains(PublicationType.GITHUB)) {
-                                        createPublication(project, publications, Publications.GITHUB_PUB_NAME)
+                                        createPublication(project, publications, Publications.GITHUB)
                                     }
                                     if (this.publications.contains(PublicationType.OSS)) {
-                                        createPublication(project, publications, Publications.OSS_PUB_NAME)
+                                        createPublication(project, publications, Publications.OSS)
                                     }
                                 }
                             }
@@ -601,50 +616,58 @@ class ConfigPlugin : Plugin<Project> {
                                 createArtifactRepository(
                                     repos = repos,
                                     repoName = Repositories.LOCAL_REPO_NAME,
-                                    repoUri = repositories.mavenLocal().url.toString()
+                                    repoUri = repositories.mavenLocal().url.toString(),
                                 )
 
                                 with(artifact) {
                                     if (publications.contains(PublicationType.GITHUB)) {
-                                        val githubPackagesRepoUsername =
-                                            project.getProperty(
+                                        val gitHubPackagesRepoUsername =
+                                            project.getPropertyOrDefault(
                                                 Properties.GITHUB_PACKAGES_REPO_USERNAME,
-                                                getEnv(EnvVars.GITHUB_USER, "")
+                                                getEnvOrDefault(EnvVars.GITHUB_USER, ""),
                                             )
-                                        val githubPackagesRepoPassword =
-                                            project.getProperty(
+                                        val gitHubPackagesRepoPassword =
+                                            project.getPropertyOrDefault(
                                                 Properties.GITHUB_PACKAGES_REPO_PASSWORD,
-                                                getEnv(EnvVars.GITHUB_TOKEN, "")
+                                                getEnvOrDefault(EnvVars.GITHUB_TOKEN, ""),
                                             )
 
-                                        if (githubPackagesRepoUsername.isBlank()) println("WARN: ${Properties.GITHUB_PACKAGES_REPO_USERNAME} property or ${EnvVars.GITHUB_USER} environment variable is not set")
-                                        if (githubPackagesRepoPassword.isBlank()) println("WARN: ${Properties.GITHUB_PACKAGES_REPO_PASSWORD} property or ${EnvVars.GITHUB_TOKEN} environment variable is not set")
+                                        if (gitHubPackagesRepoUsername.isBlank()) {
+                                            println("WARN: ${Properties.GITHUB_PACKAGES_REPO_USERNAME} property or ${EnvVars.GITHUB_USER} environment variable is not set")
+                                        }
+                                        if (gitHubPackagesRepoPassword.isBlank()) {
+                                            println("WARN: ${Properties.GITHUB_PACKAGES_REPO_PASSWORD} property or ${EnvVars.GITHUB_TOKEN} environment variable is not set")
+                                        }
 
                                         with(repo) {
                                             createArtifactRepository(
                                                 repos = repos,
                                                 repoName = Repositories.GITHUB_PACKAGES_REPO_NAME,
                                                 repoUri = gitHubPackagesRepoUri,
-                                                repoUsername = githubPackagesRepoUsername,
-                                                repoPassword = githubPackagesRepoPassword
+                                                repoUsername = gitHubPackagesRepoUsername,
+                                                repoPassword = gitHubPackagesRepoPassword,
                                             )
                                         }
                                     }
 
                                     if (publications.contains(PublicationType.OSS)) {
                                         val ossRepoUsername =
-                                            project.getProperty(
+                                            project.getPropertyOrDefault(
                                                 Properties.OSS_REPO_USERNAME,
-                                                getEnv(EnvVars.OSS_REPO_USERNAME, "")
+                                                getEnvOrDefault(EnvVars.OSS_REPO_USERNAME, ""),
                                             )
                                         val ossRepoPassword =
-                                            project.getProperty(
+                                            project.getPropertyOrDefault(
                                                 Properties.OSS_REPO_PASSWORD,
-                                                getEnv(EnvVars.OSS_REPO_PASSWORD, "")
+                                                getEnvOrDefault(EnvVars.OSS_REPO_PASSWORD, ""),
                                             )
 
-                                        if (ossRepoUsername.isBlank()) println("WARN: ${Properties.OSS_REPO_USERNAME} property or ${EnvVars.GITHUB_USER} environment variable is not set")
-                                        if (ossRepoPassword.isBlank()) println("WARN: ${Properties.OSS_REPO_PASSWORD} property or ${EnvVars.GITHUB_TOKEN} environment variable is not set")
+                                        if (ossRepoUsername.isBlank()) {
+                                            println("WARN: ${Properties.OSS_REPO_USERNAME} property or ${EnvVars.GITHUB_USER} environment variable is not set")
+                                        }
+                                        if (ossRepoPassword.isBlank()) {
+                                            println("WARN: ${Properties.OSS_REPO_PASSWORD} property or ${EnvVars.GITHUB_TOKEN} environment variable is not set")
+                                        }
 
                                         with(repo) {
                                             createArtifactRepository(
@@ -652,7 +675,7 @@ class ConfigPlugin : Plugin<Project> {
                                                 repoName = if (isSnapshotVersion) Repositories.OSS_SNAPSHOTS_REPO_NAME else Repositories.OSS_STAGING_REPO_NAME,
                                                 repoUri = if (isSnapshotVersion) ossSnapshotsRepoUri else ossStagingRepoUri,
                                                 repoUsername = ossRepoUsername,
-                                                repoPassword = ossRepoPassword
+                                                repoPassword = ossRepoPassword,
                                             )
                                         }
                                     }
@@ -668,7 +691,7 @@ class ConfigPlugin : Plugin<Project> {
     private fun createPublication(
         project: Project,
         publications: PublicationContainer,
-        publicationName: String
+        publicationName: String,
     ) {
         with(project) {
             publications.register(publicationName, MavenPublication::class.java) { publication ->
@@ -684,7 +707,7 @@ class ConfigPlugin : Plugin<Project> {
                                 scm { scm ->
                                     with(scm) {
                                         connection.set(artifact.scm.connection)
-                                        developerConnection.set(artifact.scm.developerConnection)
+                                        developerConnection.set(artifact.scm.devConnection)
                                         url.set(artifact.scm.uri)
                                     }
                                 }
@@ -718,16 +741,14 @@ class ConfigPlugin : Plugin<Project> {
         repoName: String,
         repoUri: String,
         repoUsername: String? = null,
-        repoPassword: String? = null
+        repoPassword: String? = null,
     ) {
         repos.maven { repo ->
             with(repo) {
                 name = repoName
                 url = URI(repoUri)
 
-                if (repoUsername != null && repoUsername.isNotBlank() &&
-                    repoPassword != null && repoPassword.isNotBlank()
-                ) {
+                if (!repoUsername.isNullOrBlank() && !repoPassword.isNullOrBlank()) {
                     credentials { credential ->
                         with(credential) {
                             username = repoUsername
@@ -744,8 +765,8 @@ class ConfigPlugin : Plugin<Project> {
             pluginManager.withPlugin(Plugins.SIGNING) {
                 extensions.configure(SigningExtension::class.java) { ext ->
                     with(ext) {
-                        val signingKey = getEnv(EnvVars.GPG_SIGNING_PRIVATE_KEY, "")
-                        val signingPassword = getEnv(EnvVars.GPG_SIGNING_PASSWORD, "")
+                        val signingKey = getEnvOrDefault(EnvVars.GPG_SIGNING_PRIVATE_KEY, "")
+                        val signingPassword = getEnvOrDefault(EnvVars.GPG_SIGNING_PASSWORD, "")
 
                         if (signingKey.isNotBlank() && signingPassword.isNotBlank()) {
                             println("Environment variables ${EnvVars.GPG_SIGNING_PRIVATE_KEY} and ${EnvVars.GPG_SIGNING_PASSWORD} are set")
@@ -758,7 +779,7 @@ class ConfigPlugin : Plugin<Project> {
 
                         with(extension.artifact) {
                             if (publications.contains(PublicationType.OSS)) {
-                                sign(getExtension<PublishingExtension>().publications.getByName(Publications.OSS_PUB_NAME))
+                                sign(getExtension<PublishingExtension>().publications.getByName(Publications.OSS))
                             }
                         }
                     }
@@ -768,6 +789,6 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     companion object {
-        const val PLUGIN_ID = "io.opengood.gradle.config"
+        const val ID = "io.opengood.gradle.config"
     }
 }

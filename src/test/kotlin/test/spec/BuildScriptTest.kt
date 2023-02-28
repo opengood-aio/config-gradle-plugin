@@ -35,6 +35,7 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
                     }
                     features {
                         assertj = false
+                        jackson = false
                         jacksonKotlin = false
                         junitJupiter = false
                         kotest = false
@@ -71,7 +72,7 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
                         scm {
                             provider = ScmProvider.GIT
                             connection = "scm:git:https://repo.uri/project"
-                            developerConnection = "scm:git:https://repo.uri/project"
+                            devConnection = "scm:git:https://repo.uri/project"
                             uri = "https://repo.uri/project"
                         }
                         license {
@@ -85,7 +86,7 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
                         }
                     }
                 }
-                """.trimIndent()
+                """.trimIndent(),
             )
 
             val result = GradleRunner.create()
@@ -96,7 +97,7 @@ fun buildScriptTest(languageType: LanguageType) = wordSpec {
 
             println(result.output)
 
-            result.output.shouldContain("Applying ${ConfigPlugin.PLUGIN_ID} project configuration...")
+            result.output.shouldContain("Applying ${ConfigPlugin.ID} project configuration...")
             result.output.shouldContain("BUILD SUCCESSFUL")
         }
     }

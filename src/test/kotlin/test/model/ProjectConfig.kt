@@ -12,17 +12,17 @@ data class ProjectConfig(
     val name: String = "test",
     val group: String = "org.example",
     val version: String = "1.0.0-SNAPSHOT",
-    val projectType: ProjectType = ProjectType.APP,
-    val publications: List<PublicationType> = listOf(PublicationType.GITHUB, PublicationType.OSS),
     val srcDir: Boolean = true,
     val buildGradle: Boolean = true,
     val settingsGradle: Boolean = true,
+    val projectType: ProjectType = ProjectType.APP,
     val features: Int = defaultFeatures,
     val testFrameworks: Int = defaultTestFrameworks,
+    val publications: List<PublicationType> = listOf(PublicationType.GITHUB, PublicationType.OSS),
     val credentials: Map<String, String> = mapOf(
         EnvVars.GITHUB_USER to "example",
         EnvVars.GITHUB_TOKEN to "fake",
         EnvVars.OSS_REPO_USERNAME to "example",
-        EnvVars.OSS_REPO_PASSWORD to "fake"
-    )
+        EnvVars.OSS_REPO_PASSWORD to "fake",
+    ),
 )

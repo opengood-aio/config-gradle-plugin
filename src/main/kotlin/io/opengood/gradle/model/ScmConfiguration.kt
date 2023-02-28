@@ -8,16 +8,8 @@ import org.gradle.api.Project
 
 @AllOpen
 class ScmConfiguration(project: Project) {
-    final var provider by GradleProperty(project, ScmProvider::class.java, ScmProvider.GIT)
-    var connection by GradleProperty(
-        project,
-        String::class.java,
-        "${ScmProvider.PROTOCOL}:$provider:${GitHub.OPENGOOD_ORG_URI}/${project.name}"
-    )
-    var developerConnection by GradleProperty(
-        project,
-        String::class.java,
-        "${ScmProvider.PROTOCOL}:$provider:${GitHub.OPENGOOD_ORG_URI}/${project.name}"
-    )
-    var uri by GradleProperty(project, String::class.java, "${GitHub.OPENGOOD_ORG_URI}/${project.name}")
+    var provider by GradleProperty(project, ScmProvider::class.java, ScmProvider.GIT)
+    var connection by GradleProperty(project, String::class.java, String.format(ScmProvider.CONNECTION, provider, project.name))
+    var devConnection by GradleProperty(project, String::class.java, String.format(ScmProvider.DEV_CONNECTION, provider, project.name))
+    var uri by GradleProperty(project, String::class.java, String.format(GitHub.OPENGOOD_REPO_URI, project.name))
 }

@@ -12,8 +12,8 @@ class ConfigPluginReleaseTest : FunSpec({
     val project = createProject(
         ProjectConfig(
             languageType = LanguageType.KOTLIN,
-            version = "1.0.0"
-        )
+            version = "1.0.0",
+        ),
     )
 
     include(configurePublishingExtensionTest(project))

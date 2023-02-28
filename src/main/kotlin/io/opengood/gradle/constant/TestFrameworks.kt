@@ -1,8 +1,8 @@
 package io.opengood.gradle.constant
 
-class Artifacts {
+class TestFrameworks {
 
     companion object {
-        const val DESCRIPTION = ""
+        const val JAVA = false
     }
 }

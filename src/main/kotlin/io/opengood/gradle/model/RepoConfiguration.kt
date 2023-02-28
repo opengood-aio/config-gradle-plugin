@@ -1,7 +1,6 @@
 package io.opengood.gradle.model
 
 import io.opengood.gradle.annotation.AllOpen
-import io.opengood.gradle.constant.GitHub
 import io.opengood.gradle.constant.Repositories
 import io.opengood.gradle.property.GradleProperty
 import org.gradle.api.Project
@@ -10,9 +9,5 @@ import org.gradle.api.Project
 class RepoConfiguration(project: Project) {
     var ossSnapshotsRepoUri by GradleProperty(project, String::class.java, Repositories.OSS_SNAPSHOTS_REPO_URI)
     var ossStagingRepoUri by GradleProperty(project, String::class.java, Repositories.OSS_STAGING_REPO_URI)
-    var gitHubPackagesRepoUri by GradleProperty(
-        project,
-        String::class.java,
-        "${Repositories.GITHUB_PACKAGES_REPO_URI}/${GitHub.OPENGOOD_ORG_NAME}/${project.name}"
-    )
+    var gitHubPackagesRepoUri by GradleProperty(project, String::class.java, String.format(Repositories.GITHUB_PACKAGES_REPO_URI, project.name))
 }
