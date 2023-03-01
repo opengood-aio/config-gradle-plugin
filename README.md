@@ -30,84 +30,85 @@ The plugin supports customized properties:
 
 #### Main
 
-| Property | Description | Default |
-|---|---|---|
-| `projectType` | Type of project. Supported (`APP`, `LIB`) | `APP` |
+| Property      | Description                               | Default |
+|---------------|-------------------------------------------|---------|
+| `projectType` | Type of project. Supported (`APP`, `LIB`) | `APP`   |
 
 #### Features
 
-| Property | Description | Default |
-|---|---|---|
-| `assertj` | Value indicating if AssertJ dependency is enabled | `true` |
-| `jacksonKotlin` | Value indicating if Jackson Kotlin dependency is enabled | `true` |
-| `junitJupiter` | Value indicating if JUnit Jupiter dependency is enabled | `true` |
-| `kotest` | Value indicating if Kotest dependencies are enabled | `true` |
-| `kotestSpring` | Value indicating if Kotest Spring dependency is enabled | `true` |
-| `kotlinCoroutines` | Value indicating if Kotlin Coroutines dependency is enabled | `true` |
-| `lombok` | Value indicating if Lombok dependency is enabled | `true` |
-| `mockito` | Value indicating if Mockito dependency is enabled | `true` |
-| `mockk` | Value indicating if MockK dependency is enabled | `true` |
-| `spring` | Value indicating if Spring dependencies are enabled | `true` |
-| `springMockk` | Value indicating if Spring MockK dependency is enabled | `true` |
+| Property           | Description                                                 | Default |
+|--------------------|-------------------------------------------------------------|---------|
+| `assertj`          | Value indicating if AssertJ dependency is enabled           | `true`  |
+| `jackson`          | Value indicating if Jackson dependency is enabled           | `true`  |
+| `jacksonKotlin`    | Value indicating if Jackson Kotlin dependency is enabled    | `true`  |
+| `junitJupiter`     | Value indicating if JUnit Jupiter dependency is enabled     | `true`  |
+| `kotest`           | Value indicating if Kotest dependencies are enabled         | `true`  |
+| `kotestSpring`     | Value indicating if Kotest Spring dependency is enabled     | `true`  |
+| `kotlinCoroutines` | Value indicating if Kotlin Coroutines dependency is enabled | `true`  |
+| `lombok`           | Value indicating if Lombok dependency is enabled            | `true`  |
+| `mockito`          | Value indicating if Mockito dependency is enabled           | `true`  |
+| `mockk`            | Value indicating if MockK dependency is enabled             | `true`  |
+| `spring`           | Value indicating if Spring dependencies are enabled         | `true`  |
+| `springMockk`      | Value indicating if Spring MockK dependency is enabled      | `true`  |
 
 #### Test
 
-| Property | Description | Default |
-|---|---|---|
-| `maxParallelForks` | Number of concurrent test classes to execute | `Available Processors / 2 + 1` |
-| `frameworks` | Available test frameworks to enable | see *[Test Frameworks](#test-frameworks)* |
+| Property           | Description                                  | Default                                   |
+|--------------------|----------------------------------------------|-------------------------------------------|
+| `maxParallelForks` | Number of concurrent test classes to execute | `Available Processors / 2 + 1`            |
+| `frameworks`       | Available test frameworks to enable          | see *[Test Frameworks](#test-frameworks)* |
 
 #### Test Frameworks
 
-| Property | Description | Default |
-|---|---|---|
-| `java` | Value indicating if Java test frameworks are enabled | `false` |
+| Property | Description                                          | Default |
+|----------|------------------------------------------------------|---------|
+| `java`   | Value indicating if Java test frameworks are enabled | `false` |
 
 #### Artifact
 
-| Property | Description | Default |
-|---|---|---|
-| `name` | Name of artifact | `Gradle project.name` |
-| `packaging` | Type of packaging. Supported (`JAR`) | `JAR` |
-| `description` | Description of artifact |  |
-| `uri` | URI of artifact project repository | `GitHub Org URI + Gradle project.name` |
-| `publications` | Publication of artifact. Supported (`OSS`, `GITHUB`) | `OSS` |
-| `repo` | Artifact repository details | see *[Artifact Repository](#artifact-repository)* |
-| `scm` | SCM details | see *[SCM](#scm)* |
-| `licenses` | License details | see *[License](#license)* |
-| `developer` | Developer details | see *[Developer](#developer)* |
+| Property       | Description                                          | Default                                           |
+|----------------|------------------------------------------------------|---------------------------------------------------|
+| `name`         | Name of artifact                                     | `Gradle project.name`                             |
+| `packaging`    | Type of packaging. Supported (`JAR`)                 | `JAR`                                             |
+| `description`  | Description of artifact                              |                                                   |
+| `uri`          | URI of artifact project repository                   | `GitHub Org URI + Gradle project.name`            |
+| `publications` | Publication of artifact. Supported (`OSS`, `GITHUB`) | `OSS`                                             |
+| `repo`         | Artifact repository details                          | see *[Artifact Repository](#artifact-repository)* |
+| `scm`          | SCM details                                          | see *[SCM](#scm)*                                 |
+| `licenses`     | License details                                      | see *[License](#license)*                         |
+| `developer`    | Developer details                                    | see *[Developer](#developer)*                     |
 
 #### Artifact Repository
 
-| Property | Description | Default |
-|---|---|---|
-| `ossSnapshotsRepoUri` | URI of OSS snapshots artifact repository | `https://oss.sonatype.org/content/repositories/snapshots` |
-| `ossStagingRepoUri` | URI of OSS staging artifact repository | `https://oss.sonatype.org/service/local/staging/deploy/maven2` |
+| Property                | Description                                | Default                                                                |
+|-------------------------|--------------------------------------------|------------------------------------------------------------------------|
+| `ossSnapshotsRepoUri`   | URI of OSS snapshots artifact repository   | `https://oss.sonatype.org/content/repositories/snapshots`              |
+| `ossStagingRepoUri`     | URI of OSS staging artifact repository     | `https://oss.sonatype.org/service/local/staging/deploy/maven2`         |
 | `gitHubPackagesRepoUri` | URI of GitHub packages artifact repository | `https://maven.pkg.github.com/ + GitHub Org URI + Gradle project.name` |
 
 #### SCM
 
-| Property | Description | Default |
-|---|---|---|
-| `provider` | SCM provider. Supported (`GIT`) | `GIT` |
-| `connection` | Connection URI to SCM repository | `scm:git: + GitHub Org URI + Gradle project.name` |
-| `developerConnection` | Developer connection URI to SCM repository | `scm:git: + GitHub Org URI + Gradle project.name` |
-| `uri` | URI of SCM repository | `GitHub Org URI + Gradle project.name` |
+| Property        | Description                                | Default                                           |
+|-----------------|--------------------------------------------|---------------------------------------------------|
+| `provider`      | SCM provider. Supported (`GIT`)            | `GIT`                                             |
+| `connection`    | Connection URI to SCM repository           | `scm:git: + GitHub Org URI + Gradle project.name` |
+| `devConnection` | Developer connection URI to SCM repository | `scm:git: + GitHub Org URI + Gradle project.name` |
+| `uri`           | URI of SCM repository                      | `GitHub Org URI + Gradle project.name`            |
 
 #### License
 
-| Property | Description | Default |
-|---|---|---|
-| `name` | Name of license | `MIT` |
-| `uri` | URI of license | `GitHub Org URI + Gradle project.name + LICENSE` |
+| Property | Description     | Default                                          |
+|----------|-----------------|--------------------------------------------------|
+| `name`   | Name of license | `MIT`                                            |
+| `uri`    | URI of license  | `GitHub Org URI + Gradle project.name + LICENSE` |
 
 #### Developer
 
-| Property | Description | Default |
-|---|---|---|
-| `id` | Identifier of developer | `opengood` |
-| `name` | Name of developer | `OpenGood` |
-| `email` | Email address of developer | `dev@opengood.io` |
+| Property | Description                | Default           |
+|----------|----------------------------|-------------------|
+| `id`     | Identifier of developer    | `opengood`        |
+| `name`   | Name of developer          | `OpenGood`        |
+| `email`  | Email address of developer | `dev@opengood.io` |
 
 #### Example
 
@@ -127,6 +128,7 @@ opengood {
     }
     features {
         assertj = false
+        jackson = false
         jacksonKotlin = false
         junitJupiter = false
         kotest = false
@@ -158,7 +160,7 @@ opengood {
         scm {
             provider = ScmProvider.GIT
             connection = "scm:git:https://repo.uri/project"
-            developerConnection = "scm:git:https://repo.uri/project"
+            devConnection = "scm:git:https://repo.uri/project"
             uri = "https://repo.uri/project"
         }
         license {
@@ -202,7 +204,7 @@ repository
 ##### Local
 
 * Using Gradle account with API key for publishing, add credentials to
-`~/.gradle/gradle.properties`:
+  `~/.gradle/gradle.properties`:
 
     ```properties
     gradle.publish.key=<gradle-api-key>
@@ -215,13 +217,13 @@ repository
     ./gradlew clean release -Prelease.useAutomaticVersion=true
     ```
 
-    **Note:** `publishPlugins` task is configured with Gradle release
-    plugin to execute after release build
+  **Note:** `publishPlugins` task is configured with Gradle release
+  plugin to execute after release build
 
 ##### CI/CD
 
 * Using Gradle account with API key for publishing, add environment
-variables to CI job:
+  variables to CI job:
 
     ```
     GRADLE_PUBLISH_KEY=<gradle-api-key>
@@ -244,7 +246,7 @@ plugin to Maven OSS repository
 ###### Maven OSS
 
 * Using Sonatype OSS account with GPG key for publishing, add
-credentials to `~/.gradle/gradle.properties`:
+  credentials to `~/.gradle/gradle.properties`:
 
     ```properties
     ossRepoUsername=<sonatype-account-username>
@@ -261,13 +263,13 @@ credentials to `~/.gradle/gradle.properties`:
     ./gradlew clean release -Prelease.useAutomaticVersion=true
     ```
 
-    **Note:** `publishOssPublicationToOssStagingRepository` tasks are
-    configured with Gradle release plugin to execute after release build
+  **Note:** `publishOssPublicationToOssStagingRepository` tasks are
+  configured with Gradle release plugin to execute after release build
 
 ###### GitHub
 
 * Using GitHub account for publishing, add
-credentials to `~/.gradle/gradle.properties`:
+  credentials to `~/.gradle/gradle.properties`:
 
     ```properties
     githubPackagesRepoPassword=<github-account-username>
@@ -275,22 +277,22 @@ credentials to `~/.gradle/gradle.properties`:
     ```
 
 * Create release version and publish artifact to GitHub packages
-repository:
+  repository:
 
     ```bash
     ./gradlew clean release -Prelease.useAutomaticVersion=true
     ```
 
-    **Note:** `publishGitHubPublicationToGitHubPackagesRepository` tasks
-    are configured with Gradle release plugin to execute after release
-    build
+  **Note:** `publishGitHubPublicationToGitHubPackagesRepository` tasks
+  are configured with Gradle release plugin to execute after release
+  build
 
 ##### CI/CD
 
 ###### Maven OSS
 
 * Using Sonatype OSS account with GPG key for publishing, add
-environment variables to CI job:
+  environment variables to CI job:
 
     ```
     OSS_REPO_USERNAME=<sonatype-account-username>
@@ -299,7 +301,7 @@ environment variables to CI job:
     GPG_SIGNING_PASSWORD=<gpg-key-password>
     ```
 
-    **Note:** `gpg-key-private-key` must be in ASCII armored format
+  **Note:** `gpg-key-private-key` must be in ASCII armored format
 
 * Create release version and publish artifact to Maven OSS repository:
 
@@ -310,7 +312,7 @@ environment variables to CI job:
 ###### GitHub
 
 * Using GitHub account for publishing, add
-environment variables to CI job:
+  environment variables to CI job:
 
     ```
     GITHUB_ACTOR=<github-account-username>
@@ -321,7 +323,7 @@ environment variables to CI job:
   by added GitHub
 
 * Create release version and publish artifact to GitHub packages
-repository:
+  repository:
 
     ```bash
     git commit --allow-empty -m "Create release"; git push
