@@ -32,7 +32,7 @@ The plugin supports customized properties:
 
 | Property      | Description                               | Default |
 |---------------|-------------------------------------------|---------|
-| `projectType` | Type of project. Supported (`APP`, `LIB`) | `APP`   |
+| `projectType` | Type of project. Supported (`APP`, `LIB`) | `LIB`   |
 
 #### Features
 
