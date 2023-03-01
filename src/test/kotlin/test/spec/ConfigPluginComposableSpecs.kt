@@ -402,7 +402,7 @@ fun addKotestDependenciesTest(project: Project) = funSpec {
 fun addKotestSpringDependenciesTest(project: Project) = funSpec {
     test("Adds Kotest Spring dependencies") {
         with(project.dependenciesVersions) {
-            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTEST_SPRING)).shouldNotBeNull()
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTEST_SPRING_EXTENSIONS)).shouldNotBeNull()
         }
     }
 }
@@ -525,7 +525,7 @@ fun doNotAddKotestDependenciesTest(project: Project) = funSpec {
 fun doNotAddKotestSpringDependenciesTest(project: Project) = funSpec {
     test("Does not add Kotest Spring dependencies") {
         with(project.dependenciesVersions) {
-            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTEST_SPRING)).shouldBeNull()
+            getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.KOTEST_SPRING_EXTENSIONS)).shouldBeNull()
         }
     }
 }

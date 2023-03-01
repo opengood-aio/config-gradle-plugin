@@ -227,7 +227,7 @@ class ConfigPlugin : Plugin<Project> {
                                             testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTEST_PROPERTIES)))
                                         }
                                         if (kotestSpring) {
-                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTEST_SPRING)))
+                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTEST_SPRING_EXTENSIONS)))
                                         }
                                         if (mockk) {
                                             testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.MOCKK_ALL)))
