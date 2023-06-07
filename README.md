@@ -16,7 +16,7 @@ Add `opengood-config` Gradle plugin to `build.gradle.kts`:
 
 ```kotlin
 plugins {
-    id("io.opengood.gradle.model") version "VERSION"
+    id("io.opengood.gradle.config") version "VERSION"
 }
 ```
 
