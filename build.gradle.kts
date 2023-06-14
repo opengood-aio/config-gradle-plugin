@@ -1,4 +1,3 @@
-
 import de.fayard.refreshVersions.core.versionFor
 import org.gradle.api.internal.classpath.ModuleRegistry
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
