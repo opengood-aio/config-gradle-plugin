@@ -9,9 +9,9 @@ jobs:
   release:
     uses: opengoodio/central-workflows/.github/workflows/gradle-plugin-release.yml@main
     with:
+      git-email: ${{ vars.GIT_EMAIL }}
+      git-user: ${{ vars.GIT_USER }}
       run-gradle-validation: true
     secrets:
-      git-email: ${{ secrets.GIT_EMAIL }}
-      git-user: ${{ secrets.GIT_USER }}
       gradle-publish-key: ${{ secrets.GRADLE_PUBLISH_KEY }}
       gradle-publish-secret: ${{ secrets.GRADLE_PUBLISH_SECRET }}
