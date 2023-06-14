@@ -1,7 +1,5 @@
 
 import de.fayard.refreshVersions.core.versionFor
-import net.researchgate.release.GitAdapter.GitConfig
-import net.researchgate.release.ReleaseExtension
 import org.gradle.api.internal.classpath.ModuleRegistry
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
@@ -230,9 +228,6 @@ with(tasks) {
         dependsOn("publishPlugins")
     }
 }
-
-fun ReleaseExtension.git(config: GitConfig.() -> Unit) =
-    (getProperty("git") as GitConfig).config()
 
 release {
     preTagCommitMessage.set("[Gradle Release] - pre tag commit: ")
