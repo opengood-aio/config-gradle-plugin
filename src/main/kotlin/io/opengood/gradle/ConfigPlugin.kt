@@ -62,6 +62,7 @@ class ConfigPlugin : Plugin<Project> {
         configurePlugins(project)
         configureDependencyResolutionStrategy(project)
         configureRepositories(project)
+        configureTestTaskFrameworks(project)
 
         project.afterEvaluate {
             configurePlugins(project, afterEval = true)
@@ -342,13 +343,18 @@ class ConfigPlugin : Plugin<Project> {
         }
     }
 
+    private fun configureTestTaskFrameworks(project: Project) {
+        project.tasks.withType(Test::class.java).configureEach { task ->
+            task.useJUnitPlatform()
+        }
+    }
+
     private fun configureTestTask(project: Project) {
-        project.tasks.withType(Test::class.java) { task ->
+        project.tasks.withType(Test::class.java).configureEach { task ->
             with(task) {
                 setOnlyIf { !project.hasProperty(Tests.SKIP_TESTS) }
                 finalizedBy(Tasks.JACOCO_TEST_REPORT)
                 jvmArgs(Tests.JVM_ARGS_ADD_OPENS, Tests.JVM_ARGS_ADD_OPENS_JAVA_UTIL)
-                useJUnitPlatform()
 
                 testLogging { logging ->
                     logging.apply {

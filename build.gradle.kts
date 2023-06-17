@@ -132,9 +132,9 @@ with(tasks) {
     }
 
     withType<Test> {
+        useJUnitPlatform()
         finalizedBy("jacocoTestReport")
         jvmArgs("--add-opens", "java.base/java.util=ALL-UNNAMED")
-        useJUnitPlatform()
 
         testLogging {
             events = setOf(PASSED, SKIPPED, FAILED, STANDARD_ERROR)
