@@ -1,7 +1,6 @@
 package io.opengood.gradle.constant
 
 class GitHub {
-
     companion object {
         const val BLOB_ENDPOINT_NAME = "blob"
         const val DEFAULT_BRANCH_NAME = "main"

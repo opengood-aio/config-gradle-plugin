@@ -11,7 +11,10 @@ internal enum class TestFrameworks(val flag: Int) {
 internal val defaultTestFrameworks =
     TestFrameworks.DEFAULT.flag
 
-internal fun getTestFrameworks(project: Project, flags: Int): TestFrameworkConfiguration {
+internal fun getTestFrameworks(
+    project: Project,
+    flags: Int,
+): TestFrameworkConfiguration {
     val testFrameworks = TestFrameworkConfiguration(project)
     if (flags and TestFrameworks.JAVA.flag != 0) testFrameworks.java = true
     return testFrameworks

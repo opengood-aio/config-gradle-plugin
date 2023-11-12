@@ -1,7 +1,6 @@
 package io.opengood.gradle.constant
 
 class Tasks {
-
     companion object {
         const val AFTER_RELEASE_BUILD = "afterReleaseBuild"
         const val COMPILE_JAVA = "compileJava"

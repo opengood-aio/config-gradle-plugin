@@ -1,7 +1,6 @@
 package io.opengood.gradle.constant
 
 class EnvVars {
-
     companion object {
         const val GITHUB_TOKEN = "GITHUB_TOKEN"
         const val GITHUB_USER = "GITHUB_USER"

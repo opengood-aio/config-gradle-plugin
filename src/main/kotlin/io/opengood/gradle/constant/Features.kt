@@ -1,7 +1,6 @@
 package io.opengood.gradle.constant
 
 class Features {
-
     companion object {
         const val ASSERTJ = true
         const val JACKSON = true

@@ -8,13 +8,19 @@ class GradleListProperty<T, V>(
     type: Class<V>,
     default: List<V>? = null,
 ) {
-    private val property = project.objects.listProperty(type).apply {
-        set(default)
-    }
+    private val property =
+        project.objects.listProperty(type).apply {
+            set(default)
+        }
 
-    operator fun getValue(ref: T, property: KProperty<*>): List<V> =
-        this.property.get()
+    operator fun getValue(
+        ref: T,
+        property: KProperty<*>,
+    ): List<V> = this.property.get()
 
-    operator fun setValue(ref: T, property: KProperty<*>, value: List<V>) =
-        this.property.set(value)
+    operator fun setValue(
+        ref: T,
+        property: KProperty<*>,
+        value: List<V>,
+    ) = this.property.set(value)
 }

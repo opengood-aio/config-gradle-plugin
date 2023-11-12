@@ -7,7 +7,6 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_ERROR
 
 class Tests {
-
     companion object {
         val EXCEPTION_FORMAT = TestExceptionFormat.FULL
         val LOGGING_EVENTS = setOf(PASSED, SKIPPED, FAILED, STANDARD_ERROR)

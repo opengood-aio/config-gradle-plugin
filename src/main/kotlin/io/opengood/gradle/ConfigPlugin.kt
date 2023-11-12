@@ -53,7 +53,6 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 import java.net.URI
 
 class ConfigPlugin : Plugin<Project> {
-
     private lateinit var extension: OpenGoodExtension
 
     override fun apply(project: Project) {
@@ -74,14 +73,18 @@ class ConfigPlugin : Plugin<Project> {
     }
 
     private fun createExtension(project: Project) {
-        extension = project.extensions.create(
-            OpenGoodExtension.EXTENSION_NAME,
-            OpenGoodExtension::class.java,
-            project,
-        )
+        extension =
+            project.extensions.create(
+                OpenGoodExtension.EXTENSION_NAME,
+                OpenGoodExtension::class.java,
+                project,
+            )
     }
 
-    private fun configurePlugins(project: Project, afterEval: Boolean = false) {
+    private fun configurePlugins(
+        project: Project,
+        afterEval: Boolean = false,
+    ) {
         with(project) {
             with(pluginManager) {
                 if (afterEval) {
@@ -216,19 +219,31 @@ class ConfigPlugin : Plugin<Project> {
                                         testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTLIN_TEST)))
 
                                         if (kotlinCoroutines) {
-                                            implementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTLIN_COROUTINES_CORE)))
+                                            implementation.dependencies.add(
+                                                create(getDependencyAndVersion(Dependencies.KOTLIN_COROUTINES_CORE)),
+                                            )
                                         }
                                         if (jacksonKotlin) {
-                                            implementation.dependencies.add(create(getDependencyAndVersion(Dependencies.JACKSON_MODULE_KOTLIN)))
+                                            implementation.dependencies.add(
+                                                create(getDependencyAndVersion(Dependencies.JACKSON_MODULE_KOTLIN)),
+                                            )
                                         }
                                         if (kotest) {
                                             testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTEST_RUNNER)))
-                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTEST_ASSERTIONS)))
-                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTEST_EXTENSIONS)))
-                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTEST_PROPERTIES)))
+                                            testImplementation.dependencies.add(
+                                                create(getDependencyAndVersion(Dependencies.KOTEST_ASSERTIONS)),
+                                            )
+                                            testImplementation.dependencies.add(
+                                                create(getDependencyAndVersion(Dependencies.KOTEST_EXTENSIONS)),
+                                            )
+                                            testImplementation.dependencies.add(
+                                                create(getDependencyAndVersion(Dependencies.KOTEST_PROPERTIES)),
+                                            )
                                         }
                                         if (kotestSpring) {
-                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTEST_SPRING_EXTENSIONS)))
+                                            testImplementation.dependencies.add(
+                                                create(getDependencyAndVersion(Dependencies.KOTEST_SPRING_EXTENSIONS)),
+                                            )
                                         }
                                         if (mockk) {
                                             testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.MOCKK_ALL)))
@@ -244,9 +259,13 @@ class ConfigPlugin : Plugin<Project> {
                                 }
 
                                 if (spring) {
-                                    annotationProcessor.dependencies.add(create(getDependencyAndVersion(Dependencies.SPRING_BOOT_CONFIG_PROCESSOR)))
+                                    annotationProcessor.dependencies.add(
+                                        create(getDependencyAndVersion(Dependencies.SPRING_BOOT_CONFIG_PROCESSOR)),
+                                    )
                                     implementation.dependencies.add(create(getDependencyAndVersion(Dependencies.SPRING_BOOT_STARTER)))
-                                    testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.SPRING_BOOT_STARTER_TEST)))
+                                    testImplementation.dependencies.add(
+                                        create(getDependencyAndVersion(Dependencies.SPRING_BOOT_STARTER_TEST)),
+                                    )
                                 }
 
                                 with(test) {
@@ -257,11 +276,15 @@ class ConfigPlugin : Plugin<Project> {
                                             testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.ASSERTJ_CORE)))
                                         }
                                         if (junitJupiter) {
-                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.JUNIT_JUPITER_ALL)))
+                                            testImplementation.dependencies.add(
+                                                create(getDependencyAndVersion(Dependencies.JUNIT_JUPITER_ALL)),
+                                            )
                                         }
                                         if (mockito) {
                                             testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.MOCKITO_CORE)))
-                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.MOCKITO_JUNIT_JUPITER)))
+                                            testImplementation.dependencies.add(
+                                                create(getDependencyAndVersion(Dependencies.MOCKITO_JUNIT_JUPITER)),
+                                            )
                                         }
                                     }
                                 }
@@ -375,38 +398,49 @@ class ConfigPlugin : Plugin<Project> {
                     println(colorize("***************************************************", CYAN_TEXT()))
                 }
 
-                addTestListener(object : TestListener {
-                    override fun beforeSuite(suite: TestDescriptor) {}
-                    override fun beforeTest(testDescriptor: TestDescriptor) {}
-                    override fun afterTest(testDescriptor: TestDescriptor, result: TestResult) {}
-                    override fun afterSuite(suite: TestDescriptor, result: TestResult) {
-                        if (suite.parent == null) {
-                            val output =
-                                "Results: ${result.resultType} " +
-                                    "(" +
-                                    "${result.testCount} tests, " +
-                                    "${result.successfulTestCount} successes, " +
-                                    "${result.failedTestCount} failures, " +
-                                    "${result.skippedTestCount} skipped" +
-                                    ")"
-                            val startItem = "| "
-                            val endItem = " |"
-                            val repeatLength = startItem.length + output.length + endItem.length
-                            println(
-                                colorize(
-                                    """
+                addTestListener(
+                    object : TestListener {
+                        override fun beforeSuite(suite: TestDescriptor) {}
+
+                        override fun beforeTest(testDescriptor: TestDescriptor) {}
+
+                        override fun afterTest(
+                            testDescriptor: TestDescriptor,
+                            result: TestResult,
+                        ) {}
+
+                        override fun afterSuite(
+                            suite: TestDescriptor,
+                            result: TestResult,
+                        ) {
+                            if (suite.parent == null) {
+                                val output =
+                                    "Results: ${result.resultType} " +
+                                        "(" +
+                                        "${result.testCount} tests, " +
+                                        "${result.successfulTestCount} successes, " +
+                                        "${result.failedTestCount} failures, " +
+                                        "${result.skippedTestCount} skipped" +
+                                        ")"
+                                val startItem = "| "
+                                val endItem = " |"
+                                val repeatLength = startItem.length + output.length + endItem.length
+                                println(
+                                    colorize(
+                                        """
                             |
                             |${"-".repeat(repeatLength)}
                             |$startItem$output$endItem
                             |${"-".repeat(repeatLength)}
                             |
-                                    """.trimMargin(),
-                                    if (result.failedTestCount == 0L) GREEN_TEXT() else RED_TEXT(),
-                                ),
-                            )
+                                        """.trimMargin(),
+                                        if (result.failedTestCount == 0L) GREEN_TEXT() else RED_TEXT(),
+                                    ),
+                                )
+                            }
                         }
-                    }
-                })
+                    },
+                )
 
                 doLast {
                     println(colorize("***************************************************", CYAN_TEXT()))
@@ -639,10 +673,14 @@ class ConfigPlugin : Plugin<Project> {
                                             )
 
                                         if (gitHubPackagesRepoUsername.isBlank()) {
-                                            println("WARN: ${Properties.GITHUB_PACKAGES_REPO_USERNAME} property or ${EnvVars.GITHUB_USER} environment variable is not set")
+                                            println(
+                                                "WARN: ${Properties.GITHUB_PACKAGES_REPO_USERNAME} property or ${EnvVars.GITHUB_USER} environment variable is not set",
+                                            )
                                         }
                                         if (gitHubPackagesRepoPassword.isBlank()) {
-                                            println("WARN: ${Properties.GITHUB_PACKAGES_REPO_PASSWORD} property or ${EnvVars.GITHUB_TOKEN} environment variable is not set")
+                                            println(
+                                                "WARN: ${Properties.GITHUB_PACKAGES_REPO_PASSWORD} property or ${EnvVars.GITHUB_TOKEN} environment variable is not set",
+                                            )
                                         }
 
                                         with(repo) {
@@ -669,10 +707,14 @@ class ConfigPlugin : Plugin<Project> {
                                             )
 
                                         if (ossRepoUsername.isBlank()) {
-                                            println("WARN: ${Properties.OSS_REPO_USERNAME} property or ${EnvVars.GITHUB_USER} environment variable is not set")
+                                            println(
+                                                "WARN: ${Properties.OSS_REPO_USERNAME} property or ${EnvVars.GITHUB_USER} environment variable is not set",
+                                            )
                                         }
                                         if (ossRepoPassword.isBlank()) {
-                                            println("WARN: ${Properties.OSS_REPO_PASSWORD} property or ${EnvVars.GITHUB_TOKEN} environment variable is not set")
+                                            println(
+                                                "WARN: ${Properties.OSS_REPO_PASSWORD} property or ${EnvVars.GITHUB_TOKEN} environment variable is not set",
+                                            )
                                         }
 
                                         with(repo) {
@@ -779,7 +821,9 @@ class ConfigPlugin : Plugin<Project> {
                             println("Using in-memory GPG key for signing")
                             useInMemoryPgpKeys(signingKey, signingPassword)
                         } else {
-                            println("Environment variables ${EnvVars.GPG_SIGNING_PRIVATE_KEY} and ${EnvVars.GPG_SIGNING_PASSWORD} are not set")
+                            println(
+                                "Environment variables ${EnvVars.GPG_SIGNING_PRIVATE_KEY} and ${EnvVars.GPG_SIGNING_PASSWORD} are not set",
+                            )
                             println("Defaulting to global Gradle properties file for GPG key for signing")
                         }
 

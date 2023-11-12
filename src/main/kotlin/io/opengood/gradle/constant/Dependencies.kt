@@ -1,7 +1,6 @@
 package io.opengood.gradle.constant
 
 class Dependencies {
-
     companion object {
         const val ASSERTJ = "assertj.core"
         const val ASSERTJ_CORE = "org.assertj:assertj-core"

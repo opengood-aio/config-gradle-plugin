@@ -49,12 +49,13 @@ import test.spec.doNotConfigureBootJarResolutionTest
 
 class ConfigPluginKotlinLibTest : FunSpec({
 
-    val project = createProject(
-        ProjectConfig(
-            languageType = LanguageType.KOTLIN,
-            projectType = ProjectType.LIB,
-        ),
-    )
+    val project =
+        createProject(
+            ProjectConfig(
+                languageType = LanguageType.KOTLIN,
+                projectType = ProjectType.LIB,
+            ),
+        )
 
     include(applyPluginTest(project))
 

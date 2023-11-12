@@ -10,12 +10,13 @@ import test.spec.doNotConfigureSigningExtensionTest
 
 class ConfigPluginPublishingAndSigningTest : FunSpec({
 
-    val project = createProject(
-        ProjectConfig(
-            languageType = LanguageType.KOTLIN,
-            publications = emptyList(),
-        ),
-    )
+    val project =
+        createProject(
+            ProjectConfig(
+                languageType = LanguageType.KOTLIN,
+                publications = emptyList(),
+            ),
+        )
 
     include(doNotConfigureAfterReleaseBuildTaskTest(project))
 

@@ -50,12 +50,13 @@ import test.spec.doNotApplyLombokPluginTest
 
 class ConfigPluginGroovyAppTest : FunSpec({
 
-    val project = createProject(
-        ProjectConfig(
-            languageType = LanguageType.GROOVY,
-            projectType = ProjectType.APP,
-        ),
-    )
+    val project =
+        createProject(
+            ProjectConfig(
+                languageType = LanguageType.GROOVY,
+                projectType = ProjectType.APP,
+            ),
+        )
 
     include(applyPluginTest(project))
 

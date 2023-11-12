@@ -1,7 +1,6 @@
 package io.opengood.gradle.constant
 
 class Plugins {
-
     companion object {
         const val BASE = "base"
         const val GROOVY = "groovy"

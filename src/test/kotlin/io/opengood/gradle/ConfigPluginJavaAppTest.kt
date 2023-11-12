@@ -50,12 +50,13 @@ import test.spec.doNotApplyLibraryPluginTest
 
 class ConfigPluginJavaAppTest : FunSpec({
 
-    val project = createProject(
-        ProjectConfig(
-            languageType = LanguageType.JAVA,
-            projectType = ProjectType.APP,
-        ),
-    )
+    val project =
+        createProject(
+            ProjectConfig(
+                languageType = LanguageType.JAVA,
+                projectType = ProjectType.APP,
+            ),
+        )
 
     include(applyPluginTest(project))
 

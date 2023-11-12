@@ -58,23 +58,32 @@ internal fun createProject(config: ProjectConfig): Project {
     }
 }
 
-internal fun createProjectBuildGradle(languageType: LanguageType, projectDir: Path): Boolean =
-    projectDir.resolve(getBuildGradleFile(languageType)).toFile().createNewFile()
+internal fun createProjectBuildGradle(
+    languageType: LanguageType,
+    projectDir: Path,
+): Boolean = projectDir.resolve(getBuildGradleFile(languageType)).toFile().createNewFile()
 
-internal fun createProjectDir(): Path =
-    Files.createTempDirectory("")
+internal fun createProjectDir(): Path = Files.createTempDirectory("")
 
-internal fun createProjectSettingsGradle(languageType: LanguageType, projectDir: Path): Boolean =
-    projectDir.resolve(getSettingsGradleFile(languageType)).toFile().createNewFile()
+internal fun createProjectSettingsGradle(
+    languageType: LanguageType,
+    projectDir: Path,
+): Boolean = projectDir.resolve(getSettingsGradleFile(languageType)).toFile().createNewFile()
 
-internal fun createProjectSrcDir(languageType: LanguageType, projectDir: Path): Boolean =
+internal fun createProjectSrcDir(
+    languageType: LanguageType,
+    projectDir: Path,
+): Boolean =
     when (languageType) {
         LanguageType.GROOVY -> projectDir.resolve(SrcDirType.GROOVY.first()).toFile().mkdirs()
         LanguageType.JAVA -> projectDir.resolve(SrcDirType.JAVA.first()).toFile().mkdirs()
         LanguageType.KOTLIN -> projectDir.resolve(SrcDirType.KOTLIN.first()).toFile().mkdirs()
     }
 
-internal fun getBom(extension: DependencyManagementExtension, name: String): PomReference? =
+internal fun getBom(
+    extension: DependencyManagementExtension,
+    name: String,
+): PomReference? =
     extension.accessField<DependencyManagementContainer>("dependencyManagementContainer")
         .globalDependencyManagement.accessField<List<PomReference>>("importedBoms")
         .find {
@@ -89,27 +98,40 @@ internal fun getBuildGradleFile(languageType: LanguageType): String =
         else -> BuildGradleType.GROOVY_DSL.toString()
     }
 
-internal fun getDependencies(project: Project, configuration: String): List<Dependency> =
-    project.configurations.getByName(configuration).dependencies.toList()
+internal fun getDependencies(
+    project: Project,
+    configuration: String,
+): List<Dependency> = project.configurations.getByName(configuration).dependencies.toList()
 
-internal fun getDependency(project: Project, configuration: String, name: String): Dependency? =
+internal fun getDependency(
+    project: Project,
+    configuration: String,
+    name: String,
+): Dependency? =
     project.configurations.getByName(configuration).dependencies
         .firstOrNull { it == project.dependencies.create(name) }
 
-internal inline fun <reified T : Plugin<*>> getPlugin(project: Project): T =
-    project.plugins.getPlugin(T::class.java)
+internal inline fun <reified T : Plugin<*>> getPlugin(project: Project): T = project.plugins.getPlugin(T::class.java)
 
-internal fun getPlugin(project: Project, id: String): Plugin<Any> =
-    project.plugins.getPlugin(id)
+internal fun getPlugin(
+    project: Project,
+    id: String,
+): Plugin<Any> = project.plugins.getPlugin(id)
 
-internal fun getPublication(extension: PublishingExtension, name: String): MavenPublication =
-    extension.publications.getByName(name) as MavenPublication
+internal fun getPublication(
+    extension: PublishingExtension,
+    name: String,
+): MavenPublication = extension.publications.getByName(name) as MavenPublication
 
-internal fun getRepository(project: Project, name: String): ArtifactRepository =
-    project.repositories.getByName(name)
+internal fun getRepository(
+    project: Project,
+    name: String,
+): ArtifactRepository = project.repositories.getByName(name)
 
-internal fun getRepository(extension: PublishingExtension, name: String): MavenArtifactRepository =
-    extension.repositories.getByName(name) as MavenArtifactRepository
+internal fun getRepository(
+    extension: PublishingExtension,
+    name: String,
+): MavenArtifactRepository = extension.repositories.getByName(name) as MavenArtifactRepository
 
 internal fun getSettingsGradleFile(languageType: LanguageType): String =
     when (languageType) {
@@ -117,17 +139,21 @@ internal fun getSettingsGradleFile(languageType: LanguageType): String =
         else -> SettingsGradleType.GROOVY_DSL.toString()
     }
 
-internal fun getTaskByName(project: Project, name: String): Task =
-    project.tasks.getByName(name)
+internal fun getTaskByName(
+    project: Project,
+    name: String,
+): Task = project.tasks.getByName(name)
 
-internal inline fun <reified T : Task> getTaskByType(project: Project): T =
-    project.tasks.withType(T::class.java).first()
+internal inline fun <reified T : Task> getTaskByType(project: Project): T = project.tasks.withType(T::class.java).first()
 
-internal inline fun <reified T : Task> getTaskByTypeAndName(project: Project, name: String): T =
-    project.tasks.withType(T::class.java).getByName(name)
+internal inline fun <reified T : Task> getTaskByTypeAndName(
+    project: Project,
+    name: String,
+): T = project.tasks.withType(T::class.java).getByName(name)
 
-internal fun getTasksDependsOn(task: Task): List<String> =
-    task.dependsOn.toTypedArray().first().toArray().map { it.toString() }.toList()
+internal fun getTasksDependsOn(task: Task): List<String> = task.dependsOn.toTypedArray().first().toArray().map { it.toString() }.toList()
 
-internal fun hasTaskFinalizedByDependency(task: Task, name: String): Boolean =
-    (task.finalizedBy as DefaultTaskDependency).mutableValues.contains(name)
+internal fun hasTaskFinalizedByDependency(
+    task: Task,
+    name: String,
+): Boolean = (task.finalizedBy as DefaultTaskDependency).mutableValues.contains(name)

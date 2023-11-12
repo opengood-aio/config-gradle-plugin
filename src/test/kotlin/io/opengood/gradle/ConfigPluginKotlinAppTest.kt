@@ -51,12 +51,13 @@ import test.spec.doNotApplyLombokPluginTest
 
 class ConfigPluginKotlinAppTest : FunSpec({
 
-    val project = createProject(
-        ProjectConfig(
-            languageType = LanguageType.KOTLIN,
-            projectType = ProjectType.APP,
-        ),
-    )
+    val project =
+        createProject(
+            ProjectConfig(
+                languageType = LanguageType.KOTLIN,
+                projectType = ProjectType.APP,
+            ),
+        )
 
     include(applyPluginTest(project))
 

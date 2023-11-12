@@ -19,10 +19,11 @@ data class ProjectConfig(
     val features: Int = defaultFeatures,
     val testFrameworks: Int = defaultTestFrameworks,
     val publications: List<PublicationType> = listOf(PublicationType.GITHUB, PublicationType.OSS),
-    val credentials: Map<String, String> = mapOf(
-        EnvVars.GITHUB_USER to "example",
-        EnvVars.GITHUB_TOKEN to "fake",
-        EnvVars.OSS_REPO_USERNAME to "example",
-        EnvVars.OSS_REPO_PASSWORD to "fake",
-    ),
+    val credentials: Map<String, String> =
+        mapOf(
+            EnvVars.GITHUB_USER to "example",
+            EnvVars.GITHUB_TOKEN to "fake",
+            EnvVars.OSS_REPO_USERNAME to "example",
+            EnvVars.OSS_REPO_PASSWORD to "fake",
+        ),
 )

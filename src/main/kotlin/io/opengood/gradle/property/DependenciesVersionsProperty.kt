@@ -6,40 +6,48 @@ import io.opengood.gradle.constant.Resources
 import java.util.Properties
 
 class DependenciesVersionsProperty {
-
-    private val mappings = mapOf(
-        Dependencies.ASSERTJ to listOf(
-            Dependencies.ASSERTJ_CORE,
-        ),
-        Dependencies.JUNIT_JUPITER to listOf(
-            Dependencies.JUNIT_JUPITER_ALL,
-        ),
-        Dependencies.KOTEST to listOf(
-            Dependencies.KOTEST_RUNNER,
-            Dependencies.KOTEST_ASSERTIONS,
-            Dependencies.KOTEST_EXTENSIONS,
-            Dependencies.KOTEST_PROPERTIES,
-        ),
-        Dependencies.KOTEST_SPRING to listOf(
-            Dependencies.KOTEST_SPRING_EXTENSIONS,
-        ),
-        Dependencies.KOTLIN to listOf(
-            Boms.KOTLIN,
-            Dependencies.KOTLIN_REFLECT,
-            Dependencies.KOTLIN_STD_LIB,
-            Dependencies.KOTLIN_TEST,
-        ),
-        Dependencies.KOTLIN_COROUTINES to listOf(
-            Dependencies.KOTLIN_COROUTINES_CORE,
-        ),
-        Dependencies.MOCKITO to listOf(
-            Dependencies.MOCKITO_CORE,
-            Dependencies.MOCKITO_JUNIT_JUPITER,
-        ),
-        Dependencies.MOCKK to listOf(
-            Dependencies.MOCKK_ALL,
-        ),
-    )
+    private val mappings =
+        mapOf(
+            Dependencies.ASSERTJ to
+                listOf(
+                    Dependencies.ASSERTJ_CORE,
+                ),
+            Dependencies.JUNIT_JUPITER to
+                listOf(
+                    Dependencies.JUNIT_JUPITER_ALL,
+                ),
+            Dependencies.KOTEST to
+                listOf(
+                    Dependencies.KOTEST_RUNNER,
+                    Dependencies.KOTEST_ASSERTIONS,
+                    Dependencies.KOTEST_EXTENSIONS,
+                    Dependencies.KOTEST_PROPERTIES,
+                ),
+            Dependencies.KOTEST_SPRING to
+                listOf(
+                    Dependencies.KOTEST_SPRING_EXTENSIONS,
+                ),
+            Dependencies.KOTLIN to
+                listOf(
+                    Boms.KOTLIN,
+                    Dependencies.KOTLIN_REFLECT,
+                    Dependencies.KOTLIN_STD_LIB,
+                    Dependencies.KOTLIN_TEST,
+                ),
+            Dependencies.KOTLIN_COROUTINES to
+                listOf(
+                    Dependencies.KOTLIN_COROUTINES_CORE,
+                ),
+            Dependencies.MOCKITO to
+                listOf(
+                    Dependencies.MOCKITO_CORE,
+                    Dependencies.MOCKITO_JUNIT_JUPITER,
+                ),
+            Dependencies.MOCKK to
+                listOf(
+                    Dependencies.MOCKK_ALL,
+                ),
+        )
 
     private val properties = Properties()
 
@@ -48,8 +56,7 @@ class DependenciesVersionsProperty {
         properties.load(file)
     }
 
-    fun getDependencyAndVersion(groupAndName: String) =
-        "$groupAndName:${getVersion(groupAndName)}"
+    fun getDependencyAndVersion(groupAndName: String) = "$groupAndName:${getVersion(groupAndName)}"
 
     fun getVersion(groupAndName: String): String {
         val key = formatPropertyKey(mapPropertyKey(groupAndName))

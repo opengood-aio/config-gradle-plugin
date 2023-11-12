@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonFormat.Shape
 import com.fasterxml.jackson.annotation.JsonValue
 
 @JsonFormat(shape = Shape.OBJECT)
-enum class PublicationType(@JsonValue private val value: String) {
+enum class PublicationType(
+    @JsonValue private val value: String,
+) {
     GITHUB("GitHub"),
     OSS("OSS"),
     ;

@@ -21,12 +21,13 @@ import test.spec.doNotConfigureDependencyManagementExtensionTest
 
 class ConfigPluginFeaturesTest : FunSpec({
 
-    val project = createProject(
-        ProjectConfig(
-            languageType = LanguageType.KOTLIN,
-            features = Features.NONE.flag,
-        ),
-    )
+    val project =
+        createProject(
+            ProjectConfig(
+                languageType = LanguageType.KOTLIN,
+                features = Features.NONE.flag,
+            ),
+        )
 
     include(doNotAddAssertjDependenciesTest(project))
     include(doNotAddJacksonDependenciesTest(project))

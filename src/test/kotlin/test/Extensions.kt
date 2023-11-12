@@ -6,5 +6,4 @@ internal inline fun <reified T : Any> Any.accessField(name: String): T =
         return@let it.get(this) as T
     }
 
-infix fun <T> Boolean.then(param: () -> T): T? =
-    if (this) param() else null
+infix fun <T> Boolean.then(param: () -> T): T? = if (this) param() else null

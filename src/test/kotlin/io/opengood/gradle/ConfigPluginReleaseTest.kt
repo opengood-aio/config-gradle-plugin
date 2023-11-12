@@ -9,12 +9,13 @@ import test.spec.configureSigningExtensionTest
 
 class ConfigPluginReleaseTest : FunSpec({
 
-    val project = createProject(
-        ProjectConfig(
-            languageType = LanguageType.KOTLIN,
-            version = "1.0.0",
-        ),
-    )
+    val project =
+        createProject(
+            ProjectConfig(
+                languageType = LanguageType.KOTLIN,
+                version = "1.0.0",
+            ),
+        )
 
     include(configurePublishingExtensionTest(project))
     include(configureSigningExtensionTest(project))

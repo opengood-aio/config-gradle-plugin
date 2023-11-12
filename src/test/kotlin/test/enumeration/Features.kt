@@ -33,7 +33,10 @@ internal val defaultFeatures =
         Features.SPRING.flag or
         Features.SPRING_MOCKK.flag
 
-internal fun getFeatures(project: Project, flags: Int): FeatureConfiguration {
+internal fun getFeatures(
+    project: Project,
+    flags: Int,
+): FeatureConfiguration {
     val features = FeatureConfiguration(project)
     if (flags and Features.ASSERTJ.flag == 0) features.assertj = false
     if (flags and Features.JACKSON.flag == 0) features.jackson = false

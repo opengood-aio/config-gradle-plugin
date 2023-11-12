@@ -6,7 +6,9 @@ import com.fasterxml.jackson.annotation.JsonValue
 import io.opengood.gradle.constant.GitHub.Companion.OPENGOOD_ORG_URI
 
 @JsonFormat(shape = Shape.OBJECT)
-enum class ScmProvider(@JsonValue private val value: String) {
+enum class ScmProvider(
+    @JsonValue private val value: String,
+) {
     GIT("git"),
     ;
 

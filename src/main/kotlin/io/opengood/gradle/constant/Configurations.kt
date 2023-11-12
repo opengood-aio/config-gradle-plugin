@@ -1,7 +1,6 @@
 package io.opengood.gradle.constant
 
 class Configurations {
-
     companion object {
         const val ANNOTATION_PROCESSOR = "annotationProcessor"
         const val IMPLEMENTATION = "implementation"

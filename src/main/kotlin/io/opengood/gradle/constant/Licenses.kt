@@ -5,7 +5,6 @@ import io.opengood.gradle.constant.GitHub.Companion.DEFAULT_BRANCH_NAME
 import io.opengood.gradle.constant.GitHub.Companion.OPENGOOD_ORG_URI
 
 class Licenses {
-
     companion object {
         const val NAME = "MIT"
         const val RESOURCE = "LICENSE"

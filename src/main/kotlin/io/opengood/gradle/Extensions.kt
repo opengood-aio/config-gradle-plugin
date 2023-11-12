@@ -19,21 +19,22 @@ internal val Project.buildGradleType: BuildGradleType
 internal val Project.dependenciesVersions: DependenciesVersionsProperty
     get() = DependenciesVersionsProperty()
 
-internal inline fun <reified T : Any> Project.getExtension(): T =
-    extensions.getByType(T::class.java)
+internal inline fun <reified T : Any> Project.getExtension(): T = extensions.getByType(T::class.java)
 
-internal inline fun <reified T : Any> Project.getExtension(name: String): T =
-    extensions.getByName(name) as T
+internal inline fun <reified T : Any> Project.getExtension(name: String): T = extensions.getByName(name) as T
 
-internal inline fun <reified V : Any> Project.getPropertyOrDefault(name: String, default: V): V =
-    if (hasProperty(name)) property(name) as V else default
+internal inline fun <reified V : Any> Project.getPropertyOrDefault(
+    name: String,
+    default: V,
+): V = if (hasProperty(name)) property(name) as V else default
 
 internal val Project.isGroovy: Boolean
     get() = hasPath(projectDir, SrcDirType.GROOVY.values)
 
 internal val Project.isGroovyDsl: Boolean
-    get() = hasPath(projectDir, BuildGradleType.GROOVY_DSL) ||
-        hasPath(projectDir, SettingsGradleType.GROOVY_DSL)
+    get() =
+        hasPath(projectDir, BuildGradleType.GROOVY_DSL) ||
+            hasPath(projectDir, SettingsGradleType.GROOVY_DSL)
 
 internal val Project.isJava: Boolean
     get() = hasPath(projectDir, SrcDirType.JAVA.values) || isGroovyDsl
@@ -42,8 +43,9 @@ internal val Project.isKotlin: Boolean
     get() = hasPath(projectDir, SrcDirType.KOTLIN.values) || isKotlinDsl
 
 internal val Project.isKotlinDsl: Boolean
-    get() = hasPath(projectDir, BuildGradleType.KOTLIN_DSL) ||
-        hasPath(projectDir, SettingsGradleType.KOTLIN_DSL)
+    get() =
+        hasPath(projectDir, BuildGradleType.KOTLIN_DSL) ||
+            hasPath(projectDir, SettingsGradleType.KOTLIN_DSL)
 
 internal val Project.isSnapshotVersion: Boolean
     get() = version.toString().endsWith(Versions.SNAPSHOT)

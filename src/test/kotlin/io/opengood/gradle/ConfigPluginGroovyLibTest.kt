@@ -48,12 +48,13 @@ import test.spec.doNotConfigureBootJarResolutionTest
 
 class ConfigPluginGroovyLibTest : FunSpec({
 
-    val project = createProject(
-        ProjectConfig(
-            languageType = LanguageType.GROOVY,
-            projectType = ProjectType.LIB,
-        ),
-    )
+    val project =
+        createProject(
+            ProjectConfig(
+                languageType = LanguageType.GROOVY,
+                projectType = ProjectType.LIB,
+            ),
+        )
 
     include(applyPluginTest(project))
 

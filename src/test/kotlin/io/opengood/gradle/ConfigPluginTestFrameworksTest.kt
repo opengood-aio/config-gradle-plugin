@@ -16,12 +16,13 @@ import test.spec.addSpringMockkDependenciesTest
 
 class ConfigPluginTestFrameworksTest : FunSpec({
 
-    val project = createProject(
-        ProjectConfig(
-            languageType = LanguageType.KOTLIN,
-            testFrameworks = TestFrameworks.JAVA.flag,
-        ),
-    )
+    val project =
+        createProject(
+            ProjectConfig(
+                languageType = LanguageType.KOTLIN,
+                testFrameworks = TestFrameworks.JAVA.flag,
+            ),
+        )
 
     include(addKotlinCoroutinesDependenciesTest(project))
     include(addKotestDependenciesTest(project))

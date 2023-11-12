@@ -5,7 +5,6 @@ import org.gradle.api.Project
 import java.util.regex.Matcher
 
 class Releases {
-
     companion object {
         const val NEW_VERSION_COMMIT_MESSAGE = "[Gradle Release] - new version commit: "
         const val PRE_TAG_COMMIT_MESSAGE = "[Gradle Release] - pre tag commit: "
@@ -13,9 +12,10 @@ class Releases {
         const val REQUIRE_BRANCH = "main"
         const val VERSION_PATTERN = """[.]*\.(\d+)\.(\d+)[.]*"""
 
-        val VERSION_PATTERN_CLOSURE = KotlinClosure2<Matcher, Project, String>({ matcher, _ ->
-            matcher.replaceAll(".${(matcher.group(1)).toString().toInt() + 1}.0")
-        })
+        val VERSION_PATTERN_CLOSURE =
+            KotlinClosure2<Matcher, Project, String>({ matcher, _ ->
+                matcher.replaceAll(".${(matcher.group(1)).toString().toInt() + 1}.0")
+            })
         val VERSION_PATTERNS = mapOf(VERSION_PATTERN to VERSION_PATTERN_CLOSURE)
     }
 }
