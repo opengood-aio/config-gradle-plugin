@@ -1,4 +1,4 @@
-name: build
+name: CodeQL
 
 on:
   push:
@@ -18,8 +18,6 @@ on:
 
 jobs:
   build:
-    uses: opengoodio/central-workflows/.github/workflows/gradle-plugin-build.yml@main
+    uses: opengoodio/central-workflows/.github/workflows/codeql-analyze.yml@main
     with:
-      run-gradle-validation: true
-    secrets:
-      fossa-api-key: ${{ secrets.FOSSA_API_KEY }}
+      java-version: 17
