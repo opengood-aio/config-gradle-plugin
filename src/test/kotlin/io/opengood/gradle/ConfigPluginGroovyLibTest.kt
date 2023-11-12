@@ -11,6 +11,7 @@ import test.spec.addJacksonDependenciesTest
 import test.spec.addJunitJupiterDependenciesTest
 import test.spec.addMockitoDependenciesTest
 import test.spec.addRepositoriesTest
+import test.spec.addSnakeYamlDependenciesTest
 import test.spec.addSpringDependenciesTest
 import test.spec.applyCommonPluginsTest
 import test.spec.applyGroovyPluginTest
@@ -85,6 +86,7 @@ class ConfigPluginGroovyLibTest : FunSpec({
     include(doNotAddSpringMockkDependenciesTest(project))
     include(addJacksonDependenciesTest(project))
     include(addSpringDependenciesTest(project))
+    include(addSnakeYamlDependenciesTest(project))
     include(addAssertjDependenciesTest(project))
     include(addJunitJupiterDependenciesTest(project))
     include(addMockitoDependenciesTest(project))

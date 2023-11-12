@@ -13,6 +13,7 @@ import test.spec.addKotlinCoroutinesDependenciesTest
 import test.spec.addKotlinDependenciesTest
 import test.spec.addMockkDependenciesTest
 import test.spec.addRepositoriesTest
+import test.spec.addSnakeYamlDependenciesTest
 import test.spec.addSpringDependenciesTest
 import test.spec.addSpringMockkDependenciesTest
 import test.spec.applyCommonPluginsTest
@@ -86,6 +87,7 @@ class ConfigPluginKotlinLibTest : FunSpec({
     include(addSpringMockkDependenciesTest(project))
     include(addJacksonDependenciesTest(project))
     include(addSpringDependenciesTest(project))
+    include(addSnakeYamlDependenciesTest(project))
     include(doNotAddAssertjDependenciesTest(project))
     include(doNotAddJunitJupiterDependenciesTest(project))
     include(doNotAddMockitoDependenciesTest(project))

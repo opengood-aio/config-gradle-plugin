@@ -29,6 +29,7 @@ class Dependencies {
         const val MOCKITO_JUNIT_JUPITER = "org.mockito:mockito-junit-jupiter"
         const val MOCKK = "mockk"
         const val MOCKK_ALL = "io.mockk:mockk"
+        const val SNAKE_YAML = "org.yaml:snakeyaml"
         const val SPRING_BOOT_CONFIG_PROCESSOR = "org.springframework.boot:spring-boot-configuration-processor"
         const val SPRING_BOOT_STARTER = "org.springframework.boot:spring-boot-starter"
         const val SPRING_BOOT_STARTER_TEST = "org.springframework.boot:spring-boot-starter-test"

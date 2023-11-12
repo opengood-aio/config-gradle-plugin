@@ -301,6 +301,9 @@ fun configureDependencyResolutionStrategyTest(project: Project) =
                     if (dependency.group == "org.jetbrains.kotlinx" && dependency.name == "kotlinx-coroutines-core") {
                         dependency.version shouldBe getVersion(Dependencies.KOTLIN_COROUTINES)
                     }
+                    if (dependency.group == "org.yaml") {
+                        dependency.version shouldBe getVersion(Dependencies.SNAKE_YAML)
+                    }
                 }
             }
         }
@@ -491,6 +494,15 @@ fun addSpringDependenciesTest(project: Project) =
         }
     }
 
+fun addSnakeYamlDependenciesTest(project: Project) =
+    funSpec {
+        test("Adds SnakeYAML dependencies") {
+            with(project.dependenciesVersions) {
+                getDependency(project, IMPLEMENTATION, getDependencyAndVersion(Dependencies.SNAKE_YAML)).shouldNotBeNull()
+            }
+        }
+    }
+
 fun addAssertjDependenciesTest(project: Project) =
     funSpec {
         test("Adds AssertJ dependencies") {
@@ -628,6 +640,15 @@ fun doNotAddSpringDependenciesTest(project: Project) =
                 ).shouldBeNull()
                 getDependency(project, IMPLEMENTATION, getDependencyAndVersion(Dependencies.SPRING_BOOT_STARTER)).shouldBeNull()
                 getDependency(project, TEST_IMPLEMENTATION, getDependencyAndVersion(Dependencies.SPRING_BOOT_STARTER_TEST)).shouldBeNull()
+            }
+        }
+    }
+
+fun doNotAddSnakeYamlDependenciesTest(project: Project) =
+    funSpec {
+        test("Does not add SnakeYAML dependencies") {
+            with(project.dependenciesVersions) {
+                getDependency(project, IMPLEMENTATION, getDependencyAndVersion(Dependencies.SNAKE_YAML)).shouldBeNull()
             }
         }
     }

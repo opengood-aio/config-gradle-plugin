@@ -15,6 +15,7 @@ import test.spec.doNotAddKotlinCoroutinesDependenciesTest
 import test.spec.doNotAddLombokDependenciesTest
 import test.spec.doNotAddMockitoDependenciesTest
 import test.spec.doNotAddMockkDependenciesTest
+import test.spec.doNotAddSnakeYamlDependenciesTest
 import test.spec.doNotAddSpringDependenciesTest
 import test.spec.doNotAddSpringMockkDependenciesTest
 import test.spec.doNotConfigureDependencyManagementExtensionTest
@@ -40,6 +41,7 @@ class ConfigPluginFeaturesTest : FunSpec({
     include(doNotAddMockitoDependenciesTest(project))
     include(doNotAddMockkDependenciesTest(project))
     include(doNotAddSpringDependenciesTest(project))
+    include(doNotAddSnakeYamlDependenciesTest(project))
     include(doNotAddSpringMockkDependenciesTest(project))
 
     include(doNotConfigureDependencyManagementExtensionTest(project))

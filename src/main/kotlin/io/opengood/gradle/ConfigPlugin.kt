@@ -148,6 +148,10 @@ class ConfigPlugin : Plugin<Project> {
                                 useVersion(getVersion(Dependencies.KOTLIN_COROUTINES))
                                 because("Incompatibilities with older Kotlin Coroutines versions")
                             }
+                            if (requested.group == "org.yaml") {
+                                useVersion(getVersion(Dependencies.SNAKE_YAML))
+                                because("Incompatibilities with older SnakeYAML versions")
+                            }
                         }
                     }
                 }
@@ -273,6 +277,7 @@ class ConfigPlugin : Plugin<Project> {
                                     testImplementation.dependencies.add(
                                         create(getDependencyAndVersion(Dependencies.SPRING_BOOT_STARTER_TEST)),
                                     )
+                                    implementation.dependencies.add(create(getDependencyAndVersion(Dependencies.SNAKE_YAML)))
                                 }
 
                                 with(test) {
