@@ -26,14 +26,21 @@ import io.opengood.gradle.constant.Configurations.Companion.TEST_IMPLEMENTATION
 import io.opengood.gradle.constant.Dependencies
 import io.opengood.gradle.constant.Developers
 import io.opengood.gradle.constant.Elements
-import io.opengood.gradle.constant.GitHub
+import io.opengood.gradle.constant.GitHub.Companion.BLOB_ENDPOINT_NAME
+import io.opengood.gradle.constant.GitHub.Companion.DEFAULT_BRANCH_NAME
+import io.opengood.gradle.constant.GitHub.Companion.OPENGOOD_ORG_NAME
+import io.opengood.gradle.constant.GitHub.Companion.OPENGOOD_ORG_URI
 import io.opengood.gradle.constant.Jars
 import io.opengood.gradle.constant.KotlinOptions
 import io.opengood.gradle.constant.Licenses
+import io.opengood.gradle.constant.Licenses.Companion.RESOURCE
 import io.opengood.gradle.constant.Plugins
 import io.opengood.gradle.constant.Publications
 import io.opengood.gradle.constant.Releases
 import io.opengood.gradle.constant.Repositories
+import io.opengood.gradle.constant.Repositories.Companion.GITHUB_PACKAGES_REPO_BASE_URI
+import io.opengood.gradle.constant.Repositories.Companion.OSS_SNAPSHOTS_REPO_NAME
+import io.opengood.gradle.constant.Repositories.Companion.OSS_STAGING_REPO_NAME
 import io.opengood.gradle.constant.Signatures
 import io.opengood.gradle.constant.Tasks
 import io.opengood.gradle.constant.Tests
@@ -42,6 +49,7 @@ import io.opengood.gradle.enumeration.PackagingType
 import io.opengood.gradle.enumeration.ProjectType
 import io.opengood.gradle.enumeration.PublicationType
 import io.opengood.gradle.enumeration.ScmProvider
+import io.opengood.gradle.enumeration.ScmProvider.GIT
 import io.opengood.gradle.extension.openGood
 import io.opengood.gradle.getExtension
 import io.opengood.gradle.isSnapshotVersion
@@ -142,7 +150,7 @@ fun createExtensionTest(
                         String.format(
                             Tasks.PUBLISH_PUBLICATION,
                             Publications.OSS,
-                            Repositories.OSS_SNAPSHOTS_REPO_NAME,
+                            OSS_SNAPSHOTS_REPO_NAME,
                         ),
                     )
                 requireBranch shouldBe Releases.REQUIRE_BRANCH
@@ -152,22 +160,22 @@ fun createExtensionTest(
                 name shouldBe project.name
                 packaging shouldBe PackagingType.JAR
                 description.shouldBeEmpty()
-                uri shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}"
+                uri shouldBe "$OPENGOOD_ORG_URI/${project.name}"
                 publications shouldBe listOf(PublicationType.GITHUB, PublicationType.OSS)
                 with(repo) {
                     ossSnapshotsRepoUri shouldBe Repositories.OSS_SNAPSHOTS_REPO_URI
                     ossStagingRepoUri shouldBe Repositories.OSS_STAGING_REPO_URI
-                    gitHubPackagesRepoUri shouldBe "${Repositories.GITHUB_PACKAGES_REPO_BASE_URI}/${GitHub.OPENGOOD_ORG_NAME}/${project.name}"
+                    gitHubPackagesRepoUri shouldBe "$GITHUB_PACKAGES_REPO_BASE_URI/$OPENGOOD_ORG_NAME/${project.name}"
                 }
                 with(scm) {
-                    provider shouldBe ScmProvider.GIT
-                    connection shouldBe "${ScmProvider.PROTOCOL}:$provider:${GitHub.OPENGOOD_ORG_URI}/${project.name}"
-                    devConnection shouldBe "${ScmProvider.PROTOCOL}:$provider:${GitHub.OPENGOOD_ORG_URI}/${project.name}"
-                    uri shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}"
+                    provider shouldBe GIT
+                    connection shouldBe "${ScmProvider.PROTOCOL}:$provider:$OPENGOOD_ORG_URI/${project.name}"
+                    devConnection shouldBe "${ScmProvider.PROTOCOL}:$provider:$OPENGOOD_ORG_URI/${project.name}"
+                    uri shouldBe "$OPENGOOD_ORG_URI/${project.name}"
                 }
                 with(license) {
                     name shouldBe Licenses.NAME
-                    uri shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}/${GitHub.BLOB_ENDPOINT_NAME}/${GitHub.DEFAULT_BRANCH_NAME}/${Licenses.RESOURCE}"
+                    uri shouldBe "$OPENGOOD_ORG_URI/${project.name}/$BLOB_ENDPOINT_NAME/$DEFAULT_BRANCH_NAME/$RESOURCE"
                 }
                 with(developer) {
                     id shouldBe Developers.ID
@@ -802,7 +810,7 @@ fun configureAfterReleaseBuildTaskTest(project: Project) =
                             String.format(
                                 Tasks.PUBLISH_PUBLICATION,
                                 Publications.OSS,
-                                if (project.isSnapshotVersion) Repositories.OSS_SNAPSHOTS_REPO_NAME else Repositories.OSS_STAGING_REPO_NAME,
+                                if (project.isSnapshotVersion) OSS_SNAPSHOTS_REPO_NAME else OSS_STAGING_REPO_NAME,
                             ),
                         )
                     }
@@ -838,7 +846,7 @@ fun doNotConfigureAfterReleaseBuildTaskTest(project: Project) =
                             String.format(
                                 Tasks.PUBLISH_PUBLICATION,
                                 Publications.OSS,
-                                if (project.isSnapshotVersion) Repositories.OSS_SNAPSHOTS_REPO_NAME else Repositories.OSS_STAGING_REPO_NAME,
+                                if (project.isSnapshotVersion) OSS_SNAPSHOTS_REPO_NAME else OSS_STAGING_REPO_NAME,
                             ),
                         )
                     }
@@ -938,15 +946,15 @@ fun configurePublishingExtensionTest(project: Project) =
                             name.get() shouldBe project.name
                             packaging shouldBe PackagingType.JAR.toString()
                             description.get() shouldBe ""
-                            url.get() shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}"
+                            url.get() shouldBe "$OPENGOOD_ORG_URI/${project.name}"
                             with(scm) {
-                                connection.get() shouldBe "${ScmProvider.PROTOCOL}:${ScmProvider.GIT}:${GitHub.OPENGOOD_ORG_URI}/${project.name}"
-                                developerConnection.get() shouldBe "${ScmProvider.PROTOCOL}:${ScmProvider.GIT}:${GitHub.OPENGOOD_ORG_URI}/${project.name}"
-                                url.get() shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}"
+                                connection.get() shouldBe "${ScmProvider.PROTOCOL}:$GIT:$OPENGOOD_ORG_URI/${project.name}"
+                                developerConnection.get() shouldBe "${ScmProvider.PROTOCOL}:$GIT:$OPENGOOD_ORG_URI/${project.name}"
+                                url.get() shouldBe "$OPENGOOD_ORG_URI/${project.name}"
                             }
                             with(licenses.first()) {
                                 name.get() shouldBe Licenses.NAME
-                                url.get() shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}/${GitHub.BLOB_ENDPOINT_NAME}/${GitHub.DEFAULT_BRANCH_NAME}/${Licenses.RESOURCE}"
+                                url.get() shouldBe "$OPENGOOD_ORG_URI/${project.name}/$BLOB_ENDPOINT_NAME/$DEFAULT_BRANCH_NAME/$RESOURCE"
                             }
                             with(developers.first()) {
                                 id.get() shouldBe Developers.ID
@@ -999,7 +1007,7 @@ fun configurePublishingExtensionTest(project: Project) =
                         assertRepository(
                             getRepository(extension, Repositories.GITHUB_PACKAGES_REPO_NAME),
                             Repositories.GITHUB_PACKAGES_REPO_NAME,
-                            URI("${Repositories.GITHUB_PACKAGES_REPO_BASE_URI}/${GitHub.OPENGOOD_ORG_NAME}/${project.name}"),
+                            URI("$GITHUB_PACKAGES_REPO_BASE_URI/$OPENGOOD_ORG_NAME/${project.name}"),
                             true,
                             Publications.GITHUB,
                         )
@@ -1008,8 +1016,8 @@ fun configurePublishingExtensionTest(project: Project) =
                         assertPublication(getPublication(extension, Publications.OSS))
 
                         val ossRepoName =
-                            ((project.isSnapshotVersion) then { Repositories.OSS_SNAPSHOTS_REPO_NAME })
-                                ?: Repositories.OSS_STAGING_REPO_NAME
+                            ((project.isSnapshotVersion) then { OSS_SNAPSHOTS_REPO_NAME })
+                                ?: OSS_STAGING_REPO_NAME
                         val ossRepoUri =
                             ((project.isSnapshotVersion) then { Repositories.OSS_SNAPSHOTS_REPO_URI })
                                 ?: Repositories.OSS_STAGING_REPO_URI
@@ -1093,13 +1101,13 @@ fun doNotConfigurePublishingExtensionTest(project: Project) =
                 shouldThrow<UnknownRepositoryException> {
                     getRepository(
                         extension,
-                        Repositories.OSS_SNAPSHOTS_REPO_NAME,
+                        OSS_SNAPSHOTS_REPO_NAME,
                     )
                 }
                 shouldThrow<UnknownRepositoryException> {
                     getRepository(
                         extension,
-                        Repositories.OSS_STAGING_REPO_NAME,
+                        OSS_STAGING_REPO_NAME,
                     )
                 }
             }

@@ -10,13 +10,20 @@ import io.opengood.gradle.constant.Configurations
 import io.opengood.gradle.constant.Dependencies
 import io.opengood.gradle.constant.Elements
 import io.opengood.gradle.constant.EnvVars
+import io.opengood.gradle.constant.EnvVars.Companion.GITHUB_TOKEN
+import io.opengood.gradle.constant.EnvVars.Companion.GITHUB_USER
 import io.opengood.gradle.constant.Jars
 import io.opengood.gradle.constant.KotlinOptions
 import io.opengood.gradle.constant.Plugins
-import io.opengood.gradle.constant.Properties
+import io.opengood.gradle.constant.Properties.Companion.GITHUB_PACKAGES_REPO_PASSWORD
+import io.opengood.gradle.constant.Properties.Companion.GITHUB_PACKAGES_REPO_USERNAME
+import io.opengood.gradle.constant.Properties.Companion.OSS_REPO_PASSWORD
+import io.opengood.gradle.constant.Properties.Companion.OSS_REPO_USERNAME
 import io.opengood.gradle.constant.Publications
 import io.opengood.gradle.constant.Releases
 import io.opengood.gradle.constant.Repositories
+import io.opengood.gradle.constant.Repositories.Companion.OSS_SNAPSHOTS_REPO_NAME
+import io.opengood.gradle.constant.Repositories.Companion.OSS_STAGING_REPO_NAME
 import io.opengood.gradle.constant.Resources
 import io.opengood.gradle.constant.Tasks
 import io.opengood.gradle.constant.Tests
@@ -407,7 +414,8 @@ class ConfigPlugin : Plugin<Project> {
                         override fun afterTest(
                             testDescriptor: TestDescriptor,
                             result: TestResult,
-                        ) {}
+                        ) {
+                        }
 
                         override fun afterSuite(
                             suite: TestDescriptor,
@@ -511,7 +519,7 @@ class ConfigPlugin : Plugin<Project> {
                             String.format(
                                 Tasks.PUBLISH_PUBLICATION,
                                 Publications.OSS,
-                                if (project.isSnapshotVersion) Repositories.OSS_SNAPSHOTS_REPO_NAME else Repositories.OSS_STAGING_REPO_NAME,
+                                if (project.isSnapshotVersion) OSS_SNAPSHOTS_REPO_NAME else OSS_STAGING_REPO_NAME,
                             ),
                         )
                     }
@@ -663,23 +671,25 @@ class ConfigPlugin : Plugin<Project> {
                                     if (publications.contains(PublicationType.GITHUB)) {
                                         val gitHubPackagesRepoUsername =
                                             project.getPropertyOrDefault(
-                                                Properties.GITHUB_PACKAGES_REPO_USERNAME,
-                                                getEnvOrDefault(EnvVars.GITHUB_USER, ""),
+                                                GITHUB_PACKAGES_REPO_USERNAME,
+                                                getEnvOrDefault(GITHUB_USER, ""),
                                             )
                                         val gitHubPackagesRepoPassword =
                                             project.getPropertyOrDefault(
-                                                Properties.GITHUB_PACKAGES_REPO_PASSWORD,
-                                                getEnvOrDefault(EnvVars.GITHUB_TOKEN, ""),
+                                                GITHUB_PACKAGES_REPO_PASSWORD,
+                                                getEnvOrDefault(GITHUB_TOKEN, ""),
                                             )
 
                                         if (gitHubPackagesRepoUsername.isBlank()) {
                                             println(
-                                                "WARN: ${Properties.GITHUB_PACKAGES_REPO_USERNAME} property or ${EnvVars.GITHUB_USER} environment variable is not set",
+                                                "WARN: $GITHUB_PACKAGES_REPO_USERNAME property or " +
+                                                    "$GITHUB_USER environment variable is not set",
                                             )
                                         }
                                         if (gitHubPackagesRepoPassword.isBlank()) {
                                             println(
-                                                "WARN: ${Properties.GITHUB_PACKAGES_REPO_PASSWORD} property or ${EnvVars.GITHUB_TOKEN} environment variable is not set",
+                                                "WARN: $GITHUB_PACKAGES_REPO_PASSWORD property or " +
+                                                    "$GITHUB_TOKEN environment variable is not set",
                                             )
                                         }
 
@@ -697,30 +707,30 @@ class ConfigPlugin : Plugin<Project> {
                                     if (publications.contains(PublicationType.OSS)) {
                                         val ossRepoUsername =
                                             project.getPropertyOrDefault(
-                                                Properties.OSS_REPO_USERNAME,
+                                                OSS_REPO_USERNAME,
                                                 getEnvOrDefault(EnvVars.OSS_REPO_USERNAME, ""),
                                             )
                                         val ossRepoPassword =
                                             project.getPropertyOrDefault(
-                                                Properties.OSS_REPO_PASSWORD,
+                                                OSS_REPO_PASSWORD,
                                                 getEnvOrDefault(EnvVars.OSS_REPO_PASSWORD, ""),
                                             )
 
                                         if (ossRepoUsername.isBlank()) {
                                             println(
-                                                "WARN: ${Properties.OSS_REPO_USERNAME} property or ${EnvVars.GITHUB_USER} environment variable is not set",
+                                                "WARN: $OSS_REPO_USERNAME property or $GITHUB_USER environment variable is not set",
                                             )
                                         }
                                         if (ossRepoPassword.isBlank()) {
                                             println(
-                                                "WARN: ${Properties.OSS_REPO_PASSWORD} property or ${EnvVars.GITHUB_TOKEN} environment variable is not set",
+                                                "WARN: $OSS_REPO_PASSWORD property or $GITHUB_TOKEN environment variable is not set",
                                             )
                                         }
 
                                         with(repo) {
                                             createArtifactRepository(
                                                 repos = repos,
-                                                repoName = if (isSnapshotVersion) Repositories.OSS_SNAPSHOTS_REPO_NAME else Repositories.OSS_STAGING_REPO_NAME,
+                                                repoName = if (isSnapshotVersion) OSS_SNAPSHOTS_REPO_NAME else OSS_STAGING_REPO_NAME,
                                                 repoUri = if (isSnapshotVersion) ossSnapshotsRepoUri else ossStagingRepoUri,
                                                 repoUsername = ossRepoUsername,
                                                 repoPassword = ossRepoPassword,
