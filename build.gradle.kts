@@ -28,7 +28,7 @@ group = "io.opengood.gradle"
 
 gradlePlugin {
     website.set("https://opengood.io")
-    vcsUrl.set("https://github.com/opengoodio/config-gradle-plugin")
+    vcsUrl.set("https://github.com/opengood-aio/config-gradle-plugin")
 
     plugins {
         create("opengood-config") {
