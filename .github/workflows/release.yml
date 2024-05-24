@@ -7,7 +7,7 @@ on:
 
 jobs:
   release:
-    uses: opengoodio/central-workflows/.github/workflows/gradle-plugin-release.yml@main
+    uses: opengood-aio/central-workflows/.github/workflows/gradle-plugin-release.yml@main
     with:
       git-email: ${{ vars.GIT_EMAIL }}
       git-user: ${{ vars.GIT_USER }}
