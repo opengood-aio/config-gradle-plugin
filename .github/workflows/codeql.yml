@@ -6,7 +6,6 @@ on:
       - '**'
       - '!main'
     paths-ignore:
-      - .github/workflows/cancel.yml
       - .github/workflows/codeql.yml
       - .github/workflows/release.yml
       - .gitignore
