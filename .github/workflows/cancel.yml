@@ -1,6 +1,0 @@
-name: cancel
-on: [push]
-
-jobs:
-  cancel:
-    uses: opengood-aio/central-workflows/.github/workflows/workflow-cancel.yml@main
