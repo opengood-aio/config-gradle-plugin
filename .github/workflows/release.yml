@@ -4,6 +4,14 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - .github/workflows/build.yml
+      - .github/workflows/codeql.yml
+      - .github/workflows/release.yml
+      - .gitignore
+      - gradle.properties
+      - LICENSE
+      - README.md
 
 jobs:
   release:
