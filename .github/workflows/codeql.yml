@@ -6,7 +6,7 @@ on:
       - '**'
       - '!main'
     paths-ignore:
-      - .github/workflows/codeql.yml
+      - .github/workflows/build.yml
       - .github/workflows/release.yml
       - .gitignore
       - gradle.properties
