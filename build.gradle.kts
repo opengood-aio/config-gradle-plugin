@@ -101,20 +101,6 @@ dependencies {
     testImplementation("io.kotest:kotest-property:_")
     testImplementation("io.kotest:kotest-runner-junit5:_")
     testImplementation("io.mockk:mockk:_")
-
-    // annotationProcessor("org.projectlombok:lombok:_")
-    // annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:_")
-    // implementation("com.fasterxml.jackson.module:jackson-module-kotlin:_")
-    // implementation("com.ninja-squad:springmockk:_")
-    // implementation("org.codehaus.groovy:groovy-all:_")
-    // implementation("org.springframework.boot:spring-boot-starter:_")
-    // testImplementation("io.kotest.extensions:kotest-extensions-spring:_")
-    // testImplementation("io.mockk:mockk:_")
-    // testImplementation("org.assertj:assertj-core:_")
-    // testImplementation("org.junit.jupiter:junit-jupiter:_")
-    // testImplementation("org.mockito:mockito-core:_")
-    // testImplementation("org.mockito:mockito-junit-jupiter:_")
-    // testImplementation("org.springframework.boot:spring-boot-starter-test:_")
 }
 
 val out: StyledTextOutput = project.serviceOf<StyledTextOutputFactory>().create("colored-output")
