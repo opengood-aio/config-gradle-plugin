@@ -101,8 +101,6 @@ dependencies {
     testImplementation("io.kotest:kotest-property:_")
     testImplementation("io.kotest:kotest-runner-junit5:_")
     testImplementation("io.mockk:mockk:_")
-
-    // temp
 }
 
 val out: StyledTextOutput = project.serviceOf<StyledTextOutputFactory>().create("colored-output")
