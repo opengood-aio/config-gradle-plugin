@@ -14,8 +14,6 @@ import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.regex.Matcher
 
-// temp
-
 plugins {
     kotlin("jvm")
     kotlin("plugin.allopen")
