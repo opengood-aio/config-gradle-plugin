@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+    types: [labeled]
     paths-ignore:
       - .github/workflows/*
       - .gitignore
