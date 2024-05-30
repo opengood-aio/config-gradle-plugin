@@ -11,8 +11,6 @@ on:
       - gradle.properties
       - LICENSE
       - README.md
-  pull_request:
-    types: [ labeled ]
 
 jobs:
   release:
