@@ -39,8 +39,8 @@ import io.opengood.gradle.constant.Publications
 import io.opengood.gradle.constant.Releases
 import io.opengood.gradle.constant.Repositories
 import io.opengood.gradle.constant.Repositories.Companion.GITHUB_PACKAGES_REPO_BASE_URI
-import io.opengood.gradle.constant.Repositories.Companion.OSS_SNAPSHOTS_REPO_NAME
-import io.opengood.gradle.constant.Repositories.Companion.OSS_STAGING_REPO_NAME
+import io.opengood.gradle.constant.Repositories.Companion.MAVEN_CENTRAL_PORTAL_SNAPSHOTS_REPO_NAME
+import io.opengood.gradle.constant.Repositories.Companion.MAVEN_CENTRAL_PORTAL_STAGING_REPO_NAME
 import io.opengood.gradle.constant.Signatures
 import io.opengood.gradle.constant.Tasks
 import io.opengood.gradle.constant.Tests
@@ -149,8 +149,8 @@ fun createExtensionTest(
                         ),
                         String.format(
                             Tasks.PUBLISH_PUBLICATION,
-                            Publications.OSS,
-                            OSS_SNAPSHOTS_REPO_NAME,
+                            Publications.MAVEN_CENTRAL_PORTAL,
+                            MAVEN_CENTRAL_PORTAL_SNAPSHOTS_REPO_NAME,
                         ),
                     )
                 requireBranch shouldBe Releases.REQUIRE_BRANCH
@@ -161,10 +161,10 @@ fun createExtensionTest(
                 packaging shouldBe PackagingType.JAR
                 description.shouldBeEmpty()
                 uri shouldBe "$OPENGOOD_ORG_URI/${project.name}"
-                publications shouldBe listOf(PublicationType.GITHUB, PublicationType.OSS)
+                publications shouldBe listOf(PublicationType.GITHUB, PublicationType.MAVEN_CENTRAL_PORTAL)
                 with(repo) {
-                    ossSnapshotsRepoUri shouldBe Repositories.OSS_SNAPSHOTS_REPO_URI
-                    ossStagingRepoUri shouldBe Repositories.OSS_STAGING_REPO_URI
+                    mavenCentralPortalSnapshotsRepoUri shouldBe Repositories.MAVEN_CENTRAL_PORTAL_SNAPSHOTS_REPO_URI
+                    mavenCentralPortalStagingRepoUri shouldBe Repositories.MAVEN_CENTRAL_PORTAL_STAGING_REPO_URI
                     gitHubPackagesRepoUri shouldBe "$GITHUB_PACKAGES_REPO_BASE_URI/$OPENGOOD_ORG_NAME/${project.name}"
                 }
                 with(scm) {
@@ -826,12 +826,16 @@ fun configureAfterReleaseBuildTaskTest(project: Project) =
                             ),
                         )
                     }
-                    if (publications.contains(PublicationType.OSS)) {
+                    if (publications.contains(PublicationType.MAVEN_CENTRAL_PORTAL)) {
                         afterReleaseBuildTasks.add(
                             String.format(
                                 Tasks.PUBLISH_PUBLICATION,
-                                Publications.OSS,
-                                if (project.isSnapshotVersion) OSS_SNAPSHOTS_REPO_NAME else OSS_STAGING_REPO_NAME,
+                                Publications.MAVEN_CENTRAL_PORTAL,
+                                if (project.isSnapshotVersion) {
+                                    MAVEN_CENTRAL_PORTAL_SNAPSHOTS_REPO_NAME
+                                } else {
+                                    MAVEN_CENTRAL_PORTAL_STAGING_REPO_NAME
+                                },
                             ),
                         )
                     }
@@ -862,12 +866,16 @@ fun doNotConfigureAfterReleaseBuildTaskTest(project: Project) =
                             ),
                         )
                     }
-                    if (publications.contains(PublicationType.OSS)) {
+                    if (publications.contains(PublicationType.MAVEN_CENTRAL_PORTAL)) {
                         afterReleaseBuildTasks.add(
                             String.format(
                                 Tasks.PUBLISH_PUBLICATION,
-                                Publications.OSS,
-                                if (project.isSnapshotVersion) OSS_SNAPSHOTS_REPO_NAME else OSS_STAGING_REPO_NAME,
+                                Publications.MAVEN_CENTRAL_PORTAL,
+                                if (project.isSnapshotVersion) {
+                                    MAVEN_CENTRAL_PORTAL_SNAPSHOTS_REPO_NAME
+                                } else {
+                                    MAVEN_CENTRAL_PORTAL_STAGING_REPO_NAME
+                                },
                             ),
                         )
                     }
@@ -1033,22 +1041,22 @@ fun configurePublishingExtensionTest(project: Project) =
                             Publications.GITHUB,
                         )
                     }
-                    if (publications.contains(PublicationType.OSS)) {
-                        assertPublication(getPublication(extension, Publications.OSS))
+                    if (publications.contains(PublicationType.MAVEN_CENTRAL_PORTAL)) {
+                        assertPublication(getPublication(extension, Publications.MAVEN_CENTRAL_PORTAL))
 
-                        val ossRepoName =
-                            ((project.isSnapshotVersion) then { OSS_SNAPSHOTS_REPO_NAME })
-                                ?: OSS_STAGING_REPO_NAME
-                        val ossRepoUri =
-                            ((project.isSnapshotVersion) then { Repositories.OSS_SNAPSHOTS_REPO_URI })
-                                ?: Repositories.OSS_STAGING_REPO_URI
+                        val mavenCentralPortalRepoName =
+                            ((project.isSnapshotVersion) then { MAVEN_CENTRAL_PORTAL_SNAPSHOTS_REPO_NAME })
+                                ?: MAVEN_CENTRAL_PORTAL_STAGING_REPO_NAME
+                        val mavenCentralPortalRepoUri =
+                            ((project.isSnapshotVersion) then { Repositories.MAVEN_CENTRAL_PORTAL_SNAPSHOTS_REPO_URI })
+                                ?: Repositories.MAVEN_CENTRAL_PORTAL_STAGING_REPO_URI
 
                         assertRepository(
-                            getRepository(extension, ossRepoName),
-                            ossRepoName,
-                            URI(ossRepoUri),
+                            getRepository(extension, mavenCentralPortalRepoName),
+                            mavenCentralPortalRepoName,
+                            URI(mavenCentralPortalRepoUri),
                             true,
-                            Publications.OSS,
+                            Publications.MAVEN_CENTRAL_PORTAL,
                         )
                     }
                 }
@@ -1077,11 +1085,11 @@ fun configureSigningExtensionTest(project: Project) =
                 }
 
                 with(project.openGood().artifact) {
-                    if (publications.contains(PublicationType.OSS)) {
+                    if (publications.contains(PublicationType.MAVEN_CENTRAL_PORTAL)) {
                         assertPublicationSigning(
                             getTaskByTypeAndName(
                                 project,
-                                String.format(Tasks.SIGN_PUBLICATION, Publications.OSS),
+                                String.format(Tasks.SIGN_PUBLICATION, Publications.MAVEN_CENTRAL_PORTAL),
                             ),
                         )
                     }
@@ -1111,7 +1119,7 @@ fun doNotConfigurePublishingExtensionTest(project: Project) =
                 shouldNotBeNull()
                 shouldThrow<UnknownRepositoryException> { getRepository(extension, Repositories.LOCAL_REPO_NAME) }
                 shouldThrow<UnknownDomainObjectException> { getPublication(extension, Publications.GITHUB) }
-                shouldThrow<UnknownDomainObjectException> { getPublication(extension, Publications.OSS) }
+                shouldThrow<UnknownDomainObjectException> { getPublication(extension, Publications.MAVEN_CENTRAL_PORTAL) }
 
                 shouldThrow<UnknownRepositoryException> {
                     getRepository(
@@ -1122,13 +1130,13 @@ fun doNotConfigurePublishingExtensionTest(project: Project) =
                 shouldThrow<UnknownRepositoryException> {
                     getRepository(
                         extension,
-                        OSS_SNAPSHOTS_REPO_NAME,
+                        MAVEN_CENTRAL_PORTAL_SNAPSHOTS_REPO_NAME,
                     )
                 }
                 shouldThrow<UnknownRepositoryException> {
                     getRepository(
                         extension,
-                        OSS_STAGING_REPO_NAME,
+                        MAVEN_CENTRAL_PORTAL_STAGING_REPO_NAME,
                     )
                 }
             }
@@ -1152,7 +1160,7 @@ fun doNotConfigureSigningExtensionTest(project: Project) =
                 shouldThrow<UnknownTaskException> {
                     getTaskByTypeAndName<Sign>(
                         project,
-                        String.format(Tasks.SIGN_PUBLICATION, Publications.OSS),
+                        String.format(Tasks.SIGN_PUBLICATION, Publications.MAVEN_CENTRAL_PORTAL),
                     )
                 }
             }

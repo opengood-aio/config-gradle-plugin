@@ -6,11 +6,12 @@ class Repositories {
     companion object {
         const val GITHUB_PACKAGES_REPO_BASE_URI = "https://maven.pkg.github.com"
         const val GITHUB_PACKAGES_REPO_NAME = "GitHubPackages"
-        const val GITHUB_PACKAGES_REPO_URI = "https://maven.pkg.github.com/$OPENGOOD_ORG_NAME/%s"
+        const val GITHUB_PACKAGES_REPO_URI = "$GITHUB_PACKAGES_REPO_BASE_URI/$OPENGOOD_ORG_NAME/%s"
         const val LOCAL_REPO_NAME = "Local"
-        const val OSS_SNAPSHOTS_REPO_NAME = "OssSnapshots"
-        const val OSS_SNAPSHOTS_REPO_URI = "https://oss.sonatype.org/content/repositories/snapshots"
-        const val OSS_STAGING_REPO_NAME = "OssStaging"
-        const val OSS_STAGING_REPO_URI = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+        const val MAVEN_CENTRAL_PORTAL_REPO_BASE_URI = "https://central.sonatype.com"
+        const val MAVEN_CENTRAL_PORTAL_SNAPSHOTS_REPO_NAME = "MavenCentralPortalSnapshots"
+        const val MAVEN_CENTRAL_PORTAL_SNAPSHOTS_REPO_URI = "$MAVEN_CENTRAL_PORTAL_REPO_BASE_URI/api/v1/publisher"
+        const val MAVEN_CENTRAL_PORTAL_STAGING_REPO_NAME = "MavenCentralPortalStaging"
+        const val MAVEN_CENTRAL_PORTAL_STAGING_REPO_URI = "$MAVEN_CENTRAL_PORTAL_REPO_BASE_URI/api/v1/publisher"
     }
 }

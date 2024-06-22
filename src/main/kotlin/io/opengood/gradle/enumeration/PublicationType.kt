@@ -9,7 +9,7 @@ enum class PublicationType(
     @JsonValue private val value: String,
 ) {
     GITHUB("GitHub"),
-    OSS("OSS"),
+    MAVEN_CENTRAL_PORTAL("MavenCentralPortal"),
     ;
 
     override fun toString(): String = value

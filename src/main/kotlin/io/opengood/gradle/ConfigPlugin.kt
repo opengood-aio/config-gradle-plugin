@@ -17,13 +17,13 @@ import io.opengood.gradle.constant.KotlinOptions
 import io.opengood.gradle.constant.Plugins
 import io.opengood.gradle.constant.Properties.Companion.GITHUB_PACKAGES_REPO_PASSWORD
 import io.opengood.gradle.constant.Properties.Companion.GITHUB_PACKAGES_REPO_USERNAME
-import io.opengood.gradle.constant.Properties.Companion.OSS_REPO_PASSWORD
-import io.opengood.gradle.constant.Properties.Companion.OSS_REPO_USERNAME
+import io.opengood.gradle.constant.Properties.Companion.MAVEN_CENTRAL_PORTAL_REPO_PASSWORD
+import io.opengood.gradle.constant.Properties.Companion.MAVEN_CENTRAL_PORTAL_REPO_USERNAME
 import io.opengood.gradle.constant.Publications
 import io.opengood.gradle.constant.Releases
 import io.opengood.gradle.constant.Repositories
-import io.opengood.gradle.constant.Repositories.Companion.OSS_SNAPSHOTS_REPO_NAME
-import io.opengood.gradle.constant.Repositories.Companion.OSS_STAGING_REPO_NAME
+import io.opengood.gradle.constant.Repositories.Companion.MAVEN_CENTRAL_PORTAL_SNAPSHOTS_REPO_NAME
+import io.opengood.gradle.constant.Repositories.Companion.MAVEN_CENTRAL_PORTAL_STAGING_REPO_NAME
 import io.opengood.gradle.constant.Resources
 import io.opengood.gradle.constant.Tasks
 import io.opengood.gradle.constant.Tests
@@ -519,12 +519,16 @@ class ConfigPlugin : Plugin<Project> {
                             ),
                         )
                     }
-                    if (publications.contains(PublicationType.OSS)) {
+                    if (publications.contains(PublicationType.MAVEN_CENTRAL_PORTAL)) {
                         tasks.add(
                             String.format(
                                 Tasks.PUBLISH_PUBLICATION,
-                                Publications.OSS,
-                                if (project.isSnapshotVersion) OSS_SNAPSHOTS_REPO_NAME else OSS_STAGING_REPO_NAME,
+                                Publications.MAVEN_CENTRAL_PORTAL,
+                                if (project.isSnapshotVersion) {
+                                    MAVEN_CENTRAL_PORTAL_SNAPSHOTS_REPO_NAME
+                                } else {
+                                    MAVEN_CENTRAL_PORTAL_STAGING_REPO_NAME
+                                },
                             ),
                         )
                     }
@@ -659,8 +663,8 @@ class ConfigPlugin : Plugin<Project> {
                                     if (this.publications.contains(PublicationType.GITHUB)) {
                                         createPublication(project, publications, Publications.GITHUB)
                                     }
-                                    if (this.publications.contains(PublicationType.OSS)) {
-                                        createPublication(project, publications, Publications.OSS)
+                                    if (this.publications.contains(PublicationType.MAVEN_CENTRAL_PORTAL)) {
+                                        createPublication(project, publications, Publications.MAVEN_CENTRAL_PORTAL)
                                     }
                                 }
                             }
@@ -709,36 +713,48 @@ class ConfigPlugin : Plugin<Project> {
                                         }
                                     }
 
-                                    if (publications.contains(PublicationType.OSS)) {
-                                        val ossRepoUsername =
+                                    if (publications.contains(PublicationType.MAVEN_CENTRAL_PORTAL)) {
+                                        val mavenCentralPortalRepoUsername =
                                             project.getPropertyOrDefault(
-                                                OSS_REPO_USERNAME,
-                                                getEnvOrDefault(EnvVars.OSS_REPO_USERNAME, ""),
+                                                MAVEN_CENTRAL_PORTAL_REPO_USERNAME,
+                                                getEnvOrDefault(EnvVars.MAVEN_CENTRAL_PORTAL_REPO_USERNAME, ""),
                                             )
-                                        val ossRepoPassword =
+                                        val mavenCentralPortalRepoPassword =
                                             project.getPropertyOrDefault(
-                                                OSS_REPO_PASSWORD,
-                                                getEnvOrDefault(EnvVars.OSS_REPO_PASSWORD, ""),
+                                                MAVEN_CENTRAL_PORTAL_REPO_PASSWORD,
+                                                getEnvOrDefault(EnvVars.MAVEN_CENTRAL_PORTAL_REPO_PASSWORD, ""),
                                             )
 
-                                        if (ossRepoUsername.isBlank()) {
+                                        if (mavenCentralPortalRepoUsername.isBlank()) {
                                             println(
-                                                "WARN: $OSS_REPO_USERNAME property or $GITHUB_USER environment variable is not set",
+                                                "WARN: $MAVEN_CENTRAL_PORTAL_REPO_USERNAME property or " +
+                                                    "$GITHUB_USER environment variable is not set",
                                             )
                                         }
-                                        if (ossRepoPassword.isBlank()) {
+                                        if (mavenCentralPortalRepoPassword.isBlank()) {
                                             println(
-                                                "WARN: $OSS_REPO_PASSWORD property or $GITHUB_TOKEN environment variable is not set",
+                                                "WARN: $MAVEN_CENTRAL_PORTAL_REPO_PASSWORD property or " +
+                                                    "$GITHUB_TOKEN environment variable is not set",
                                             )
                                         }
 
                                         with(repo) {
                                             createArtifactRepository(
                                                 repos = repos,
-                                                repoName = if (isSnapshotVersion) OSS_SNAPSHOTS_REPO_NAME else OSS_STAGING_REPO_NAME,
-                                                repoUri = if (isSnapshotVersion) ossSnapshotsRepoUri else ossStagingRepoUri,
-                                                repoUsername = ossRepoUsername,
-                                                repoPassword = ossRepoPassword,
+                                                repoName =
+                                                    if (isSnapshotVersion) {
+                                                        MAVEN_CENTRAL_PORTAL_SNAPSHOTS_REPO_NAME
+                                                    } else {
+                                                        MAVEN_CENTRAL_PORTAL_STAGING_REPO_NAME
+                                                    },
+                                                repoUri =
+                                                    if (isSnapshotVersion) {
+                                                        mavenCentralPortalSnapshotsRepoUri
+                                                    } else {
+                                                        mavenCentralPortalStagingRepoUri
+                                                    },
+                                                repoUsername = mavenCentralPortalRepoUsername,
+                                                repoPassword = mavenCentralPortalRepoPassword,
                                             )
                                         }
                                     }
@@ -843,8 +859,8 @@ class ConfigPlugin : Plugin<Project> {
                         }
 
                         with(extension.artifact) {
-                            if (publications.contains(PublicationType.OSS)) {
-                                sign(getExtension<PublishingExtension>().publications.getByName(Publications.OSS))
+                            if (publications.contains(PublicationType.MAVEN_CENTRAL_PORTAL)) {
+                                sign(getExtension<PublishingExtension>().publications.getByName(Publications.MAVEN_CENTRAL_PORTAL))
                             }
                         }
                     }

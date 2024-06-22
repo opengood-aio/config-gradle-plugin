@@ -18,12 +18,12 @@ data class ProjectConfig(
     val projectType: ProjectType = ProjectType.APP,
     val features: Int = defaultFeatures,
     val testFrameworks: Int = defaultTestFrameworks,
-    val publications: List<PublicationType> = listOf(PublicationType.GITHUB, PublicationType.OSS),
+    val publications: List<PublicationType> = listOf(PublicationType.GITHUB, PublicationType.MAVEN_CENTRAL_PORTAL),
     val credentials: Map<String, String> =
         mapOf(
             EnvVars.GITHUB_USER to "example",
             EnvVars.GITHUB_TOKEN to "fake",
-            EnvVars.OSS_REPO_USERNAME to "example",
-            EnvVars.OSS_REPO_PASSWORD to "fake",
+            EnvVars.MAVEN_CENTRAL_PORTAL_REPO_USERNAME to "example",
+            EnvVars.MAVEN_CENTRAL_PORTAL_REPO_PASSWORD to "fake",
         ),
 )
