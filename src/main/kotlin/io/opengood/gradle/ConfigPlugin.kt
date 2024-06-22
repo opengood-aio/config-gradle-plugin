@@ -727,12 +727,14 @@ class ConfigPlugin : Plugin<Project> {
 
                                         if (mavenCentralPortalRepoUsername.isBlank()) {
                                             println(
-                                                "WARN: $MAVEN_CENTRAL_PORTAL_REPO_USERNAME property or $GITHUB_USER environment variable is not set",
+                                                "WARN: $MAVEN_CENTRAL_PORTAL_REPO_USERNAME property or " +
+                                                    "$GITHUB_USER environment variable is not set",
                                             )
                                         }
                                         if (mavenCentralPortalRepoPassword.isBlank()) {
                                             println(
-                                                "WARN: $MAVEN_CENTRAL_PORTAL_REPO_PASSWORD property or $GITHUB_TOKEN environment variable is not set",
+                                                "WARN: $MAVEN_CENTRAL_PORTAL_REPO_PASSWORD property or " +
+                                                    "$GITHUB_TOKEN environment variable is not set",
                                             )
                                         }
 

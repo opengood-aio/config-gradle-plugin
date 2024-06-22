@@ -83,7 +83,7 @@ The plugin supports customized properties:
 
 | Property                             | Description                                               | Default                                                                |
 |--------------------------------------|-----------------------------------------------------------|------------------------------------------------------------------------|
-| `mavenCentralPortalSnapshotsRepoUri` | URI of Maven Central Portal snapshots artifact repository | `Not Supported`                                                        |
+| `mavenCentralPortalSnapshotsRepoUri` | URI of Maven Central Portal snapshots artifact repository | `https://central.sonatype.com/api/v1/publisher`                        |
 | `mavenCentralPortalStagingRepoUri`   | URI of Maven Central Portal staging artifact repository   | `https://central.sonatype.com/api/v1/publisher`                        |
 | `gitHubPackagesRepoUri`              | URI of GitHub packages artifact repository                | `https://maven.pkg.github.com/ + GitHub Org URI + Gradle project.name` |
 

@@ -831,7 +831,11 @@ fun configureAfterReleaseBuildTaskTest(project: Project) =
                             String.format(
                                 Tasks.PUBLISH_PUBLICATION,
                                 Publications.MAVEN_CENTRAL_PORTAL,
-                                if (project.isSnapshotVersion) MAVEN_CENTRAL_PORTAL_SNAPSHOTS_REPO_NAME else MAVEN_CENTRAL_PORTAL_STAGING_REPO_NAME,
+                                if (project.isSnapshotVersion) {
+                                    MAVEN_CENTRAL_PORTAL_SNAPSHOTS_REPO_NAME
+                                } else {
+                                    MAVEN_CENTRAL_PORTAL_STAGING_REPO_NAME
+                                },
                             ),
                         )
                     }
@@ -867,7 +871,11 @@ fun doNotConfigureAfterReleaseBuildTaskTest(project: Project) =
                             String.format(
                                 Tasks.PUBLISH_PUBLICATION,
                                 Publications.MAVEN_CENTRAL_PORTAL,
-                                if (project.isSnapshotVersion) MAVEN_CENTRAL_PORTAL_SNAPSHOTS_REPO_NAME else MAVEN_CENTRAL_PORTAL_STAGING_REPO_NAME,
+                                if (project.isSnapshotVersion) {
+                                    MAVEN_CENTRAL_PORTAL_SNAPSHOTS_REPO_NAME
+                                } else {
+                                    MAVEN_CENTRAL_PORTAL_STAGING_REPO_NAME
+                                },
                             ),
                         )
                     }
