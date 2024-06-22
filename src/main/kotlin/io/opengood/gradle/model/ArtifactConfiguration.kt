@@ -12,12 +12,14 @@ import org.gradle.api.Action
 import org.gradle.api.Project
 
 @AllOpen
-class ArtifactConfiguration(private val project: Project) {
+class ArtifactConfiguration(
+    private val project: Project,
+) {
     var name by GradleProperty(project, String::class.java, project.name)
     var packaging by GradleProperty(project, PackagingType::class.java, PackagingType.JAR)
     var description by GradleProperty(project, String::class.java, Artifacts.DESCRIPTION)
     var uri by GradleProperty(project, String::class.java, String.format(GitHub.OPENGOOD_REPO_URI, project.name))
-    var publications by GradleListProperty(project, PublicationType::class.java, listOf(PublicationType.OSS))
+    var publications by GradleListProperty(project, PublicationType::class.java, listOf(PublicationType.MAVEN_CENTRAL_PORTAL))
     var repo = RepoConfiguration(project)
     var scm = ScmConfiguration(project)
     var license = LicenseConfiguration(project)

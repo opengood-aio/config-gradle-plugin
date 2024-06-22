@@ -72,10 +72,10 @@ fun buildScriptTest(languageType: LanguageType) =
                                 packaging = PackagingType.JAR
                                 description = "description"
                                 uri = "https://artifact.uri"
-                                publications = ${if (languageType == KOTLIN) "listOf(PublicationType.OSS)" else "[PublicationType.OSS]"}
+                                publications = ${if (languageType == KOTLIN) "listOf(PublicationType.MAVEN_CENTRAL_PORTAL)" else "[PublicationType.MAVEN_CENTRAL_PORTAL]"}
                                 repo {
-                                    ossSnapshotsRepoUri = "https://snapshots.uri"
-                                    ossStagingRepoUri = "https://staging.uri"
+                                    mavenCentralPortalSnapshotsRepoUri = "https://snapshots.uri"
+                                    mavenCentralPortalStagingRepoUri = "https://staging.uri"
                                     gitHubPackagesRepoUri = "https://github.uri"
                                 }
                                 scm {
@@ -99,7 +99,8 @@ fun buildScriptTest(languageType: LanguageType) =
                     )
 
                     val result =
-                        GradleRunner.create()
+                        GradleRunner
+                            .create()
                             .withProjectDir(projectDir.toFile())
                             .withPluginClasspath()
                             .withArguments("--info", "--stacktrace")

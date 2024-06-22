@@ -67,25 +67,25 @@ The plugin supports customized properties:
 
 #### Artifact
 
-| Property       | Description                                          | Default                                           |
-|----------------|------------------------------------------------------|---------------------------------------------------|
-| `name`         | Name of artifact                                     | `Gradle project.name`                             |
-| `packaging`    | Type of packaging. Supported (`JAR`)                 | `JAR`                                             |
-| `description`  | Description of artifact                              |                                                   |
-| `uri`          | URI of artifact project repository                   | `GitHub Org URI + Gradle project.name`            |
-| `publications` | Publication of artifact. Supported (`OSS`, `GITHUB`) | `OSS`                                             |
-| `repo`         | Artifact repository details                          | see *[Artifact Repository](#artifact-repository)* |
-| `scm`          | SCM details                                          | see *[SCM](#scm)*                                 |
-| `licenses`     | License details                                      | see *[License](#license)*                         |
-| `developer`    | Developer details                                    | see *[Developer](#developer)*                     |
+| Property       | Description                                                           | Default                                           |
+|----------------|-----------------------------------------------------------------------|---------------------------------------------------|
+| `name`         | Name of artifact                                                      | `Gradle project.name`                             |
+| `packaging`    | Type of packaging. Supported (`JAR`)                                  | `JAR`                                             |
+| `description`  | Description of artifact                                               |                                                   |
+| `uri`          | URI of artifact project repository                                    | `GitHub Org URI + Gradle project.name`            |
+| `publications` | Publication of artifact. Supported (`GITHUB`, `MAVEN_CENTRAL_PORTAL`) | `MAVEN_CENTRAL_PORTAL`                            |
+| `repo`         | Artifact repository details                                           | see *[Artifact Repository](#artifact-repository)* |
+| `scm`          | SCM details                                                           | see *[SCM](#scm)*                                 |
+| `licenses`     | License details                                                       | see *[License](#license)*                         |
+| `developer`    | Developer details                                                     | see *[Developer](#developer)*                     |
 
 #### Artifact Repository
 
-| Property                | Description                                | Default                                                                |
-|-------------------------|--------------------------------------------|------------------------------------------------------------------------|
-| `ossSnapshotsRepoUri`   | URI of OSS snapshots artifact repository   | `https://oss.sonatype.org/content/repositories/snapshots`              |
-| `ossStagingRepoUri`     | URI of OSS staging artifact repository     | `https://oss.sonatype.org/service/local/staging/deploy/maven2`         |
-| `gitHubPackagesRepoUri` | URI of GitHub packages artifact repository | `https://maven.pkg.github.com/ + GitHub Org URI + Gradle project.name` |
+| Property                             | Description                                               | Default                                                                |
+|--------------------------------------|-----------------------------------------------------------|------------------------------------------------------------------------|
+| `mavenCentralPortalSnapshotsRepoUri` | URI of Maven Central Portal snapshots artifact repository | `Not Supported`                                                        |
+| `mavenCentralPortalStagingRepoUri`   | URI of Maven Central Portal staging artifact repository   | `https://central.sonatype.com/api/v1/publisher`                        |
+| `gitHubPackagesRepoUri`              | URI of GitHub packages artifact repository                | `https://maven.pkg.github.com/ + GitHub Org URI + Gradle project.name` |
 
 #### SCM
 
@@ -154,8 +154,8 @@ opengood {
         uri = "https://artifact.uri"
         publications = listOf(PublicationType.GITHUB)
         repo {
-            ossSnapshotsRepoUri = "https://oss.snapshots.uri"
-            ossStagingRepoUri = "https://oss.staging.uri"
+            mavenCentralPortalSnapshotsRepoUri = "https://central.snapshots.uri"
+            mavenCentralPortalStagingRepoUri = "https://central.staging.uri"
             gitHubPackagesRepoUri = "https://github.packages.uri"
         }
         scm {
@@ -233,41 +233,40 @@ repository
     GRADLE_PUBLISH_SECRET=<gradle-api-key-secret>
     ```
 
-* Create release version and publish plugin to Gradle plugin repository:
-
-    ```bash
-    git commit --allow-empty -m "Create release"; git push
-    ```
+* Create release version and publish plugin to Gradle plugin repository by
+creating a Pull Request in GitHub tagged with `release` and merge to `main`
+branch
 
 #### Artifact
 
 **Note:** Used for publishing artifacts using `opengood-config` Gradle
-plugin to Maven OSS repository
+plugin to Maven Central Portal repository
 
 ##### Local
 
-###### Maven OSS
+###### Maven Central Portal
 
-* Using Sonatype OSS account with GPG key for publishing, add
+* Using Maven Central Portal account with GPG key for publishing, add
   credentials to `~/.gradle/gradle.properties`:
 
     ```properties
-    ossRepoUsername=<sonatype-account-username>
-    ossRepoPassword=<sonatype-account-password>
+    mavenCentralPortalRepoUsername=<maven-central-portal-account-username>
+    mavenCentralPortalRepoPassword=<maven-central-portal-account-password>
     
     signing.keyId=<gpg-key-id>
     signing.password=<gpg-key-password>
     signing.secretKeyRingFile=<gpg-keys-file-path>
     ```
 
-* Create release version and publish artifact to Maven OSS repository:
+* Create release version and publish artifact to Maven Central Portal
+repository:
 
     ```bash
     ./gradlew clean release -Prelease.useAutomaticVersion=true
     ```
 
-  **Note:** `publishOssPublicationToOssStagingRepository` tasks are
-  configured with Gradle release plugin to execute after release build
+  **Note:** `publishMavenCentralPortalPublicationToMavenCentralPortalStagingRepository`
+  tasks are configured with Gradle release plugin to execute after release build
 
 ###### GitHub
 
@@ -292,30 +291,27 @@ plugin to Maven OSS repository
 
 ##### CI/CD
 
-###### Maven OSS
+###### Maven Central Portal
 
-* Using Sonatype OSS account with GPG key for publishing, add
+* Using Maven Central Portal account with GPG key for publishing, add
   environment variables to CI job:
 
     ```
-    OSS_REPO_USERNAME=<sonatype-account-username>
-    OSS_REPO_PASSWORD=<sonatype-account-password>
+    MAVEN_CENTRAL_PORTAL_REPO_USERNAME=<maven-central-portal-account-username>
+    MAVEN_CENTRAL_PORTAL_REPO_PASSWORD=<maven-central-portal-account-password>
     GPG_SIGNING_PRIVATE_KEY=<gpg-key-private-key>
     GPG_SIGNING_PASSWORD=<gpg-key-password>
     ```
 
   **Note:** `gpg-key-private-key` must be in ASCII armored format
 
-* Create release version and publish artifact to Maven OSS repository:
-
-    ```bash
-    git commit --allow-empty -m "Create release"; git push
-    ```
+* Create release version and publish plugin to Maven Central Portal repository
+  by creating a Pull Request in GitHub tagged with `release` and merge to `main`
+  branch
 
 ###### GitHub
 
-* Using GitHub account for publishing, add
-  environment variables to CI job:
+* Using GitHub account for publishing, add environment variables to CI job:
 
     ```
     GITHUB_ACTOR=<github-account-username>
@@ -325,10 +321,6 @@ plugin to Maven OSS repository
   *Note*: By default, these environment variables are automatically
   by added GitHub
 
-* Create release version and publish artifact to GitHub packages
-  repository:
-
-    ```bash
-    git commit --allow-empty -m "Create release"; git push
-    ```
-
+* Create release version and publish plugin to GitHub packages repository
+  by creating a Pull Request in GitHub tagged with `release` and merge to `main`
+  branch
