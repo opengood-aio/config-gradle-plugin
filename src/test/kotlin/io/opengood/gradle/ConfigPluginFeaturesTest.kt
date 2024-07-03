@@ -20,29 +20,30 @@ import test.spec.doNotAddSpringDependenciesTest
 import test.spec.doNotAddSpringMockkDependenciesTest
 import test.spec.doNotConfigureDependencyManagementExtensionTest
 
-class ConfigPluginFeaturesTest : FunSpec({
+class ConfigPluginFeaturesTest :
+    FunSpec({
 
-    val project =
-        createProject(
-            ProjectConfig(
-                languageType = LanguageType.KOTLIN,
-                features = Features.NONE.flag,
-            ),
-        )
+        val project =
+            createProject(
+                ProjectConfig(
+                    languageType = LanguageType.KOTLIN,
+                    features = Features.NONE.flag,
+                ),
+            )
 
-    include(doNotAddAssertjDependenciesTest(project))
-    include(doNotAddJacksonDependenciesTest(project))
-    include(doNotAddJacksonKotlinDependenciesTest(project))
-    include(doNotAddJunitJupiterDependenciesTest(project))
-    include(doNotAddKotestDependenciesTest(project))
-    include(doNotAddKotestSpringDependenciesTest(project))
-    include(doNotAddKotlinCoroutinesDependenciesTest(project))
-    include(doNotAddLombokDependenciesTest(project))
-    include(doNotAddMockitoDependenciesTest(project))
-    include(doNotAddMockkDependenciesTest(project))
-    include(doNotAddSpringDependenciesTest(project))
-    include(doNotAddSnakeYamlDependenciesTest(project))
-    include(doNotAddSpringMockkDependenciesTest(project))
+        include(doNotAddAssertjDependenciesTest(project))
+        include(doNotAddJacksonDependenciesTest(project))
+        include(doNotAddJacksonKotlinDependenciesTest(project))
+        include(doNotAddJunitJupiterDependenciesTest(project))
+        include(doNotAddKotestDependenciesTest(project))
+        include(doNotAddKotestSpringDependenciesTest(project))
+        include(doNotAddKotlinCoroutinesDependenciesTest(project))
+        include(doNotAddLombokDependenciesTest(project))
+        include(doNotAddMockitoDependenciesTest(project))
+        include(doNotAddMockkDependenciesTest(project))
+        include(doNotAddSpringDependenciesTest(project))
+        include(doNotAddSnakeYamlDependenciesTest(project))
+        include(doNotAddSpringMockkDependenciesTest(project))
 
-    include(doNotConfigureDependencyManagementExtensionTest(project))
-})
+        include(doNotConfigureDependencyManagementExtensionTest(project))
+    })

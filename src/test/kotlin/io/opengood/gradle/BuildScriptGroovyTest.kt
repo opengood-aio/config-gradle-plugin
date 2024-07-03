@@ -4,7 +4,8 @@ import io.kotest.core.spec.style.WordSpec
 import io.opengood.gradle.enumeration.LanguageType
 import test.spec.buildScriptTest
 
-class BuildScriptGroovyTest : WordSpec({
+class BuildScriptGroovyTest :
+    WordSpec({
 
-    include(buildScriptTest(LanguageType.GROOVY))
-})
+        include(buildScriptTest(LanguageType.GROOVY))
+    })

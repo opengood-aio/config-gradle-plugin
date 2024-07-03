@@ -4,26 +4,22 @@ import com.diogonunes.jcolor.Ansi.colorize
 import com.diogonunes.jcolor.Attribute.CYAN_TEXT
 import com.diogonunes.jcolor.Attribute.GREEN_TEXT
 import com.diogonunes.jcolor.Attribute.RED_TEXT
+import com.vanniktech.maven.publish.MavenPublishBaseExtension
+import com.vanniktech.maven.publish.SonatypeHost
 import io.opengood.gradle.constant.Archives
 import io.opengood.gradle.constant.Boms
+import io.opengood.gradle.constant.CompilerOptions
 import io.opengood.gradle.constant.Configurations
 import io.opengood.gradle.constant.Dependencies
 import io.opengood.gradle.constant.Elements
 import io.opengood.gradle.constant.EnvVars
-import io.opengood.gradle.constant.EnvVars.Companion.GITHUB_TOKEN
-import io.opengood.gradle.constant.EnvVars.Companion.GITHUB_USER
 import io.opengood.gradle.constant.Jars
-import io.opengood.gradle.constant.KotlinOptions
+import io.opengood.gradle.constant.Jvm
 import io.opengood.gradle.constant.Plugins
-import io.opengood.gradle.constant.Properties.Companion.GITHUB_PACKAGES_REPO_PASSWORD
-import io.opengood.gradle.constant.Properties.Companion.GITHUB_PACKAGES_REPO_USERNAME
-import io.opengood.gradle.constant.Properties.Companion.MAVEN_CENTRAL_PORTAL_REPO_PASSWORD
-import io.opengood.gradle.constant.Properties.Companion.MAVEN_CENTRAL_PORTAL_REPO_USERNAME
+import io.opengood.gradle.constant.Properties
 import io.opengood.gradle.constant.Publications
 import io.opengood.gradle.constant.Releases
 import io.opengood.gradle.constant.Repositories
-import io.opengood.gradle.constant.Repositories.Companion.MAVEN_CENTRAL_PORTAL_SNAPSHOTS_REPO_NAME
-import io.opengood.gradle.constant.Repositories.Companion.MAVEN_CENTRAL_PORTAL_STAGING_REPO_NAME
 import io.opengood.gradle.constant.Resources
 import io.opengood.gradle.constant.Tasks
 import io.opengood.gradle.constant.Tests
@@ -42,6 +38,7 @@ import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.publish.PublicationContainer
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
@@ -52,7 +49,6 @@ import org.gradle.api.tasks.testing.TestResult
 import org.gradle.api.tasks.wrapper.Wrapper
 import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
 import org.gradle.language.jvm.tasks.ProcessResources
-import org.gradle.plugins.signing.SigningExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.dsl.SpringBootExtension
@@ -124,6 +120,7 @@ class ConfigPlugin : Plugin<Project> {
                     apply(Plugins.BASE)
                     apply(Plugins.IDEA)
                     apply(Plugins.JACOCO)
+                    apply(Plugins.MAVEN_CENTRAL_PUBLISH)
                     apply(Plugins.MAVEN_PUBLISH)
                     apply(Plugins.RELEASE)
                     apply(Plugins.SIGNING)
@@ -229,16 +226,18 @@ class ConfigPlugin : Plugin<Project> {
                                         implementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTLIN_STD_LIB)))
                                         testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTLIN_TEST)))
 
-                                        if (kotlinCoroutines) {
-                                            implementation.dependencies.add(
-                                                create(getDependencyAndVersion(Dependencies.KOTLIN_COROUTINES_CORE)),
-                                            )
-                                        }
                                         if (jacksonKotlin) {
                                             implementation.dependencies.add(
                                                 create(getDependencyAndVersion(Dependencies.JACKSON_MODULE_KOTLIN)),
                                             )
                                         }
+
+                                        if (kotlinCoroutines) {
+                                            implementation.dependencies.add(
+                                                create(getDependencyAndVersion(Dependencies.KOTLIN_COROUTINES_CORE)),
+                                            )
+                                        }
+
                                         if (kotest) {
                                             testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.KOTEST_RUNNER)))
                                             testImplementation.dependencies.add(
@@ -251,14 +250,17 @@ class ConfigPlugin : Plugin<Project> {
                                                 create(getDependencyAndVersion(Dependencies.KOTEST_PROPERTIES)),
                                             )
                                         }
+
                                         if (kotestSpring) {
                                             testImplementation.dependencies.add(
                                                 create(getDependencyAndVersion(Dependencies.KOTEST_SPRING_EXTENSIONS)),
                                             )
                                         }
+
                                         if (mockk) {
                                             testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.MOCKK_ALL)))
                                         }
+
                                         if (springMockk) {
                                             testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.SPRING_MOCKK)))
                                         }
@@ -280,25 +282,21 @@ class ConfigPlugin : Plugin<Project> {
                                     implementation.dependencies.add(create(getDependencyAndVersion(Dependencies.SNAKE_YAML)))
                                 }
 
-                                with(test) {
-                                    if (languageType != LanguageType.KOTLIN ||
-                                        (languageType == LanguageType.KOTLIN && frameworks.java)
-                                    ) {
-                                        if (assertj) {
-                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.ASSERTJ_CORE)))
-                                        }
-                                        if (junitJupiter) {
-                                            testImplementation.dependencies.add(
-                                                create(getDependencyAndVersion(Dependencies.JUNIT_JUPITER_ALL)),
-                                            )
-                                        }
-                                        if (mockito) {
-                                            testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.MOCKITO_CORE)))
-                                            testImplementation.dependencies.add(
-                                                create(getDependencyAndVersion(Dependencies.MOCKITO_JUNIT_JUPITER)),
-                                            )
-                                        }
-                                    }
+                                if (assertj) {
+                                    testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.ASSERTJ_CORE)))
+                                }
+
+                                if (junitJupiter) {
+                                    testImplementation.dependencies.add(
+                                        create(getDependencyAndVersion(Dependencies.JUNIT_JUPITER_ALL)),
+                                    )
+                                }
+
+                                if (mockito) {
+                                    testImplementation.dependencies.add(create(getDependencyAndVersion(Dependencies.MOCKITO_CORE)))
+                                    testImplementation.dependencies.add(
+                                        create(getDependencyAndVersion(Dependencies.MOCKITO_JUNIT_JUPITER)),
+                                    )
                                 }
                             }
                         }
@@ -344,9 +342,9 @@ class ConfigPlugin : Plugin<Project> {
         project.tasks.withType(KotlinCompile::class.java) { task ->
             with(task) {
                 with(project.dependenciesVersions) {
-                    kotlinOptions {
-                        freeCompilerArgs = KotlinOptions.FREE_COMPILER_ARGS
-                        jvmTarget = getVersion(Dependencies.JAVA)
+                    compilerOptions {
+                        freeCompilerArgs.set(CompilerOptions.FREE_COMPILER_ARGS)
+                        jvmTarget.set(Jvm.TARGET)
                     }
                 }
             }
@@ -521,15 +519,7 @@ class ConfigPlugin : Plugin<Project> {
                     }
                     if (publications.contains(PublicationType.MAVEN_CENTRAL_PORTAL)) {
                         tasks.add(
-                            String.format(
-                                Tasks.PUBLISH_PUBLICATION,
-                                Publications.MAVEN_CENTRAL_PORTAL,
-                                if (project.isSnapshotVersion) {
-                                    MAVEN_CENTRAL_PORTAL_SNAPSHOTS_REPO_NAME
-                                } else {
-                                    MAVEN_CENTRAL_PORTAL_STAGING_REPO_NAME
-                                },
-                            ),
+                            Tasks.PUBLISH_ALL_PUBLICATIONS_TO_MAVEN_CENTRAL_REPOSITORY,
                         )
                     }
 
@@ -562,8 +552,8 @@ class ConfigPlugin : Plugin<Project> {
 
         with(extension.artifact) {
             if (publications.isNotEmpty()) {
-                configurePublishingExtension(project)
-                configureSigningExtension(project)
+                configureMavenCentralPublishingExtension(project)
+                configureMavenPublishingExtension(project)
             }
         }
     }
@@ -652,20 +642,61 @@ class ConfigPlugin : Plugin<Project> {
         }
     }
 
-    private fun configurePublishingExtension(project: Project) {
+    private fun configureMavenCentralPublishingExtension(project: Project) {
+        with(project) {
+            with(extension) {
+                with(artifact) {
+                    if (publications.contains(PublicationType.MAVEN_CENTRAL_PORTAL)) {
+                        pluginManager.withPlugin(Plugins.MAVEN_CENTRAL_PUBLISH) {
+                            extensions.configure(MavenPublishBaseExtension::class.java) { ext ->
+                                with(ext) {
+                                    coordinates(group.toString(), name, version.toString())
+                                    pom { pom -> createMavenPom(pom) }
+
+                                    val mavenCentralPortalRepoUsername =
+                                        project.getPropertyOrDefault(
+                                            Properties.MAVEN_CENTRAL_PORTAL_REPO_USERNAME,
+                                            getEnvOrDefault(EnvVars.MAVEN_CENTRAL_PORTAL_REPO_USERNAME, ""),
+                                        )
+                                    val mavenCentralPortalRepoPassword =
+                                        project.getPropertyOrDefault(
+                                            Properties.MAVEN_CENTRAL_PORTAL_REPO_PASSWORD,
+                                            getEnvOrDefault(EnvVars.MAVEN_CENTRAL_PORTAL_REPO_PASSWORD, ""),
+                                        )
+
+                                    if (mavenCentralPortalRepoUsername.isBlank()) {
+                                        println(
+                                            "WARN: ${Properties.MAVEN_CENTRAL_PORTAL_REPO_USERNAME} property or " +
+                                                "${EnvVars.MAVEN_CENTRAL_PORTAL_REPO_USERNAME} environment variable is not set",
+                                        )
+                                    }
+                                    if (mavenCentralPortalRepoPassword.isBlank()) {
+                                        println(
+                                            "WARN: ${Properties.MAVEN_CENTRAL_PORTAL_REPO_PASSWORD} property or " +
+                                                "${EnvVars.MAVEN_CENTRAL_PORTAL_REPO_PASSWORD} environment variable is not set",
+                                        )
+                                    }
+
+                                    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+                                    signAllPublications()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun configureMavenPublishingExtension(project: Project) {
         with(project) {
             pluginManager.withPlugin(Plugins.MAVEN_PUBLISH) {
                 extensions.configure(PublishingExtension::class.java) { ext ->
                     with(ext) {
                         with(extension) {
                             publications { publications ->
-                                with(artifact) {
-                                    if (this.publications.contains(PublicationType.GITHUB)) {
-                                        createPublication(project, publications, Publications.GITHUB)
-                                    }
-                                    if (this.publications.contains(PublicationType.MAVEN_CENTRAL_PORTAL)) {
-                                        createPublication(project, publications, Publications.MAVEN_CENTRAL_PORTAL)
-                                    }
+                                if (artifact.publications.contains(PublicationType.GITHUB)) {
+                                    createPublication(project, publications, Publications.GITHUB)
                                 }
                             }
 
@@ -680,25 +711,25 @@ class ConfigPlugin : Plugin<Project> {
                                     if (publications.contains(PublicationType.GITHUB)) {
                                         val gitHubPackagesRepoUsername =
                                             project.getPropertyOrDefault(
-                                                GITHUB_PACKAGES_REPO_USERNAME,
-                                                getEnvOrDefault(GITHUB_USER, ""),
+                                                Properties.GITHUB_PACKAGES_REPO_USERNAME,
+                                                getEnvOrDefault(EnvVars.GITHUB_USER, ""),
                                             )
                                         val gitHubPackagesRepoPassword =
                                             project.getPropertyOrDefault(
-                                                GITHUB_PACKAGES_REPO_PASSWORD,
-                                                getEnvOrDefault(GITHUB_TOKEN, ""),
+                                                Properties.GITHUB_PACKAGES_REPO_PASSWORD,
+                                                getEnvOrDefault(EnvVars.GITHUB_TOKEN, ""),
                                             )
 
                                         if (gitHubPackagesRepoUsername.isBlank()) {
                                             println(
-                                                "WARN: $GITHUB_PACKAGES_REPO_USERNAME property or " +
-                                                    "$GITHUB_USER environment variable is not set",
+                                                "WARN: ${Properties.GITHUB_PACKAGES_REPO_USERNAME} property or " +
+                                                    "${EnvVars.GITHUB_USER} environment variable is not set",
                                             )
                                         }
                                         if (gitHubPackagesRepoPassword.isBlank()) {
                                             println(
-                                                "WARN: $GITHUB_PACKAGES_REPO_PASSWORD property or " +
-                                                    "$GITHUB_TOKEN environment variable is not set",
+                                                "WARN: ${Properties.GITHUB_PACKAGES_REPO_PASSWORD} property or " +
+                                                    "${EnvVars.GITHUB_TOKEN} environment variable is not set",
                                             )
                                         }
 
@@ -710,100 +741,6 @@ class ConfigPlugin : Plugin<Project> {
                                                 repoUsername = gitHubPackagesRepoUsername,
                                                 repoPassword = gitHubPackagesRepoPassword,
                                             )
-                                        }
-                                    }
-
-                                    if (publications.contains(PublicationType.MAVEN_CENTRAL_PORTAL)) {
-                                        val mavenCentralPortalRepoUsername =
-                                            project.getPropertyOrDefault(
-                                                MAVEN_CENTRAL_PORTAL_REPO_USERNAME,
-                                                getEnvOrDefault(EnvVars.MAVEN_CENTRAL_PORTAL_REPO_USERNAME, ""),
-                                            )
-                                        val mavenCentralPortalRepoPassword =
-                                            project.getPropertyOrDefault(
-                                                MAVEN_CENTRAL_PORTAL_REPO_PASSWORD,
-                                                getEnvOrDefault(EnvVars.MAVEN_CENTRAL_PORTAL_REPO_PASSWORD, ""),
-                                            )
-
-                                        if (mavenCentralPortalRepoUsername.isBlank()) {
-                                            println(
-                                                "WARN: $MAVEN_CENTRAL_PORTAL_REPO_USERNAME property or " +
-                                                    "$GITHUB_USER environment variable is not set",
-                                            )
-                                        }
-                                        if (mavenCentralPortalRepoPassword.isBlank()) {
-                                            println(
-                                                "WARN: $MAVEN_CENTRAL_PORTAL_REPO_PASSWORD property or " +
-                                                    "$GITHUB_TOKEN environment variable is not set",
-                                            )
-                                        }
-
-                                        with(repo) {
-                                            createArtifactRepository(
-                                                repos = repos,
-                                                repoName =
-                                                    if (isSnapshotVersion) {
-                                                        MAVEN_CENTRAL_PORTAL_SNAPSHOTS_REPO_NAME
-                                                    } else {
-                                                        MAVEN_CENTRAL_PORTAL_STAGING_REPO_NAME
-                                                    },
-                                                repoUri =
-                                                    if (isSnapshotVersion) {
-                                                        mavenCentralPortalSnapshotsRepoUri
-                                                    } else {
-                                                        mavenCentralPortalStagingRepoUri
-                                                    },
-                                                repoUsername = mavenCentralPortalRepoUsername,
-                                                repoPassword = mavenCentralPortalRepoPassword,
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun createPublication(
-        project: Project,
-        publications: PublicationContainer,
-        publicationName: String,
-    ) {
-        with(project) {
-            publications.register(publicationName, MavenPublication::class.java) { publication ->
-                with(publication) {
-                    with(extension) {
-                        from(components.getByName("java"))
-                        pom { pom ->
-                            with(pom) {
-                                name.set(artifact.name)
-                                packaging = artifact.packaging.toString()
-                                description.set(artifact.description)
-                                url.set(artifact.uri)
-                                scm { scm ->
-                                    with(scm) {
-                                        connection.set(artifact.scm.connection)
-                                        developerConnection.set(artifact.scm.devConnection)
-                                        url.set(artifact.scm.uri)
-                                    }
-                                }
-                                licenses {
-                                    it.license { license ->
-                                        with(license) {
-                                            name.set(artifact.license.name)
-                                            url.set(artifact.license.uri)
-                                        }
-                                    }
-                                }
-                                developers {
-                                    it.developer { developer ->
-                                        with(developer) {
-                                            id.set(artifact.developer.id)
-                                            name.set(artifact.developer.name)
-                                            email.set(artifact.developer.email)
                                         }
                                     }
                                 }
@@ -839,31 +776,51 @@ class ConfigPlugin : Plugin<Project> {
         }
     }
 
-    private fun configureSigningExtension(project: Project) {
-        with(project) {
-            pluginManager.withPlugin(Plugins.SIGNING) {
-                extensions.configure(SigningExtension::class.java) { ext ->
-                    with(ext) {
-                        val signingKey = getEnvOrDefault(EnvVars.GPG_SIGNING_PRIVATE_KEY, "")
-                        val signingPassword = getEnvOrDefault(EnvVars.GPG_SIGNING_PASSWORD, "")
-
-                        if (signingKey.isNotBlank() && signingPassword.isNotBlank()) {
-                            println("Environment variables ${EnvVars.GPG_SIGNING_PRIVATE_KEY} and ${EnvVars.GPG_SIGNING_PASSWORD} are set")
-                            println("Using in-memory GPG key for signing")
-                            useInMemoryPgpKeys(signingKey, signingPassword)
-                        } else {
-                            println(
-                                "Environment variables ${EnvVars.GPG_SIGNING_PRIVATE_KEY} and ${EnvVars.GPG_SIGNING_PASSWORD} are not set",
-                            )
-                            println("Defaulting to global Gradle properties file for GPG key for signing")
-                        }
-
-                        with(extension.artifact) {
-                            if (publications.contains(PublicationType.MAVEN_CENTRAL_PORTAL)) {
-                                sign(getExtension<PublishingExtension>().publications.getByName(Publications.MAVEN_CENTRAL_PORTAL))
-                            }
+    private fun createMavenPom(pom: MavenPom) {
+        with(extension) {
+            with(pom) {
+                name.set(artifact.name)
+                packaging = artifact.packaging.toString()
+                description.set(artifact.description)
+                url.set(artifact.uri)
+                scm { scm ->
+                    with(scm) {
+                        connection.set(artifact.scm.connection)
+                        developerConnection.set(artifact.scm.devConnection)
+                        url.set(artifact.scm.uri)
+                    }
+                }
+                licenses {
+                    it.license { license ->
+                        with(license) {
+                            name.set(artifact.license.name)
+                            url.set(artifact.license.uri)
                         }
                     }
+                }
+                developers {
+                    it.developer { developer ->
+                        with(developer) {
+                            id.set(artifact.developer.id)
+                            name.set(artifact.developer.name)
+                            email.set(artifact.developer.email)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun createPublication(
+        project: Project,
+        publications: PublicationContainer,
+        publicationName: String,
+    ) {
+        with(project) {
+            publications.register(publicationName, MavenPublication::class.java) { publication ->
+                with(publication) {
+                    from(components.getByName("java"))
+                    pom { pom -> createMavenPom(pom) }
                 }
             }
         }

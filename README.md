@@ -39,15 +39,15 @@ The plugin supports customized properties:
 
 | Property           | Description                                                 | Default |
 |--------------------|-------------------------------------------------------------|---------|
-| `assertj`          | Value indicating if AssertJ dependency is enabled           | `true`  |
+| `assertj`          | Value indicating if AssertJ dependency is enabled           | `false` |
 | `jackson`          | Value indicating if Jackson dependency is enabled           | `true`  |
 | `jacksonKotlin`    | Value indicating if Jackson Kotlin dependency is enabled    | `true`  |
-| `junitJupiter`     | Value indicating if JUnit Jupiter dependency is enabled     | `true`  |
+| `junitJupiter`     | Value indicating if JUnit Jupiter dependency is enabled     | `false` |
 | `kotest`           | Value indicating if Kotest dependencies are enabled         | `true`  |
 | `kotestSpring`     | Value indicating if Kotest Spring dependency is enabled     | `true`  |
 | `kotlinCoroutines` | Value indicating if Kotlin Coroutines dependency is enabled | `true`  |
-| `lombok`           | Value indicating if Lombok dependency is enabled            | `true`  |
-| `mockito`          | Value indicating if Mockito dependency is enabled           | `true`  |
+| `lombok`           | Value indicating if Lombok dependency is enabled            | `false` |
+| `mockito`          | Value indicating if Mockito dependency is enabled           | `false` |
 | `mockk`            | Value indicating if MockK dependency is enabled             | `true`  |
 | `spring`           | Value indicating if Spring dependencies are enabled         | `true`  |
 | `springMockk`      | Value indicating if Spring MockK dependency is enabled      | `true`  |
@@ -57,13 +57,6 @@ The plugin supports customized properties:
 | Property           | Description                                  | Default                                   |
 |--------------------|----------------------------------------------|-------------------------------------------|
 | `maxParallelForks` | Number of concurrent test classes to execute | `Available Processors / 2 + 1`            |
-| `frameworks`       | Available test frameworks to enable          | see *[Test Frameworks](#test-frameworks)* |
-
-#### Test Frameworks
-
-| Property | Description                                          | Default |
-|----------|------------------------------------------------------|---------|
-| `java`   | Value indicating if Java test frameworks are enabled | `false` |
 
 #### Artifact
 
@@ -83,8 +76,6 @@ The plugin supports customized properties:
 
 | Property                             | Description                                               | Default                                                                |
 |--------------------------------------|-----------------------------------------------------------|------------------------------------------------------------------------|
-| `mavenCentralPortalSnapshotsRepoUri` | URI of Maven Central Portal snapshots artifact repository | `https://central.sonatype.com/api/v1/publisher`                        |
-| `mavenCentralPortalStagingRepoUri`   | URI of Maven Central Portal staging artifact repository   | `https://central.sonatype.com/api/v1/publisher`                        |
 | `gitHubPackagesRepoUri`              | URI of GitHub packages artifact repository                | `https://maven.pkg.github.com/ + GitHub Org URI + Gradle project.name` |
 
 #### SCM
@@ -143,9 +134,6 @@ opengood {
     }
     test {
         maxParallelForks = 1
-        frameworks {
-            java = true
-        }
     }
     artifact {
         name = "test"
@@ -154,8 +142,6 @@ opengood {
         uri = "https://artifact.uri"
         publications = listOf(PublicationType.GITHUB)
         repo {
-            mavenCentralPortalSnapshotsRepoUri = "https://central.snapshots.uri"
-            mavenCentralPortalStagingRepoUri = "https://central.staging.uri"
             gitHubPackagesRepoUri = "https://github.packages.uri"
         }
         scm {
@@ -250,8 +236,8 @@ plugin to Maven Central Portal repository
   credentials to `~/.gradle/gradle.properties`:
 
     ```properties
-    mavenCentralPortalRepoUsername=<maven-central-portal-account-username>
-    mavenCentralPortalRepoPassword=<maven-central-portal-account-password>
+    mavenCentralUsername=<maven-central-portal-account-username>
+    mavenCentralPassword=<maven-central-portal-account-password>
     
     signing.keyId=<gpg-key-id>
     signing.password=<gpg-key-password>
@@ -265,7 +251,7 @@ repository:
     ./gradlew clean release -Prelease.useAutomaticVersion=true
     ```
 
-  **Note:** `publishMavenCentralPortalPublicationToMavenCentralPortalStagingRepository`
+  **Note:** `publishAllPublicationsToMavenCentralRepository`
   tasks are configured with Gradle release plugin to execute after release build
 
 ###### GitHub
@@ -297,10 +283,10 @@ repository:
   environment variables to CI job:
 
     ```
-    MAVEN_CENTRAL_PORTAL_REPO_USERNAME=<maven-central-portal-account-username>
-    MAVEN_CENTRAL_PORTAL_REPO_PASSWORD=<maven-central-portal-account-password>
-    GPG_SIGNING_PRIVATE_KEY=<gpg-key-private-key>
-    GPG_SIGNING_PASSWORD=<gpg-key-password>
+    ORG_GRADLE_PROJECT_mavenCentralUsername=<maven-central-portal-account-username>
+    ORG_GRADLE_PROJECT_mavenCentralPassword=<maven-central-portal-account-password>
+    ORG_GRADLE_PROJECT_signingInMemoryKey=<gpg-key-private-key>
+    ORG_GRADLE_PROJECT_signingInMemoryKeyPassword=<gpg-key-password>
     ```
 
   **Note:** `gpg-key-private-key` must be in ASCII armored format

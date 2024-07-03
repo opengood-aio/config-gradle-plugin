@@ -4,6 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
 import test.createProject
+import test.enumeration.defaultFeatures
+import test.enumeration.javaFeatures
 import test.model.ProjectConfig
 import test.spec.addAssertjDependenciesTest
 import test.spec.addGroovyDependenciesTest
@@ -29,10 +31,10 @@ import test.spec.configureJacocoTestReportTaskTest
 import test.spec.configureJarTaskTest
 import test.spec.configureJavaCompileTaskTest
 import test.spec.configureJavaExtensionTest
+import test.spec.configureMavenCentralPublishingExtensionTest
+import test.spec.configureMavenPublishingExtensionTest
 import test.spec.configureProcessResourcesTaskTest
-import test.spec.configurePublishingExtensionTest
 import test.spec.configureReleaseExtensionTest
-import test.spec.configureSigningExtensionTest
 import test.spec.configureSpringBootExtensionTest
 import test.spec.configureTestTaskTest
 import test.spec.createExtensionTest
@@ -49,64 +51,66 @@ import test.spec.doNotApplyKotlinSpringPluginTest
 import test.spec.doNotApplyLibraryPluginTest
 import test.spec.doNotApplyLombokPluginTest
 
-class ConfigPluginGroovyAppTest : FunSpec({
+class ConfigPluginGroovyAppTest :
+    FunSpec({
 
-    val project =
-        createProject(
-            ProjectConfig(
-                languageType = LanguageType.GROOVY,
-                projectType = ProjectType.APP,
-            ),
-        )
+        val project =
+            createProject(
+                ProjectConfig(
+                    languageType = LanguageType.GROOVY,
+                    projectType = ProjectType.APP,
+                    features = defaultFeatures + javaFeatures,
+                ),
+            )
 
-    include(applyPluginTest(project))
+        include(applyPluginTest(project))
 
-    include(createExtensionTest(project, ProjectType.APP))
+        include(createExtensionTest(project, ProjectType.APP))
 
-    include(applyGroovyPluginTest(project))
-    include(applyJavaPluginTest(project))
-    include(doNotApplyLombokPluginTest(project))
-    include(doNotApplyKotlinPluginsTest(project))
-    include(doNotApplyKotlinSpringPluginTest(project))
-    include(applyCommonPluginsTest(project))
-    include(applySpringPluginsTest(project))
-    include(doNotApplyLibraryPluginTest(project))
+        include(applyGroovyPluginTest(project))
+        include(applyJavaPluginTest(project))
+        include(doNotApplyLombokPluginTest(project))
+        include(doNotApplyKotlinPluginsTest(project))
+        include(doNotApplyKotlinSpringPluginTest(project))
+        include(applyCommonPluginsTest(project))
+        include(applySpringPluginsTest(project))
+        include(doNotApplyLibraryPluginTest(project))
 
-    include(configureDependencyResolutionStrategyTest(project))
-    include(configureBootJarResolutionTest(project))
+        include(configureDependencyResolutionStrategyTest(project))
+        include(configureBootJarResolutionTest(project))
 
-    include(addRepositoriesTest(project))
+        include(addRepositoriesTest(project))
 
-    include(addGroovyDependenciesTest(project))
-    include(doNotAddLombokDependenciesTest(project))
-    include(doNotAddKotlinDependenciesTest(project))
-    include(doNotAddKotlinCoroutinesDependenciesTest(project))
-    include(doNotAddJacksonKotlinDependenciesTest(project))
-    include(doNotAddKotestDependenciesTest(project))
-    include(doNotAddKotestSpringDependenciesTest(project))
-    include(doNotAddMockkDependenciesTest(project))
-    include(doNotAddSpringMockkDependenciesTest(project))
-    include(addJacksonDependenciesTest(project))
-    include(addSpringDependenciesTest(project))
-    include(addSnakeYamlDependenciesTest(project))
-    include(addAssertjDependenciesTest(project))
-    include(addJunitJupiterDependenciesTest(project))
-    include(addMockitoDependenciesTest(project))
+        include(addGroovyDependenciesTest(project))
+        include(doNotAddLombokDependenciesTest(project))
+        include(doNotAddKotlinDependenciesTest(project))
+        include(doNotAddKotlinCoroutinesDependenciesTest(project))
+        include(doNotAddJacksonKotlinDependenciesTest(project))
+        include(doNotAddKotestDependenciesTest(project))
+        include(doNotAddKotestSpringDependenciesTest(project))
+        include(doNotAddMockkDependenciesTest(project))
+        include(doNotAddSpringMockkDependenciesTest(project))
+        include(addJacksonDependenciesTest(project))
+        include(addSpringDependenciesTest(project))
+        include(addSnakeYamlDependenciesTest(project))
+        include(addAssertjDependenciesTest(project))
+        include(addJunitJupiterDependenciesTest(project))
+        include(addMockitoDependenciesTest(project))
 
-    include(configureGradleWrapperTaskTest(project))
-    include(configureProcessResourcesTaskTest(project))
-    include(configureJavaCompileTaskTest(project))
-    include(configureTestTaskTest(project))
-    include(configureJacocoTestReportTaskTest(project))
-    include(configureJarTaskTest(project, isEnabled = false))
-    include(configureBootJarTaskTest(project, isEnabled = true))
-    include(configureAfterReleaseBuildTaskTest(project))
+        include(configureGradleWrapperTaskTest(project))
+        include(configureProcessResourcesTaskTest(project))
+        include(configureJavaCompileTaskTest(project))
+        include(configureTestTaskTest(project))
+        include(configureJacocoTestReportTaskTest(project))
+        include(configureJarTaskTest(project, isEnabled = false))
+        include(configureBootJarTaskTest(project, isEnabled = true))
+        include(configureAfterReleaseBuildTaskTest(project))
 
-    include(configureBasePluginExtensionTest(project))
-    include(configureDependencyManagementExtensionTest(project))
-    include(configureJavaExtensionTest(project))
-    include(configureSpringBootExtensionTest(project))
-    include(configureReleaseExtensionTest(project))
-    include(configurePublishingExtensionTest(project))
-    include(configureSigningExtensionTest(project))
-})
+        include(configureBasePluginExtensionTest(project))
+        include(configureDependencyManagementExtensionTest(project))
+        include(configureJavaExtensionTest(project))
+        include(configureSpringBootExtensionTest(project))
+        include(configureReleaseExtensionTest(project))
+        include(configureMavenCentralPublishingExtensionTest(project))
+        include(configureMavenPublishingExtensionTest(project))
+    })
