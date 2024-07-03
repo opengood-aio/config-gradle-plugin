@@ -10,6 +10,7 @@ import org.gradle.internal.logging.text.StyledTextOutput
 import org.gradle.internal.logging.text.StyledTextOutput.Style
 import org.gradle.internal.logging.text.StyledTextOutputFactory
 import org.gradle.kotlin.dsl.support.serviceOf
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.regex.Matcher
@@ -19,8 +20,9 @@ plugins {
     kotlin("plugin.allopen")
     id("java-gradle-plugin")
     id("jacoco")
-    id("maven-publish")
     id("net.researchgate.release")
+    id("com.vanniktech.maven.publish")
+    id("maven-publish")
     id("com.gradle.plugin-publish")
 }
 
@@ -47,7 +49,7 @@ allOpen {
 
 val kotlinVersion = getKotlinPluginVersion()
 val javaVersion = JavaVersion.VERSION_21
-val jvmTargetVersion = "21"
+val jvmTargetVersion = JvmTarget.JVM_21
 
 java.apply {
     sourceCompatibility = javaVersion
@@ -84,6 +86,7 @@ dependencies {
     implementation("io.spring.gradle:dependency-management-plugin:_")
     implementation("io.franzbecker:gradle-lombok:_")
     implementation("net.researchgate:gradle-release:_")
+    implementation("com.vanniktech:gradle-maven-publish-plugin:_")
 
     implementation("com.diogonunes:JColor:_")
     implementation("com.fasterxml.jackson.core:jackson-annotations:_")
@@ -91,7 +94,10 @@ dependencies {
 
     testRuntimeOnly(
         files(
-            serviceOf<ModuleRegistry>().getModule("gradle-tooling-api-builders").classpath.asFiles.first(),
+            serviceOf<ModuleRegistry>()
+                .getModule("gradle-tooling-api-builders")
+                .classpath.asFiles
+                .first(),
         ),
     )
 
@@ -111,16 +117,21 @@ with(tasks) {
     }
 
     withType<KotlinCompile> {
-        kotlinOptions {
+        compilerOptions {
             freeCompilerArgs = listOf("-Xjsr305=strict")
-            jvmTarget = jvmTargetVersion
+            jvmTarget.set(jvmTargetVersion)
         }
     }
 
     withType<Test> {
         useJUnitPlatform()
         finalizedBy("jacocoTestReport")
-        jvmArgs("--add-opens", "java.base/java.util=ALL-UNNAMED")
+        jvmArgs(
+            "--add-opens",
+            "java.base/java.util=ALL-UNNAMED",
+            "--add-opens",
+            "java.base/java.lang=ALL-UNNAMED",
+        )
 
         testLogging {
             events = setOf(PASSED, SKIPPED, FAILED, STANDARD_ERROR)

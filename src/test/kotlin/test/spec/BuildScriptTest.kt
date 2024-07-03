@@ -54,9 +54,6 @@ fun buildScriptTest(languageType: LanguageType) =
                             }
                             test {
                                 maxParallelForks = 1
-                                frameworks {
-                                    java = true
-                                }
                             }
                             release {
                                 afterReleaseBuildTasks = ${if (languageType == KOTLIN) {
@@ -74,8 +71,6 @@ fun buildScriptTest(languageType: LanguageType) =
                                 uri = "https://artifact.uri"
                                 publications = ${if (languageType == KOTLIN) "listOf(PublicationType.MAVEN_CENTRAL_PORTAL)" else "[PublicationType.MAVEN_CENTRAL_PORTAL]"}
                                 repo {
-                                    mavenCentralPortalSnapshotsRepoUri = "https://snapshots.uri"
-                                    mavenCentralPortalStagingRepoUri = "https://staging.uri"
                                     gitHubPackagesRepoUri = "https://github.uri"
                                 }
                                 scm {

@@ -5,25 +5,21 @@ import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.ProjectType
 import io.opengood.gradle.enumeration.PublicationType
 import test.enumeration.defaultFeatures
-import test.enumeration.defaultTestFrameworks
 
 data class ProjectConfig(
     val languageType: LanguageType,
     val name: String = "test",
-    val group: String = "org.example",
-    val version: String = "1.0.0-SNAPSHOT",
+    val group: String = "io.test",
+    val version: String = "1.0.0",
     val srcDir: Boolean = true,
     val buildGradle: Boolean = true,
     val settingsGradle: Boolean = true,
     val projectType: ProjectType = ProjectType.APP,
     val features: Int = defaultFeatures,
-    val testFrameworks: Int = defaultTestFrameworks,
     val publications: List<PublicationType> = listOf(PublicationType.GITHUB, PublicationType.MAVEN_CENTRAL_PORTAL),
     val credentials: Map<String, String> =
         mapOf(
             EnvVars.GITHUB_USER to "example",
             EnvVars.GITHUB_TOKEN to "fake",
-            EnvVars.MAVEN_CENTRAL_PORTAL_REPO_USERNAME to "example",
-            EnvVars.MAVEN_CENTRAL_PORTAL_REPO_PASSWORD to "fake",
         ),
 )

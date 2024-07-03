@@ -3,20 +3,24 @@ package io.opengood.gradle
 import io.kotest.core.spec.style.FunSpec
 import io.opengood.gradle.enumeration.LanguageType
 import test.createProject
+import test.enumeration.defaultFeatures
+import test.enumeration.kotlinFeatures
 import test.model.ProjectConfig
-import test.spec.configurePublishingExtensionTest
-import test.spec.configureSigningExtensionTest
+import test.spec.configureMavenCentralPublishingExtensionTest
+import test.spec.configureMavenPublishingExtensionTest
 
-class ConfigPluginReleaseTest : FunSpec({
+class ConfigPluginReleaseTest :
+    FunSpec({
 
-    val project =
-        createProject(
-            ProjectConfig(
-                languageType = LanguageType.KOTLIN,
-                version = "1.0.0",
-            ),
-        )
+        val project =
+            createProject(
+                ProjectConfig(
+                    languageType = LanguageType.KOTLIN,
+                    version = "1.0.0",
+                    features = defaultFeatures + kotlinFeatures,
+                ),
+            )
 
-    include(configurePublishingExtensionTest(project))
-    include(configureSigningExtensionTest(project))
-})
+        include(configureMavenCentralPublishingExtensionTest(project))
+        include(configureMavenPublishingExtensionTest(project))
+    })

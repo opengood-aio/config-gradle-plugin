@@ -7,27 +7,30 @@ import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.opengood.gradle.property.GradleProperty
 import org.gradle.testfixtures.ProjectBuilder
 
-class GradlePropertyTest : WordSpec({
+class GradlePropertyTest :
+    WordSpec({
 
-    "Gradle Property" should {
-        "Set given value" {
-            val value = "Hello World!"
-            val greeting = Greeting()
-            greeting.message = value
+        "Gradle Property" should {
+            "Set given value" {
+                val value = "Hello World!"
+                val greeting = Greeting()
+                greeting.message = value
 
-            greeting.message shouldBeSameInstanceAs value
+                greeting.message shouldBeSameInstanceAs value
+            }
+
+            "Set default value" {
+                Greeting("Hello World!").message shouldBe "Hello World!"
+            }
+
+            "Throw exception if not set" {
+                shouldThrow<IllegalStateException> { Greeting().message }
+            }
         }
+    })
 
-        "Set default value" {
-            Greeting("Hello World!").message shouldBe "Hello World!"
-        }
-
-        "Throw exception if not set" {
-            shouldThrow<IllegalStateException> { Greeting().message }
-        }
-    }
-})
-
-private class Greeting(default: String? = null) {
+private class Greeting(
+    default: String? = null,
+) {
     var message by GradleProperty(ProjectBuilder.builder().build(), String::class.java, default)
 }

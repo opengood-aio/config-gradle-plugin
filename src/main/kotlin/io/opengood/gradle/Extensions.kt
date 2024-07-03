@@ -2,6 +2,7 @@ package io.opengood.gradle
 
 import io.opengood.gradle.constant.Versions
 import io.opengood.gradle.enumeration.BuildGradleType
+import io.opengood.gradle.enumeration.Feature
 import io.opengood.gradle.enumeration.LanguageType
 import io.opengood.gradle.enumeration.SettingsGradleType
 import io.opengood.gradle.enumeration.SrcDirType
@@ -18,6 +19,39 @@ internal val Project.buildGradleType: BuildGradleType
 
 internal val Project.dependenciesVersions: DependenciesVersionsProperty
     get() = DependenciesVersionsProperty()
+
+internal fun Project.determineFeatureEnabled(feature: Feature): Boolean =
+    when (feature) {
+        Feature.JACKSON,
+        Feature.SPRING,
+        -> true
+
+        else -> {
+            if (!isKotlin) {
+                when (feature) {
+                    Feature.ASSERTJ,
+                    Feature.JUNIT_JUPITER,
+                    Feature.LOMBOK,
+                    Feature.MOCKITO,
+                    -> true
+
+                    else -> false
+                }
+            } else {
+                when (feature) {
+                    Feature.JACKSON_KOTLIN,
+                    Feature.KOTEST,
+                    Feature.KOTEST_SPRING,
+                    Feature.KOTLIN_COROUTINES,
+                    Feature.MOCKK,
+                    Feature.SPRING_MOCKK,
+                    -> true
+
+                    else -> false
+                }
+            }
+        }
+    }
 
 internal inline fun <reified T : Any> Project.getExtension(): T = extensions.getByType(T::class.java)
 

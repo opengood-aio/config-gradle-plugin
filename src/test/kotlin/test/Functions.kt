@@ -24,18 +24,19 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.testfixtures.ProjectBuilder
 import test.enumeration.getFeatures
-import test.enumeration.getTestFrameworks
 import test.model.ProjectConfig
 import java.nio.file.Files
 import java.nio.file.Path
 
-internal fun createProject(config: ProjectConfig): Project {
-    return with(config) {
+internal fun createProject(config: ProjectConfig): Project =
+    with(config) {
         val projectDir = createProjectDir()
-        ProjectBuilder.builder()
+        ProjectBuilder
+            .builder()
             .withName(name)
             .withProjectDir(projectDir.toFile())
-            .build().also { project ->
+            .build()
+            .also { project ->
                 project.group = group
                 project.version = version
                 with(project) {
@@ -47,7 +48,6 @@ internal fun createProject(config: ProjectConfig): Project {
                     extensions.configure(OpenGoodExtension::class.java) { ext ->
                         ext.main.projectType = projectType
                         ext.features = getFeatures(project, features)
-                        ext.test.frameworks = getTestFrameworks(project, testFrameworks)
                         ext.artifact.publications = publications
                     }
                 }
@@ -56,7 +56,6 @@ internal fun createProject(config: ProjectConfig): Project {
                 }
             }
     }
-}
 
 internal fun createProjectBuildGradle(
     languageType: LanguageType,
@@ -80,12 +79,23 @@ internal fun createProjectSrcDir(
         LanguageType.KOTLIN -> projectDir.resolve(SrcDirType.KOTLIN.first()).toFile().mkdirs()
     }
 
+internal fun getArtifactRepository(
+    project: Project,
+    name: String,
+): MavenArtifactRepository =
+    project.extensions
+        .getByType(PublishingExtension::class.java)
+        .repositories
+        .getByName(name) as MavenArtifactRepository
+
 internal fun getBom(
     extension: DependencyManagementExtension,
     name: String,
 ): PomReference? =
-    extension.accessField<DependencyManagementContainer>("dependencyManagementContainer")
-        .globalDependencyManagement.accessField<List<PomReference>>("importedBoms")
+    extension
+        .accessField<DependencyManagementContainer>("dependencyManagementContainer")
+        .globalDependencyManagement
+        .accessField<List<PomReference>>("importedBoms")
         .find {
             with(it.coordinates) {
                 "$groupId:$artifactId:$version" == name
@@ -101,14 +111,20 @@ internal fun getBuildGradleFile(languageType: LanguageType): String =
 internal fun getDependencies(
     project: Project,
     configuration: String,
-): List<Dependency> = project.configurations.getByName(configuration).dependencies.toList()
+): List<Dependency> =
+    project.configurations
+        .getByName(configuration)
+        .dependencies
+        .toList()
 
 internal fun getDependency(
     project: Project,
     configuration: String,
     name: String,
 ): Dependency? =
-    project.configurations.getByName(configuration).dependencies
+    project.configurations
+        .getByName(configuration)
+        .dependencies
         .firstOrNull { it == project.dependencies.create(name) }
 
 internal inline fun <reified T : Plugin<*>> getPlugin(project: Project): T = project.plugins.getPlugin(T::class.java)
@@ -119,19 +135,18 @@ internal fun getPlugin(
 ): Plugin<Any> = project.plugins.getPlugin(id)
 
 internal fun getPublication(
-    extension: PublishingExtension,
+    project: Project,
     name: String,
-): MavenPublication = extension.publications.getByName(name) as MavenPublication
+): MavenPublication =
+    project.extensions
+        .getByType(PublishingExtension::class.java)
+        .publications
+        .getByName(name) as MavenPublication
 
 internal fun getRepository(
     project: Project,
     name: String,
 ): ArtifactRepository = project.repositories.getByName(name)
-
-internal fun getRepository(
-    extension: PublishingExtension,
-    name: String,
-): MavenArtifactRepository = extension.repositories.getByName(name) as MavenArtifactRepository
 
 internal fun getSettingsGradleFile(languageType: LanguageType): String =
     when (languageType) {
@@ -151,7 +166,13 @@ internal inline fun <reified T : Task> getTaskByTypeAndName(
     name: String,
 ): T = project.tasks.withType(T::class.java).getByName(name)
 
-internal fun getTasksDependsOn(task: Task): List<String> = task.dependsOn.toTypedArray().first().toArray().map { it.toString() }.toList()
+internal fun getTasksDependsOn(task: Task): List<String> =
+    task.dependsOn
+        .toTypedArray()
+        .first()
+        .toArray()
+        .map { it.toString() }
+        .toList()
 
 internal fun hasTaskFinalizedByDependency(
     task: Task,

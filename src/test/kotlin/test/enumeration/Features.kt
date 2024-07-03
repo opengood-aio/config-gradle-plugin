@@ -3,7 +3,9 @@ package test.enumeration
 import io.opengood.gradle.model.FeatureConfiguration
 import org.gradle.api.Project
 
-internal enum class Features(val flag: Int) {
+internal enum class Features(
+    val flag: Int,
+) {
     NONE(0),
     ASSERTJ(0b000000000001),
     JACKSON(0b000000000010),
@@ -20,17 +22,21 @@ internal enum class Features(val flag: Int) {
 }
 
 internal val defaultFeatures =
+    Features.JACKSON.flag or
+        Features.SPRING.flag
+
+internal val javaFeatures =
     Features.ASSERTJ.flag or
-        Features.JACKSON.flag or
-        Features.JACKSON_KOTLIN.flag or
         Features.JUNIT_JUPITER.flag or
+        Features.LOMBOK.flag or
+        Features.MOCKITO.flag
+
+internal val kotlinFeatures =
+    Features.JACKSON_KOTLIN.flag or
         Features.KOTEST.flag or
         Features.KOTEST_SPRING.flag or
         Features.KOTLIN_COROUTINES.flag or
-        Features.LOMBOK.flag or
-        Features.MOCKITO.flag or
         Features.MOCKK.flag or
-        Features.SPRING.flag or
         Features.SPRING_MOCKK.flag
 
 internal fun getFeatures(
