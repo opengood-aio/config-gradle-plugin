@@ -19,7 +19,7 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotBeBlank
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.opengood.gradle.ConfigPlugin
-import io.opengood.gradle.constant.Archives
+import io.opengood.gradle.constant.ArchiveClassifiers
 import io.opengood.gradle.constant.Artifacts
 import io.opengood.gradle.constant.Boms
 import io.opengood.gradle.constant.CompilerOptions
@@ -148,6 +148,7 @@ fun createExtensionTest(
                 description.shouldBeEmpty()
                 uri shouldBe "${GitHub.OPENGOOD_ORG_URI}/${project.name}"
                 publications shouldBe listOf(PublicationType.GITHUB, PublicationType.MAVEN_CENTRAL_PORTAL)
+                autoRelease.shouldBeTrue()
                 with(repo) {
                     gitHubPackagesRepoUri shouldBe
                         "${Repositories.GITHUB_PACKAGES_REPO_BASE_URI}/${GitHub.OPENGOOD_ORG_NAME}/${project.name}"
@@ -960,12 +961,26 @@ fun configureJarTaskTest(
     isEnabled: Boolean,
 ) = funSpec {
     test("Configures Jar task") {
-        val task = getTaskByTypeAndName<Jar>(project, Jars.JAR)
+        val task = getTaskByTypeAndName<Jar>(project, Tasks.JAR)
 
         with(task) {
             shouldNotBeNull()
             enabled shouldBe isEnabled
-            archiveClassifier.get() shouldBe Archives.CLASSIFIER
+            archiveClassifier.get() shouldBe ArchiveClassifiers.JAR
+        }
+    }
+}
+
+fun configureMavenPlainJavadocJarTaskTest(
+    project: Project,
+    isEnabled: Boolean,
+) = funSpec {
+    test("Configures Maven Plain Javadoc Jar task") {
+        val task = getTaskByName(project, Tasks.MAVEN_PLAIN_JAVADOC_JAR)
+
+        with(task) {
+            shouldNotBeNull()
+            enabled shouldBe isEnabled
         }
     }
 }
@@ -975,7 +990,21 @@ fun configureBootJarTaskTest(
     isEnabled: Boolean,
 ) = funSpec {
     test("Configures Boot Jar task") {
-        val task = getTaskByTypeAndName<BootJar>(project, Jars.BOOT_JAR)
+        val task = getTaskByTypeAndName<BootJar>(project, Tasks.BOOT_JAR)
+
+        with(task) {
+            shouldNotBeNull()
+            enabled shouldBe isEnabled
+        }
+    }
+}
+
+fun configureListPluginsTaskTest(
+    project: Project,
+    isEnabled: Boolean,
+) = funSpec {
+    test("Configures List Plugins task") {
+        val task = getTaskByName(project, Tasks.LIST_PLUGINS)
 
         with(task) {
             shouldNotBeNull()

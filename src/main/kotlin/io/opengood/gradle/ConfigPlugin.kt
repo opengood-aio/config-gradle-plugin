@@ -6,7 +6,7 @@ import com.diogonunes.jcolor.Attribute.GREEN_TEXT
 import com.diogonunes.jcolor.Attribute.RED_TEXT
 import com.vanniktech.maven.publish.MavenPublishBaseExtension
 import com.vanniktech.maven.publish.SonatypeHost
-import io.opengood.gradle.constant.Archives
+import io.opengood.gradle.constant.ArchiveClassifiers
 import io.opengood.gradle.constant.Boms
 import io.opengood.gradle.constant.CompilerOptions
 import io.opengood.gradle.constant.Configurations
@@ -119,13 +119,13 @@ class ConfigPlugin : Plugin<Project> {
 
                     apply(Plugins.BASE)
                     apply(Plugins.IDEA)
-                    apply(Plugins.JACOCO)
-                    apply(Plugins.MAVEN_CENTRAL_PUBLISH)
-                    apply(Plugins.MAVEN_PUBLISH)
-                    apply(Plugins.RELEASE)
-                    apply(Plugins.SIGNING)
                     apply(Plugins.SPRING_BOOT)
                     apply(Plugins.SPRING_DEPENDENCY_MANAGEMENT)
+                    apply(Plugins.JACOCO)
+                    apply(Plugins.RELEASE)
+                    apply(Plugins.MAVEN_CENTRAL_PUBLISH)
+                    apply(Plugins.MAVEN_PUBLISH)
+                    apply(Plugins.SIGNING)
                 }
             }
         }
@@ -327,7 +327,9 @@ class ConfigPlugin : Plugin<Project> {
         configureTestTask(project)
         configureJacocoTestReportTask(project)
         configureJarTask(project)
+        configureMavenPlainJavadocJarTask(project)
         configureBootJarTask(project)
+        configureListPluginsTask(project)
     }
 
     private fun configureGradleWrapperTask(project: Project) {
@@ -341,11 +343,9 @@ class ConfigPlugin : Plugin<Project> {
     private fun configureKotlinCompileTask(project: Project) {
         project.tasks.withType(KotlinCompile::class.java) { task ->
             with(task) {
-                with(project.dependenciesVersions) {
-                    compilerOptions {
-                        freeCompilerArgs.set(CompilerOptions.FREE_COMPILER_ARGS)
-                        jvmTarget.set(Jvm.TARGET)
-                    }
+                compilerOptions {
+                    freeCompilerArgs.set(CompilerOptions.FREE_COMPILER_ARGS)
+                    jvmTarget.set(Jvm.TARGET)
                 }
             }
         }
@@ -477,11 +477,19 @@ class ConfigPlugin : Plugin<Project> {
 
     private fun configureJarTask(project: Project) {
         with(extension.main) {
-            project.tasks.withType(Jar::class.java).getByName(Jars.JAR) { task ->
+            project.tasks.withType(Jar::class.java).getByName(Tasks.JAR) { task ->
                 with(task) {
                     enabled = projectType == ProjectType.LIB
-                    archiveClassifier.set(Archives.CLASSIFIER)
+                    archiveClassifier.set(ArchiveClassifiers.JAR)
                 }
+            }
+        }
+    }
+
+    private fun configureMavenPlainJavadocJarTask(project: Project) {
+        project.tasks.getByName(Tasks.MAVEN_PLAIN_JAVADOC_JAR) { task ->
+            with(task) {
+                enabled = false
             }
         }
     }
@@ -491,11 +499,24 @@ class ConfigPlugin : Plugin<Project> {
             with(main) {
                 with(features) {
                     if (!spring || projectType == ProjectType.LIB) {
-                        project.tasks.withType(BootJar::class.java).getByName(Jars.BOOT_JAR) { task ->
+                        project.tasks.withType(BootJar::class.java).getByName(Tasks.BOOT_JAR) { task ->
                             with(task) {
                                 enabled = false
                             }
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun configureListPluginsTask(project: Project) {
+        project.tasks.register(Tasks.LIST_PLUGINS) { task ->
+            with(task) {
+                doLast {
+                    println("Applied plugins:")
+                    project.plugins.forEach { plugin ->
+                        println("- ${plugin.javaClass.simpleName} (${plugin.javaClass.name})")
                     }
                 }
             }
@@ -677,7 +698,7 @@ class ConfigPlugin : Plugin<Project> {
                                         )
                                     }
 
-                                    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+                                    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = autoRelease)
                                     signAllPublications()
                                 }
                             }

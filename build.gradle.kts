@@ -125,6 +125,7 @@ with(tasks) {
 
     withType<Test> {
         useJUnitPlatform()
+        setOnlyIf { !project.hasProperty("skipTests") }
         finalizedBy("jacocoTestReport")
         jvmArgs(
             "--add-opens",
