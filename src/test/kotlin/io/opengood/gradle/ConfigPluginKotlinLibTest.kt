@@ -36,7 +36,9 @@ import test.spec.configureJarTaskTest
 import test.spec.configureJavaCompileTaskTest
 import test.spec.configureJavaExtensionTest
 import test.spec.configureKotlinCompileTaskTest
+import test.spec.configureListPluginsTaskTest
 import test.spec.configureMavenCentralPublishingExtensionTest
+import test.spec.configureMavenPlainJavadocJarTaskTest
 import test.spec.configureMavenPublishingExtensionTest
 import test.spec.configureReleaseExtensionTest
 import test.spec.configureTestTaskTest
@@ -102,7 +104,9 @@ class ConfigPluginKotlinLibTest :
         include(configureTestTaskTest(project))
         include(configureJacocoTestReportTaskTest(project))
         include(configureJarTaskTest(project, isEnabled = true))
+        include(configureMavenPlainJavadocJarTaskTest(project, isEnabled = false))
         include(configureBootJarTaskTest(project, isEnabled = false))
+        include(configureListPluginsTaskTest(project, isEnabled = true))
         include(configureAfterReleaseBuildTaskTest(project))
 
         include(configureBasePluginExtensionTest(project))

@@ -68,7 +68,8 @@ fun buildScriptTest(languageType: LanguageType) =
                                 name = "test"
                                 packaging = PackagingType.JAR
                                 description = "description"
-                                uri = "https://artifact.uri"
+                                uri = "https://repo.uri/project"
+                                autoRelease = true
                                 publications = ${if (languageType == KOTLIN) "listOf(PublicationType.MAVEN_CENTRAL_PORTAL)" else "[PublicationType.MAVEN_CENTRAL_PORTAL]"}
                                 repo {
                                     gitHubPackagesRepoUri = "https://github.uri"

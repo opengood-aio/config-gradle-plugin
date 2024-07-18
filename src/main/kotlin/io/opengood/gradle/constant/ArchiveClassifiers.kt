@@ -1,7 +1,7 @@
 package io.opengood.gradle.constant
 
-class Archives {
+class ArchiveClassifiers {
     companion object {
-        const val CLASSIFIER = ""
+        const val JAR = ""
     }
 }

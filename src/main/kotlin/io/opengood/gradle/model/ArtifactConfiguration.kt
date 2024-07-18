@@ -20,6 +20,7 @@ class ArtifactConfiguration(
     var description by GradleProperty(project, String::class.java, Artifacts.DESCRIPTION)
     var uri by GradleProperty(project, String::class.java, String.format(GitHub.OPENGOOD_REPO_URI, project.name))
     var publications by GradleListProperty(project, PublicationType::class.java, listOf(PublicationType.MAVEN_CENTRAL_PORTAL))
+    var autoRelease by GradleProperty(project, Boolean::class.java, true)
     var repo = RepoConfiguration(project)
     var scm = ScmConfiguration(project)
     var license = LicenseConfiguration(project)

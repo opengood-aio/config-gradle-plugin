@@ -60,17 +60,18 @@ The plugin supports customized properties:
 
 #### Artifact
 
-| Property       | Description                                                           | Default                                           |
-|----------------|-----------------------------------------------------------------------|---------------------------------------------------|
-| `name`         | Name of artifact                                                      | `Gradle project.name`                             |
-| `packaging`    | Type of packaging. Supported (`JAR`)                                  | `JAR`                                             |
-| `description`  | Description of artifact                                               |                                                   |
-| `uri`          | URI of artifact project repository                                    | `GitHub Org URI + Gradle project.name`            |
-| `publications` | Publication of artifact. Supported (`GITHUB`, `MAVEN_CENTRAL_PORTAL`) | `MAVEN_CENTRAL_PORTAL`                            |
-| `repo`         | Artifact repository details                                           | see *[Artifact Repository](#artifact-repository)* |
-| `scm`          | SCM details                                                           | see *[SCM](#scm)*                                 |
-| `licenses`     | License details                                                       | see *[License](#license)*                         |
-| `developer`    | Developer details                                                     | see *[Developer](#developer)*                     |
+| Property       | Description                                                              | Default                                           |
+|----------------|--------------------------------------------------------------------------|---------------------------------------------------|
+| `name`         | Name of artifact                                                         | `Gradle project.name`                             |
+| `packaging`    | Type of packaging. Supported (`JAR`)                                     | `JAR`                                             |
+| `description`  | Description of artifact                                                  |                                                   |
+| `uri`          | URI of artifact project repository                                       | `GitHub Org URI + Gradle project.name`            |
+| `publications` | Publication(s) of artifact. Supported (`GITHUB`, `MAVEN_CENTRAL_PORTAL`) | `MAVEN_CENTRAL_PORTAL`                            |
+| `autoRelease`  | Value indicating if artifact should be automatically released            | `true`                                            |
+| `repo`         | Artifact repository details                                              | see *[Artifact Repository](#artifact-repository)* |
+| `scm`          | SCM details                                                              | see *[SCM](#scm)*                                 |
+| `licenses`     | License details                                                          | see *[License](#license)*                         |
+| `developer`    | Developer details                                                        | see *[Developer](#developer)*                     |
 
 #### Artifact Repository
 
@@ -78,14 +79,14 @@ The plugin supports customized properties:
 |--------------------------------------|-----------------------------------------------------------|------------------------------------------------------------------------|
 | `gitHubPackagesRepoUri`              | URI of GitHub packages artifact repository                | `https://maven.pkg.github.com/ + GitHub Org URI + Gradle project.name` |
 
-#### SCM
+#### Source Control Management (SCM)
 
-| Property        | Description                                | Default                                           |
-|-----------------|--------------------------------------------|---------------------------------------------------|
-| `provider`      | SCM provider. Supported (`GIT`)            | `GIT`                                             |
-| `connection`    | Connection URI to SCM repository           | `scm:git: + GitHub Org URI + Gradle project.name` |
-| `devConnection` | Developer connection URI to SCM repository | `scm:git: + GitHub Org URI + Gradle project.name` |
-| `uri`           | URI of SCM repository                      | `GitHub Org URI + Gradle project.name`            |
+| Property        | Description                                  | Default                                           |
+|-----------------|----------------------------------------------|---------------------------------------------------|
+| `provider`      | SCM provider. Supported (`GIT`)              | `GIT`                                             |
+| `connection`    | Connection URI to SCM repository             | `scm:git: + GitHub Org URI + Gradle project.name` |
+| `devConnection` | Development connection URI to SCM repository | `scm:git: + GitHub Org URI + Gradle project.name` |
+| `uri`           | URI of SCM project repository                | `GitHub Org URI + Gradle project.name`            |
 
 #### License
 
@@ -139,8 +140,9 @@ opengood {
         name = "test"
         packaging = PackagingType.JAR
         description = "description"
-        uri = "https://artifact.uri"
+        uri = "https://repo.uri/project"
         publications = listOf(PublicationType.GITHUB)
+        autoRelease = false
         repo {
             gitHubPackagesRepoUri = "https://github.packages.uri"
         }
