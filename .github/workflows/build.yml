@@ -14,7 +14,7 @@ on:
 
 jobs:
   build:
-    uses: opengood-aio/central-workflows/.github/workflows/gradle-plugin-build.yml@main
+    uses: opengood-aio/central-workflows/.github/workflows/gradle-plugin-build.yml@gradle-actions
     with:
       run-gradle-validation: true
     secrets:
