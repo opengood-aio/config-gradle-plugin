@@ -17,4 +17,3 @@ on:
 jobs:
   dependencies-submit:
     uses: opengood-aio/central-workflows/.github/workflows/gradle-dependencies-submit.yml@main
-    
