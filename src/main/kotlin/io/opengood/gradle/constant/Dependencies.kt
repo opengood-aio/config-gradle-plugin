@@ -2,6 +2,7 @@ package io.opengood.gradle.constant
 
 class Dependencies {
     companion object {
+        const val APACHE_COMMONS_COMPRESS = "org.apache.commons:commons-compress"
         const val ASSERTJ = "assertj.core"
         const val ASSERTJ_CORE = "org.assertj:assertj-core"
         const val GROOVY = "org.codehaus.groovy:groovy-all"

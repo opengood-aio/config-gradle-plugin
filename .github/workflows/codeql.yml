@@ -1,10 +1,12 @@
 name: CodeQL
 
 on:
-  push:
+  pull_request:
+    types:
+      - closed
+      - labeled
     branches:
-      - '**'
-      - '!main'
+      - main
     paths-ignore:
       - .github/workflows/*
       - .gitignore

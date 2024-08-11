@@ -555,6 +555,19 @@ fun addSpringDependenciesTest(project: Project) =
         }
     }
 
+fun addApacheCommonsCompressDependenciesTest(project: Project) =
+    funSpec {
+        test("Adds Apache Commons Compress dependencies") {
+            with(project.dependenciesVersions) {
+                getDependency(
+                    project,
+                    Configurations.IMPLEMENTATION,
+                    getDependencyAndVersion(Dependencies.APACHE_COMMONS_COMPRESS),
+                ).shouldNotBeNull()
+            }
+        }
+    }
+
 fun addSnakeYamlDependenciesTest(project: Project) =
     funSpec {
         test("Adds SnakeYAML dependencies") {
@@ -800,6 +813,19 @@ fun doNotAddSpringDependenciesTest(project: Project) =
                     project,
                     Configurations.TEST_IMPLEMENTATION,
                     getDependencyAndVersion(Dependencies.SPRING_BOOT_STARTER_TEST),
+                ).shouldBeNull()
+            }
+        }
+    }
+
+fun doNotAddApacheCommonsCompressDependenciesTest(project: Project) =
+    funSpec {
+        test("Does not add Apache Commons Compress dependencies") {
+            with(project.dependenciesVersions) {
+                getDependency(
+                    project,
+                    Configurations.IMPLEMENTATION,
+                    getDependencyAndVersion(Dependencies.APACHE_COMMONS_COMPRESS),
                 ).shouldBeNull()
             }
         }

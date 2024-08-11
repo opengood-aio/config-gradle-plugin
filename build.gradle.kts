@@ -90,6 +90,7 @@ dependencies {
 
     implementation("com.diogonunes:JColor:_")
     implementation("com.fasterxml.jackson.core:jackson-annotations:_")
+    implementation("org.apache.commons:commons-compress:_")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:_")
 
     testRuntimeOnly(
