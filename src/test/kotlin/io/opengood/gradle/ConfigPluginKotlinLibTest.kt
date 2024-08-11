@@ -7,6 +7,7 @@ import test.createProject
 import test.enumeration.defaultFeatures
 import test.enumeration.kotlinFeatures
 import test.model.ProjectConfig
+import test.spec.addApacheCommonsCompressDependenciesTest
 import test.spec.addJacksonDependenciesTest
 import test.spec.addJacksonKotlinDependenciesTest
 import test.spec.addKotestDependenciesTest
@@ -93,6 +94,7 @@ class ConfigPluginKotlinLibTest :
         include(addSpringMockkDependenciesTest(project))
         include(addJacksonDependenciesTest(project))
         include(addSpringDependenciesTest(project))
+        include(addApacheCommonsCompressDependenciesTest(project))
         include(addSnakeYamlDependenciesTest(project))
         include(doNotAddAssertjDependenciesTest(project))
         include(doNotAddJunitJupiterDependenciesTest(project))

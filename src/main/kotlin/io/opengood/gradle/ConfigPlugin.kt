@@ -206,6 +206,8 @@ class ConfigPlugin : Plugin<Project> {
                 with(dependencies) {
                     with(dependenciesVersions) {
                         with(extension) {
+                            implementation.dependencies.add(create(getDependencyAndVersion(Dependencies.APACHE_COMMONS_COMPRESS)))
+
                             with(features) {
                                 when (languageType) {
                                     LanguageType.GROOVY -> {
