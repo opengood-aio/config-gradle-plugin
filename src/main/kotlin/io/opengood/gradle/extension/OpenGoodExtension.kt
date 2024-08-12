@@ -12,7 +12,9 @@ import org.gradle.api.Action
 import org.gradle.api.Project
 
 @AllOpen
-class OpenGoodExtension(private val project: Project) {
+class OpenGoodExtension(
+    private val project: Project,
+) {
     var main = MainConfiguration(project)
     var features = FeatureConfiguration(project)
     var test = TestConfiguration(project)
