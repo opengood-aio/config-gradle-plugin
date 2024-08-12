@@ -19,4 +19,3 @@ jobs:
       run-gradle-validation: true
     secrets:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
-      fossa-api-key: ${{ secrets.FOSSA_API_KEY }}

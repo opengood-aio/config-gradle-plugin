@@ -6,7 +6,9 @@ import io.opengood.gradle.property.GradleProperty
 import org.gradle.api.Project
 
 @AllOpen
-class DeveloperConfiguration(project: Project) {
+class DeveloperConfiguration(
+    project: Project,
+) {
     var id by GradleProperty(project, String::class.java, Developers.ID)
     var name by GradleProperty(project, String::class.java, Developers.NAME)
     var email by GradleProperty(project, String::class.java, Developers.EMAIL)

@@ -6,7 +6,9 @@ import io.opengood.gradle.property.GradleProperty
 import org.gradle.api.Project
 
 @AllOpen
-class ReleaseConfiguration(project: Project) {
+class ReleaseConfiguration(
+    project: Project,
+) {
     var afterReleaseBuildTasks by GradleProperty(project, Array<Any>::class.java, emptyArray())
     var requireBranch by GradleProperty(project, String::class.java, Releases.REQUIRE_BRANCH)
     var pushToRemote by GradleProperty(project, String::class.java, Releases.PUSH_TO_REMOTE)
