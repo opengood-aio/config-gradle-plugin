@@ -206,6 +206,7 @@ class ConfigPlugin : Plugin<Project> {
                 with(dependencies) {
                     with(dependenciesVersions) {
                         with(extension) {
+                            implementation.dependencies.add(create(getDependencyAndVersion(Dependencies.APACHE_ARTEMIS)))
                             implementation.dependencies.add(create(getDependencyAndVersion(Dependencies.APACHE_COMMONS_COMPRESS)))
 
                             with(features) {
