@@ -7,6 +7,7 @@ import test.createProject
 import test.enumeration.defaultFeatures
 import test.enumeration.javaFeatures
 import test.model.ProjectConfig
+import test.spec.addApacheArtemisDependenciesTest
 import test.spec.addApacheCommonsCompressDependenciesTest
 import test.spec.addAssertjDependenciesTest
 import test.spec.addGroovyDependenciesTest
@@ -93,6 +94,7 @@ class ConfigPluginGroovyLibTest :
         include(doNotAddSpringMockkDependenciesTest(project))
         include(addJacksonDependenciesTest(project))
         include(addSpringDependenciesTest(project))
+        include(addApacheArtemisDependenciesTest(project))
         include(addApacheCommonsCompressDependenciesTest(project))
         include(addSnakeYamlDependenciesTest(project))
         include(addAssertjDependenciesTest(project))
