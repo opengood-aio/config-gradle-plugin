@@ -555,19 +555,6 @@ fun addSpringDependenciesTest(project: Project) =
         }
     }
 
-fun addApacheArtemisDependenciesTest(project: Project) =
-    funSpec {
-        test("Adds Apache Artemis dependencies") {
-            with(project.dependenciesVersions) {
-                getDependency(
-                    project,
-                    Configurations.IMPLEMENTATION,
-                    getDependencyAndVersion(Dependencies.APACHE_ARTEMIS),
-                ).shouldNotBeNull()
-            }
-        }
-    }
-
 fun addApacheCommonsCompressDependenciesTest(project: Project) =
     funSpec {
         test("Adds Apache Commons Compress dependencies") {
